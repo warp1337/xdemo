@@ -1,0 +1,12 @@
+-  xdemocomponent:
+    name: "lsla"
+    platform: "linux"
+    command: "/bin/ls"
+    execution_host: "localhost"
+    checktypes:
+      type: "pid"
+        maxwaittime: 1
+        retrycount: 1
+    blocking: true
+    errorpolicy: "strict"
+    description: "In computing, ls is a command to list files in Unix and Unix-like operating systems."

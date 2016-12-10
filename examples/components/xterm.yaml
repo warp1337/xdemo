@@ -1,0 +1,12 @@
+-  xdemocomponent:
+    name: "xterm"
+    platform: "linux"
+    command: "/usr/bin/xterm"
+    executionhost: "localhost"
+    checktypes:
+      type: "pid"
+        maxwaittime: 1
+        retrycount: 1
+    blocking: true
+    errorpolicy: "strict"
+    description: "In computing, xterm is the standard terminal emulator for the X Window System."

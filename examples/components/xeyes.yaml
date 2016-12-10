@@ -1,0 +1,19 @@
+-  xdemocomponent:
+    name: "xeyes"
+    platform: "linux"
+    command: "/usr/bin/xeyes"
+    execution_host: "localhost"
+    checktypes:
+      type: "pid"
+        maxwaittime: 1
+        retrycount: 1
+      type: "stdout"
+        maxwaittime: 2
+        criteria: "This must be found in the STDOUT"
+        retrycount: 2
+      type: "custom"
+        maxwaittime: 2
+          command: "/bin/ls"
+    blocking: true
+    errorpolicy: "strict"
+    description: "Xeyes watches what you do and reports to the Boss."
