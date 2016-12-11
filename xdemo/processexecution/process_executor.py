@@ -31,41 +31,51 @@ Authors: Florian Lier
 """
 
 #STD
+import os
+import uuid
 import StringIO
 import threading
 
 # Fabric
-from fabric.api import run, local, settings
+from fabric.api import run, settings, env
 from fabric.network import disconnect_all
 
 
-class GenericProcessExecutor:
+class ProcessExecutor:
 
     def __init__(self, _host, _platform):
+        self.environment = {}
+        self.uuid = str(uuid.uuid4())
+        self.outputpipe = StringIO.StringIO()
         self.host = str(_host).strip().lower()
         self.platform = str(_platform).strip().lower()
-        self.outputpipe = StringIO.StringIO()
+
+    def stage_execution_environment(self):
+        env.shell_env["xdemoid"] = self.uuid
+        env.shell_env["DISPLAY"] = ":0.0"
 
     def task(self, _cmd):
+        self.stage_execution_environment()
         with settings(host_string=self.host, forward_agent=True):
             run(_cmd, shell=True, stdout=self.outputpipe, stderr=self.outputpipe)
 
-    def get_output(self):
-        print self.outputpipe.getvalue()
+    def get_task_output(self):
+        return self.outputpipe
+
+    def get_task_uuid(self):
+        return self.uuid
 
 
 if __name__ == '__main__':
 
-    gpe = GenericProcessExecutor("localhost", "linux")
+    gpe = ProcessExecutor("localhost", "linux")
     if gpe.platform == 'linux':
-        t = threading.Thread(target=gpe.task, args=("export DISPLAY=:0; ls -la",))
-        o = threading.Thread(target=gpe.get_output)
+        # t = threading.Thread(target=gpe.task, args=("export DISPLAY=:0; ls -la & echo $!",))
+        t = threading.Thread(target=gpe.task, args=("gedit",))
         t.start()
-        o.start()
         t.join()
-        o.join()
-    else:
-        gpe.task("gedit")
+        task_output = gpe.get_task_output()
+        task_output.getvalue()
 
     disconnect_all()
 

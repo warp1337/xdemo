@@ -3,17 +3,19 @@
     platform: "linux"
     command: "/usr/bin/xeyes"
     execution_host: "localhost"
+    autostart: true
+    blockexecution: true
     checktypes:
-      type: "pid"
+      pid:
         maxwaittime: 1
         retrycount: 1
-      type: "stdout"
+      stdout:
         maxwaittime: 2
         criteria: "This must be found in the STDOUT"
         retrycount: 2
-      type: "custom"
+      custom:
         maxwaittime: 2
-          command: "/bin/ls"
-    blocking: true
+        command: "/bin/ls"
+        retrycount: 2
     errorpolicy: "strict"
     description: "Xeyes watches what you do and reports to the Boss."

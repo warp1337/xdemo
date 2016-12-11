@@ -81,7 +81,7 @@ setup(name="xdemo",
                    'Programming Language :: Python',
                    'Topic :: Text Processing :: Markup :: XML'],
 
-      install_requires=['psutil', 'fabric'],
+      install_requires=['fabric==1.13.1'],
 
       # Workaround for: http://bugs.python.org/issue856103
       zip_safe=False
@@ -89,5 +89,5 @@ setup(name="xdemo",
       )
 
 # Make bin/scripts executable
-if os.name == "Linux":
+if os.name.lower() == "linux":
     subprocess.call(["chmod -R ugo+x bin"], shell=True)

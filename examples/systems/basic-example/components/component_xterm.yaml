@@ -3,10 +3,19 @@
     platform: "linux"
     command: "/usr/bin/xterm"
     executionhost: "localhost"
+    autostart: true
+    blockexecution: true
     checktypes:
-      type: "pid"
+      pid:
         maxwaittime: 1
         retrycount: 1
-    blocking: true
+      stdout:
+        maxwaittime: 2
+        criteria: "This must be found in the STDOUT"
+        retrycount: 2
+      custom:
+        maxwaittime: 2
+        command: "/bin/ls"
+        retrycount: 2
     errorpolicy: "strict"
     description: "In computing, xterm is the standard terminal emulator for the X Window System."

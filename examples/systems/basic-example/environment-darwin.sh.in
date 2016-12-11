@@ -1,0 +1,22 @@
+##############################################################################
+# OBLIGATORY XDEMO SETUP VARIABLES (Derived from Makefile or Environment)
+##############################################################################
+
+# Prefix of the System. This is where your system is installed.
+# You may use this to expand your environment variables below.
+export XDEMOPREFIX=@xdemoprefix@
+
+# In case you installed your system in any other location:
+# Before starting xdemo export or set the prefix in your
+# current shell: export my_prefix=/some/path
+# Subsequently you can make use of the $my_prefix variable below.
+
+##############################################################################
+# SYSTEM SPECIFIC ENVIRONMENT
+##############################################################################
+
+# PATH=$PATH:${XDEMOPREFIX}/bin
+# PYTHONPATH=$PYTHONPATH:${XDEMOPREFIX}/lib/python2.7/site-packages/
+
+# PATH=$PATH:${my_prefix}/bin
+# PYTHONPATH=$PYTHONPATH:${my_prefix}/lib/python2.7/site-packages/

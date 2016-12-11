@@ -1,0 +1,23 @@
+@ECHO OFF
+
+:: %HOMEDRIVE% = C:
+:: %HOMEPATH% = \Users\fl
+:: %system32% ??
+:: No spaces in paths
+:: Program Files > ProgramFiles
+:: cls = clear screen
+:: CMD reads the system environment variables when it starts. To re-read those variables you need to restart CMD
+:: Use console 2 http://sourceforge.net/projects/console/
+
+:: Assign all Path variables
+SET SYSTEM32=";%HOMEDRIVE%\Windows\System32"
+SET ANT=";%HOMEDRIVE%%HOMEPATH%\Downloads\apache-ant-1.9.0-bin\apache-ant-1.9.0\bin"
+SET GIT=";%HOMEDRIVE%\Program Files\Git\cmd"
+
+:: Set Path variable
+setx PATH "%ANT%%GIT%%" /m
+
+:: Set Java variable
+setx JAVA_HOME "%HOMEDRIVE%\ProgramFiles\Java\jdk1.7.0_21" /m
+
+PAUSE

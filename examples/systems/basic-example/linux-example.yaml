@@ -1,0 +1,12 @@
+-  xdemosystem:
+    runtimeenvironment:
+      linux: "environment-linux.sh"
+      macos: "environment-darwin.sh"
+      windows: "environment-win.bat"
+    executionorder:
+      - "component_xeyes"
+      - "group_tools"
+      - "group_visualization"
+      - "component_lsla"
+    executionduration:
+      runtime: 10
