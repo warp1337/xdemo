@@ -43,7 +43,6 @@ class SystemConfig:
         self.components = {}
         self.base_path = None
         self.cfg_instance = None
-
         self.cfg_file = str(_configfile).strip()
 
         self.get_system_base_path()
