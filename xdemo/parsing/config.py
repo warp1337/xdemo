@@ -78,8 +78,9 @@ class SystemConfig:
         if os.path.isfile(current_config):
             with open(current_config, 'r') as component_config:
                 try:
-                    self.components["_config"] = yaml.load(component_config)
-                    print self.components["_config"]
+                    self.components[_config] = yaml.load(component_config)
+                    print self.components[_config]
+                    print "\n"
                 except yaml.YAMLError as e:
                     self.log.error(e)
                     sys.exit(1)
@@ -87,8 +88,20 @@ class SystemConfig:
             self.log.error("config file does not exist %s", current_config)
             sys.exit(1)
 
-    def load_system_group_config(self, _config):
-        pass
+    def load_system_group_config(self, _group):
+        current_config = self.base_path + ("/groups/") + _group + ".yaml"
+        if os.path.isfile(current_config):
+            with open(current_config, 'r') as group_config:
+                try:
+                    self.groups[_group] = yaml.load(group_config)
+                    print self.groups[_group]
+                    print "\n"
+                except yaml.YAMLError as e:
+                    self.log.error(e)
+                    sys.exit(1)
+        else:
+            self.log.error("config file does not exist %s", current_config)
+            sys.exit(1)
 
     def load_system_entities(self):
         if 'xdemosystem' in self.cfg_instance[0].keys():
