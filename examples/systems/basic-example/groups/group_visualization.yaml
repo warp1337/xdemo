@@ -1,4 +1,5 @@
 -  xdemogroup:
+    name: "visualization"
     autostart: true
     blockexecution: true
     errorpolicy: "strict"

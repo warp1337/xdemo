@@ -1,4 +1,5 @@
 -  xdemosystem:
+    name: "linux-example-finishtrigger"
     runtimeenvironment:
       linux: "environment-linux.sh"
       macos: "environment-darwin.sh"
@@ -8,7 +9,5 @@
       - "group_tools"
       - "group_visualization"
       - "component_lsla"
-    executionduration:
-      runtime: 60
-    finishtrigger:
-      - "component_lsla"
+    executionduration: 60
+    finishtrigger: "component_lsla"

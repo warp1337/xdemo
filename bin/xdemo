@@ -32,7 +32,8 @@ Authors: Florian Lier
 
 """
 import logging
-from xdemo.parsing.config import SystemConfig
+from xdemo.parsing.yamlconfig import SystemConfig
+from xdemo.container.system import System
 
 if __name__ == "__main__":
 
@@ -40,12 +41,11 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", "%H:%M:%S")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
     config = "/home/fl/dev/xdemo/examples/systems/basic-example/linux-example.yaml"
-    s = SystemConfig(config, logger)
-    # s.print_system_cfg_file()
-    s.load_system_entities()
+    c = SystemConfig(config, logger)
 
+    s = System(c.flat_execution_list, logger)

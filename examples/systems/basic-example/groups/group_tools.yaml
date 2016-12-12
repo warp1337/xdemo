@@ -1,7 +1,13 @@
 -  xdemogroup:
+    name: "tools"
     autostart: true
     blockexecution: true
     errorpolicy: "strict"
     description: "This group starts some great tools"
     components:
       - "component_lsla"
+      - "component_xterm"
+      - "component_xeyes"
+      - "component_lsla"
+      - "component_xterm"
+      - "component_xeyes"

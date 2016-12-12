@@ -1,4 +1,5 @@
 -  xdemosystem:
+    name: "linux-example"
     runtimeenvironment:
       linux: "environment-linux.sh"
       macos: "environment-darwin.sh"
@@ -8,5 +9,4 @@
       - "group_tools"
       - "group_visualization"
       - "component_lsla"
-    executionduration:
-      runtime: 10
+    executionduration: 10

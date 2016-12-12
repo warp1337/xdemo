@@ -2,10 +2,10 @@
     name: "xeyes"
     platform: "linux"
     command: "/usr/bin/xeyes"
-    execution_host: "localhost"
+    executionhost: "localhost"
     autostart: true
     blockexecution: true
-    checktypes:
+    observer:
       pid:
         maxwaittime: 1
         retrycount: 1
