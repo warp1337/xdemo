@@ -81,7 +81,7 @@ class ProcessExecutor(Thread):
         def work_thread(_cmd):
             self.stage_execution_environment()
             with settings(host_string=self.target.executionhost, forward_agent=True, connection_attempts=5):
-                run(cmd, shell=True, stdout=self.outputpipe, stderr=self.outputpipe)
+                run(cmd, shell=True, stdout=self.outputpipe, stderr=self.outputpipe, quiet=True)
 
         @task
         def deploy():
