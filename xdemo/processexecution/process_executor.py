@@ -100,6 +100,8 @@ class ProcessExecutor(Thread):
 
     def stop_execution(self):
         self.keeprunning = False
+
+    def disconnect(self):
         disconnect_all()
 
     def run(self):
@@ -107,4 +109,3 @@ class ProcessExecutor(Thread):
             cmd = self.commandprefix + str(self.target.command)
             while self.keeprunning:
                 self.do(cmd)
-                print "recall %s" % cmd

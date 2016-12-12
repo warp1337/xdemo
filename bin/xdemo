@@ -31,6 +31,7 @@ Authors: Florian Lier
 <flier>@techfak.uni-bielefeld.de
 
 """
+import time
 import logging
 
 from xdemo.container.system import SystemInstance
@@ -53,3 +54,9 @@ if __name__ == "__main__":
     si = SystemInstance(sc, logger)
     sl = SystemLauncher(si, logger)
 
+    now = time.time()
+    while time.time() - now < 5:
+        time.sleep(0.1)
+
+    sl.stop()
+    sl.disconnect()

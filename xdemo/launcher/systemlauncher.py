@@ -30,6 +30,7 @@ Authors: Florian Lier
 
 """
 
+import time
 from xdemo.processexecution.process_executor import ProcessExecutor
 
 
@@ -55,3 +56,13 @@ class SystemLauncher:
         for executor in self.executor_list:
             if executor.type == "componentlauncher":
                 executor.start()
+
+    def stop(self):
+        for executor in self.executor_list:
+            if executor.type == "componentlauncher":
+                executor.stop_execution()
+
+    def disconnect(self):
+        for executor in self.executor_list:
+            if executor.type == "componentlauncher":
+                executor.disconnect()
