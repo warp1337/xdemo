@@ -30,7 +30,6 @@ Authors: Florian Lier
 
 """
 
-import time
 from xdemo.processexecution.process_executor import ProcessExecutor
 
 
@@ -42,26 +41,17 @@ class SystemLauncher:
         self.executor_list = []
 
         self.collect_components_and_groups()
-        self.iterate()
+        self.deploy()
 
     def collect_components_and_groups(self):
         for item in self.system_instance.flat_executionlist:
             self.log.debug("execution iterator")
             self.log.debug(item)
             self.log.debug("-----------------")
-            pe = ProcessExecutor(item, self.system_instance)
+            pe = ProcessExecutor(item, self.system_instance, self.log)
             self.executor_list.append(pe)
 
-    def iterate(self):
-        for exe in self.executor_list:
-            if exe.type == "componentlauncher":
-                exe.start()
-
-        now = time.time()
-        while time.time() - now <= 5:
-            time.sleep(1)
-        for exe in self.executor_list:
-            if exe.type == "componentlauncher":
-                exe.stop_execution()
-
-        print "Exit"
+    def deploy(self):
+        for executor in self.executor_list:
+            if executor.type == "componentlauncher":
+                executor.start()

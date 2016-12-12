@@ -38,15 +38,16 @@ import StringIO
 from threading import Thread
 
 # Fabric
-from fabric.api import run, settings, env
+from fabric.api import *
 from fabric.network import disconnect_all
 
 
 class ProcessExecutor(Thread):
 
-    def __init__(self, _component_or_group, _system_instance):
+    def __init__(self, _component_or_group, _system_instance, _log):
 
         Thread.__init__(self)
+        self.log = _log
         self.type = None
         self.keeprunning = True
         self.commandprefix = ""
@@ -74,10 +75,22 @@ class ProcessExecutor(Thread):
                 # How does windows load an environment, I dont know...
                 pass
 
-    def task(self, _cmd):
-        self.stage_execution_environment()
-        with settings(host_string=self.target.executionhost, forward_agent=True):
-            run(_cmd, shell=True, stdout=self.outputpipe, stderr=self.outputpipe)
+    def do(self, cmd):
+
+        @parallel
+        def work_thread(_cmd):
+            self.stage_execution_environment()
+            with settings(host_string=self.target.executionhost, forward_agent=True, connection_attempts=5):
+                run(cmd, shell=True, stdout=self.outputpipe, stderr=self.outputpipe)
+
+        @task
+        def deploy():
+            env.shell_env["xdemoid"] = "1234"
+            env.shell_env["DISPLAY"] = ":0.0"
+            host_list = [str(self.target.executionhost)]
+            execute(work_thread, cmd,  hosts=host_list)
+
+        deploy()
 
     def get_task_output(self):
         return self.outputpipe
@@ -93,6 +106,5 @@ class ProcessExecutor(Thread):
         if self.type == "componentlauncher":
             cmd = self.commandprefix + str(self.target.command)
             while self.keeprunning:
-                self.task(cmd)
-
-
+                self.do(cmd)
+                print "recall %s" % cmd
