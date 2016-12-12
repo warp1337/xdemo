@@ -33,20 +33,22 @@ Authors: Florian Lier
 import sys
 
 
-class System:
+class SystemInstance:
 
-    def __init__(self, _raw_flat_execution_list, _log):
+    def __init__(self, _systemconfig, _log):
         self.log = _log
-        self.name = None
         self.groups = []
         self.components = []
         self.flat_executionlist = []
-        self.runtimeenvironment = None
-        self.executionduration = None
-        self.raw_execution_list = _raw_flat_execution_list
+        self.base_path = _systemconfig.base_path
+        self.name = str(_systemconfig.name)
+        self.finishtrigger = _systemconfig.finishtrigger
+        self.executionduration = _systemconfig.executionduration
+        self.runtimeenvironment = _systemconfig.runtimeenvironment
+        self.raw_execution_list = _systemconfig.flat_execution_list
 
         self.initialize()
-        self.log.debug("instance flat executuion list")
+        self.log.debug("instance flat execution list")
         self.log.debug(self.flat_executionlist)
         self.log.debug("-----------------")
 
@@ -80,6 +82,7 @@ class Component:
         self.level = None
         self.command = None
         self.observer = []
+        self.platform = None
         self.autostart = None
         self.retrycount = None
         self.errorpolicy = None
@@ -96,13 +99,14 @@ class Component:
             self.name = _component_data[0]['xdemocomponent']['name']
             self.command = _component_data[0]['xdemocomponent']['command']
             self.observer = []
+            self.platform = _component_data[0]['xdemocomponent']['platform']
             self.autostart = _component_data[0]['xdemocomponent']['autostart']
             self.errorpolicy = _component_data[0]['xdemocomponent']['errorpolicy']
             self.description = _component_data[0]['xdemocomponent']['description']
             self.executionhost = _component_data[0]['xdemocomponent']['executionhost']
             self.blockexecution = _component_data[0]['xdemocomponent']['blockexecution']
         except Exception, e:
-            self.log.error("key error in create component %s " % e)
+            self.log.error("key error in component %s " % e)
             sys.exit(1)
 
 
@@ -131,7 +135,7 @@ class Group:
                 c.initialize(item)
                 self.flat_execution_list.append(c)
         except Exception, e:
-            self.log.error("key error in create group %s " % e)
+            self.log.error("key error in group %s " % e)
             sys.exit(1)
 
 

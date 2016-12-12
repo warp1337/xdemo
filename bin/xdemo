@@ -32,8 +32,11 @@ Authors: Florian Lier
 
 """
 import logging
+
+from xdemo.container.system import SystemInstance
 from xdemo.parsing.yamlconfig import SystemConfig
-from xdemo.container.system import System
+from xdemo.launcher.systemlauncher import SystemLauncher
+
 
 if __name__ == "__main__":
 
@@ -45,7 +48,8 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    config = "/home/fl/dev/xdemo/examples/systems/basic-example/linux-example.yaml"
-    c = SystemConfig(config, logger)
+    config = "/tmp/etc/xdemo/systems/basic-example/linux-example.yaml"
+    sc = SystemConfig(config, logger)
+    si = SystemInstance(sc, logger)
+    sl = SystemLauncher(si, logger)
 
-    s = System(c.flat_execution_list, logger)

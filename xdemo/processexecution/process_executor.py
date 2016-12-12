@@ -33,30 +33,50 @@ Authors: Florian Lier
 #STD
 import os
 import uuid
+import time
 import StringIO
-import threading
+from threading import Thread
 
 # Fabric
 from fabric.api import run, settings, env
 from fabric.network import disconnect_all
 
 
-class ProcessExecutor:
+class ProcessExecutor(Thread):
 
-    def __init__(self, _host, _platform):
-        self.environment = {}
+    def __init__(self, _component_or_group, _system_instance):
+
+        Thread.__init__(self)
+        self.type = None
+        self.keeprunning = True
+        self.commandprefix = ""
         self.uuid = str(uuid.uuid4())
         self.outputpipe = StringIO.StringIO()
-        self.host = str(_host).strip().lower()
-        self.platform = str(_platform).strip().lower()
+        self.system_instance = _system_instance
+        self.base_path = _system_instance.base_path
+
+        if 'group' in _component_or_group:
+            self.type = "grouplauncher"
+            self.target = _component_or_group['group']
+        else:
+            self.type = "componentlauncher"
+            self.target = _component_or_group['component']
 
     def stage_execution_environment(self):
-        env.shell_env["xdemoid"] = self.uuid
-        env.shell_env["DISPLAY"] = ":0.0"
+        if self.type == "componentlauncher":
+            env.shell_env["xdemoid"] = self.uuid
+            env.shell_env["DISPLAY"] = ":0.0"
+            if self.target.platform == 'linux':
+                self.commandprefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment['linux'] + " && "
+            if self.target.platform == 'darwin':
+                self.commandprefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment['darwin'] + " && "
+            if self.target.platform == 'windows':
+                # How does windows load an environment, I dont know...
+                pass
 
     def task(self, _cmd):
         self.stage_execution_environment()
-        with settings(host_string=self.host, forward_agent=True):
+        with settings(host_string=self.target.executionhost, forward_agent=True):
             run(_cmd, shell=True, stdout=self.outputpipe, stderr=self.outputpipe)
 
     def get_task_output(self):
@@ -65,18 +85,14 @@ class ProcessExecutor:
     def get_task_uuid(self):
         return self.uuid
 
+    def stop_execution(self):
+        self.keeprunning = False
+        disconnect_all()
 
-if __name__ == '__main__':
-
-    gpe = ProcessExecutor("localhost", "linux")
-    if gpe.platform == 'linux':
-        # t = threading.Thread(target=gpe.task, args=("export DISPLAY=:0; ls -la & echo $!",))
-        t = threading.Thread(target=gpe.task, args=("gedit",))
-        t.start()
-        t.join()
-        task_output = gpe.get_task_output()
-        task_output.getvalue()
-
-    disconnect_all()
+    def run(self):
+        if self.type == "componentlauncher":
+            cmd = self.commandprefix + str(self.target.command)
+            while self.keeprunning:
+                self.task(cmd)
 
 

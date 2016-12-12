@@ -2,11 +2,13 @@
     name: "linux-example"
     runtimeenvironment:
       linux: "environment-linux.sh"
-      macos: "environment-darwin.sh"
+      darwin: "environment-darwin.sh"
       windows: "environment-win.bat"
     executionorder:
       - "component_xeyes"
       - "group_tools"
       - "group_visualization"
-      - "component_lsla"
+      - "component_xeyes"
+      - "component_xeyes"
+      - "component_xeyes"
     executionduration: 10
