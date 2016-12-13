@@ -174,7 +174,7 @@ class Task(object):
         pool_size = min((pool_size, len(hosts)))
         # Inform user of final pool size for this task
         if state.output.debug:
-            print("Parallel tasks now using pool size of %d" % pool_size)
+            print("parallel tasks now using pool size of %d" % pool_size)
         return pool_size
 
 
@@ -252,7 +252,7 @@ def _execute(task, host, my_env, args, kwargs, jobs, queue, multiprocessing, log
     """
     # Log to stdout
     if state.output.running and not hasattr(task, 'return_value'):
-        log.info("[%s] Executing task '%s'" % (host, my_env['command']))
+        log.info("[%s] executing task '%s'" % (host, my_env['command']))
     # Create per-run env with connection settings
     local_env = to_dict(host)
     local_env.update(my_env)
@@ -287,7 +287,7 @@ def _execute(task, host, my_env, args, kwargs, jobs, queue, multiprocessing, log
                 if e.__class__ is not SystemExit:
                     if not (isinstance(e, NetworkError) and
                             _is_network_error_ignored()):
-                        log.error("!!! Parallel execution exception under host %r:\n" % name)
+                        log.error("!!! parallel execution exception under host %r:\n" % name)
                     submit(e)
                 # Here, anything -- unexpected exceptions, or abort()
                 # driven SystemExits -- will bubble up and terminate the

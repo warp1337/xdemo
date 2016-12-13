@@ -54,9 +54,4 @@ if __name__ == "__main__":
     si = SystemInstance(sc, logger)
     sl = SystemLauncher(si, logger)
 
-    now = time.time()
-    while time.time() - now < 5:
-        time.sleep(0.1)
-
-    sl.stop_tasks()
-    sl.disconnect_tasks()
+    # sl.stop_all_tasks()

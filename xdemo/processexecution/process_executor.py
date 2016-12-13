@@ -63,14 +63,14 @@ class ProcessExecutor(Thread):
         self.job_queue = JobQueue(self.pool_size, self.queue)
 
         if 'group' in _component_or_group:
-            self.type = "grouplauncher"
+            self.type = "group"
             self.target = _component_or_group['group']
         else:
-            self.type = "componentlauncher"
+            self.type = "component"
             self.target = _component_or_group['component']
 
     def stage_execution_environment(self, _cmd):
-        if self.type == "componentlauncher":
+        if self.type == "component":
             env.shell_env["xdemoid"] = self.uuid
             env.shell_env["DISPLAY"] = ":0.0"
             if self.target.platform == 'linux':
@@ -120,6 +120,56 @@ class ProcessExecutor(Thread):
         disconnect_all()
 
     def run(self):
-        if self.type == "componentlauncher":
+        if self.type == "component":
             cmd = self.command_prefix + self.target.command
             self.do(cmd)
+
+
+class SimpleProcessExecutor(Thread):
+
+    def __init__(self, _cmd, _host, _log):
+
+        Thread.__init__(self)
+        self.log = _log
+        self.cmd = _cmd
+        self.host = _host
+        self.pool_size = 1
+        self.uuid = str(uuid.uuid4())
+        self.queue = multiprocessing.Queue()
+        self.output_pipe = StringIO.StringIO()
+        self.job_queue = JobQueue(self.pool_size, self.queue)
+
+    def do(self):
+
+        @parallel
+        def task_thread(_something):
+            with settings(host_string=self.host, forward_agent=True, connection_attempts=5):
+                return_values = run(self.cmd, shell=True, stdout=self.output_pipe, stderr=self.output_pipe, quiet=True)
+                self.log.info("task returned")
+                self.log.info(self.cmd)
+                self.log.info("return code %s, failed: %s, succeeded: %s" % (return_values.return_code,
+                                                                             return_values.failed,
+                                                                             return_values.succeeded))
+                self.log.info("-----------------")
+
+        @task
+        def deploy():
+            env.shell_env["xdemoid"] = self.uuid
+            env.shell_env["DISPLAY"] = ":0.0"
+            host_list = [self.host]
+            execute_fab_patch(task_thread, self.queue, self.job_queue, self.log, self.cmd,  hosts=host_list)
+
+        deploy()
+
+    def get_task_output(self):
+        return self.output_pipe
+
+    def get_task_uuid(self):
+        return self.uuid
+
+    @staticmethod
+    def disconnect_task():
+        disconnect_all()
+
+    def run(self):
+        self.do()

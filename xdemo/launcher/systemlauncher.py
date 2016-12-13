@@ -33,7 +33,7 @@ Authors: Florian Lier
 import time
 
 # SELF
-from xdemo.processexecution.process_executor import ProcessExecutor
+from xdemo.processexecution.process_executor import ProcessExecutor, SimpleProcessExecutor
 
 
 class SystemLauncher:
@@ -42,6 +42,7 @@ class SystemLauncher:
         self.log = _log
         self.system_instance = _system_instance
         self.executor_list = []
+        self.kill_pid_list = []
 
         self.collect_components_and_groups()
         self.deploy_tasks()
@@ -57,30 +58,60 @@ class SystemLauncher:
 
     def deploy_tasks(self):
         for executor in self.executor_list:
-            if executor.type == "componentlauncher":
-                executor.start()
-                # Save some computation time
-                time.sleep(0.1)
+            if executor.type == "component":
+                now = time.time()
+                host = executor.target.executionhost
+                cmd = executor.target.command
+                # Make this a command line option
+                timeout = 30
+                pid = None
+                if executor.target.blockexecution is True:
+                    executor.start()
+                    while time.time() - now <= timeout:
+                        if len(executor.job_queue._running) < 1:
+                            pass
+                        else:
+                            pid = executor.job_queue._running[0].pid
+                            self.kill_pid_list.append(pid)
+                            break
+                        # Save some CPU cycles, 10ms
+                        time.sleep(0.01)
+                    # After timeout
+                    if pid is not None:
+                        self.log.info("[%s] pid (%s) confirmed for %s [blocking]" % (host, pid, cmd))
+                    else:
+                        self.log.error("[%s] pid (%s) not found for %s [blocking]" % (host, cmd, pid))
+                else:
+                    executor.start()
+                    pid = executor.job_queue._running[0].pid
+                    self.kill_pid_list.append(pid)
+                    if pid is not None:
+                        self.log.info("[%s] pid (%s) confirmed for %s" % (host, pid, cmd))
+                    else:
+                        self.log.error("[%s] pid (%s) not found for %s" % (host, cmd, pid))
+            # Save some CPU cycles, 50ms
+            time.sleep(0.05)
 
     def iterate_job_queues(self):
         for executor in self.executor_list:
-            if executor.type == "componentlauncher":
+            if executor.type == "component":
                 print executor.queue
 
     def iterate_process_queues(self):
         for executor in self.executor_list:
-            if executor.type == "componentlauncher":
-                print executor.job_queue._queued
+            if executor.type == "component":
+                # print executor.job_queue._queued
                 for job in executor.job_queue._running:
                     # print job.pid
                     pass
 
-    def stop_tasks(self):
-        for executor in self.executor_list:
-            if executor.type == "componentlauncher":
-                executor.stop_execution()
+    def stop_all_tasks(self):
+        for pid in self.kill_pid_list:
+            cmd = "kill -2 %s" % pid
+            spe = SimpleProcessExecutor(cmd, "localhost", self.log)
+            spe.start()
 
     def disconnect_tasks(self):
         for executor in self.executor_list:
-            if executor.type == "componentlauncher":
+            if executor.type == "component":
                 executor.disconnect_task()
