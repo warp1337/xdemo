@@ -90,6 +90,7 @@ class ProcessExecutor(Thread):
             full_cmd = self.stage_execution_environment(_raw_cmd)
             with settings(host_string=self.target.executionhost, forward_agent=True, connection_attempts=5):
                 return_values = run(full_cmd, shell=True, stdout=self.output_pipe, stderr=self.output_pipe, quiet=True)
+                self.log.info("-----------------")
                 self.log.info("task returned")
                 self.log.info(full_cmd)
                 self.log.info("return code %s, failed: %s, succeeded: %s" % (return_values.return_code,
@@ -145,12 +146,12 @@ class SimpleProcessExecutor(Thread):
         def task_thread(_cmd):
             with settings(host_string=self.host, forward_agent=True, connection_attempts=5):
                 return_values = run(_cmd, shell=True, stdout=self.output_pipe, stderr=self.output_pipe, quiet=True)
+                self.log.info("-----------------")
                 self.log.info("task returned")
                 self.log.info(_cmd)
                 self.log.info("return code %s, failed: %s, succeeded: %s" % (return_values.return_code,
                                                                              return_values.failed,
                                                                              return_values.succeeded))
-                self.log.info("-----------------")
 
         @task
         def deploy():

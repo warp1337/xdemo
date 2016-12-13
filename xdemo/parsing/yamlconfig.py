@@ -152,8 +152,6 @@ class SystemConfig:
         exec_level = 0
         if 'xdemosystem' in self.cfg_instance[0].keys():
             if 'executionorder' in self.cfg_instance[0]['xdemosystem'].keys():
-                # self.log.debug(self.cfg_instance[0]['xdemosystem']['executionorder'])
-                # self.log.debug("--------------------------")
                 for item in self.cfg_instance[0]['xdemosystem']['executionorder']:
                     if "component_" in item:
                         self.load_system_component_config(str(item), exec_level)
@@ -180,8 +178,6 @@ class SystemConfig:
                                                                                                        self.runtimeenvironment,
                                                                                                        self.executionduration,
                                                                                                        self.finishtrigger))
-        # self.log.debug("-----------------")
         # self.log.debug("flat execution list")
         # from pprint import pprint
         # self.log.debug(pprint(self.flat_execution_list))
-        # self.log.debug("-----------------")

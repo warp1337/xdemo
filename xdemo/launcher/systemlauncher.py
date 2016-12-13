@@ -52,7 +52,6 @@ class SystemLauncher:
         for item in self.system_instance.instance_flat_executionlist:
             self.log.debug("execution iterator")
             self.log.debug(item)
-            self.log.debug("-----------------")
             pe = ProcessExecutor(item, self.system_instance, self.log)
             self.executor_list.append(pe)
 

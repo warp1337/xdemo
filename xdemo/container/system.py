@@ -51,7 +51,6 @@ class SystemInstance:
         self.initialize()
         self.log.debug("instance flat execution list")
         self.log.debug(self.instance_flat_executionlist)
-        self.log.debug("-----------------")
 
     def initialize(self):
         for item in self.cfg_execution_list:
