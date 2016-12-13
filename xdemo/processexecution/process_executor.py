@@ -102,7 +102,7 @@ class ProcessExecutor(Thread):
             env.shell_env["xdemoid"] = self.uuid
             env.shell_env["DISPLAY"] = ":0.0"
             host_list = [self.target.executionhost]
-            execute_fab_patch(task_thread, self.queue, self.job_queue, self.log, _cmd,  hosts=host_list)
+            execute_fab_patch(task_thread, self.queue, self.job_queue, self.log, _cmd, hosts=host_list)
 
         deploy()
 
@@ -127,11 +127,11 @@ class ProcessExecutor(Thread):
 
 class SimpleProcessExecutor(Thread):
 
-    def __init__(self, _cmd, _host, _log):
+    def __init__(self, _command, _host, _log):
 
         Thread.__init__(self)
         self.log = _log
-        self.cmd = _cmd
+        self.cmd = _command
         self.host = _host
         self.pool_size = 1
         self.uuid = str(uuid.uuid4())
@@ -139,14 +139,14 @@ class SimpleProcessExecutor(Thread):
         self.output_pipe = StringIO.StringIO()
         self.job_queue = JobQueue(self.pool_size, self.queue)
 
-    def do(self):
+    def do(self, _cmd):
 
         @parallel
-        def task_thread(_something):
+        def task_thread(_cmd):
             with settings(host_string=self.host, forward_agent=True, connection_attempts=5):
-                return_values = run(self.cmd, shell=True, stdout=self.output_pipe, stderr=self.output_pipe, quiet=True)
+                return_values = run(_cmd, shell=True, stdout=self.output_pipe, stderr=self.output_pipe, quiet=True)
                 self.log.info("task returned")
-                self.log.info(self.cmd)
+                self.log.info(_cmd)
                 self.log.info("return code %s, failed: %s, succeeded: %s" % (return_values.return_code,
                                                                              return_values.failed,
                                                                              return_values.succeeded))
@@ -157,7 +157,7 @@ class SimpleProcessExecutor(Thread):
             env.shell_env["xdemoid"] = self.uuid
             env.shell_env["DISPLAY"] = ":0.0"
             host_list = [self.host]
-            execute_fab_patch(task_thread, self.queue, self.job_queue, self.log, self.cmd,  hosts=host_list)
+            execute_fab_patch(task_thread, self.queue, self.job_queue, self.log, self.cmd, hosts=host_list)
 
         deploy()
 
@@ -172,4 +172,4 @@ class SimpleProcessExecutor(Thread):
         disconnect_all()
 
     def run(self):
-        self.do()
+        self.do(self.cmd)

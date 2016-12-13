@@ -108,6 +108,7 @@ class SystemLauncher:
     def stop_all_tasks(self):
         for pid in self.kill_pid_list:
             cmd = "kill -2 %s" % pid
+            # cmd = "gedit"
             spe = SimpleProcessExecutor(cmd, "localhost", self.log)
             spe.start()
 
