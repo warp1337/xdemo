@@ -29,40 +29,58 @@ Authors: Florian Lier
 <flier>@techfak.uni-bielefeld.de
 
 """
-
+# STD
 import time
+
+# SELF
 from xdemo.processexecution.process_executor import ProcessExecutor
 
 
 class SystemLauncher:
 
-    def __init__(self, _systeminstance, _log):
+    def __init__(self, _system_instance, _log):
         self.log = _log
-        self.system_instance = _systeminstance
+        self.system_instance = _system_instance
         self.executor_list = []
 
         self.collect_components_and_groups()
-        self.deploy()
+        self.deploy_tasks()
+        self.iterate_process_queues()
 
     def collect_components_and_groups(self):
-        for item in self.system_instance.flat_executionlist:
+        for item in self.system_instance.instance_flat_executionlist:
             self.log.debug("execution iterator")
             self.log.debug(item)
             self.log.debug("-----------------")
             pe = ProcessExecutor(item, self.system_instance, self.log)
             self.executor_list.append(pe)
 
-    def deploy(self):
+    def deploy_tasks(self):
         for executor in self.executor_list:
             if executor.type == "componentlauncher":
                 executor.start()
+                # Save some computation time
+                time.sleep(0.1)
 
-    def stop(self):
+    def iterate_job_queues(self):
+        for executor in self.executor_list:
+            if executor.type == "componentlauncher":
+                print executor.queue
+
+    def iterate_process_queues(self):
+        for executor in self.executor_list:
+            if executor.type == "componentlauncher":
+                print executor.job_queue._queued
+                for job in executor.job_queue._running:
+                    # print job.pid
+                    pass
+
+    def stop_tasks(self):
         for executor in self.executor_list:
             if executor.type == "componentlauncher":
                 executor.stop_execution()
 
-    def disconnect(self):
+    def disconnect_tasks(self):
         for executor in self.executor_list:
             if executor.type == "componentlauncher":
-                executor.disconnect()
+                executor.disconnect_task()

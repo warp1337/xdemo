@@ -30,6 +30,7 @@ Authors: Florian Lier
 
 """
 
+# STD
 import sys
 
 
@@ -39,21 +40,21 @@ class SystemInstance:
         self.log = _log
         self.groups = []
         self.components = []
-        self.flat_executionlist = []
+        self.instance_flat_executionlist = []
         self.base_path = _systemconfig.base_path
         self.name = str(_systemconfig.name)
         self.finishtrigger = _systemconfig.finishtrigger
         self.executionduration = _systemconfig.executionduration
         self.runtimeenvironment = _systemconfig.runtimeenvironment
-        self.raw_execution_list = _systemconfig.flat_execution_list
+        self.cfg_execution_list = _systemconfig.flat_execution_list
 
         self.initialize()
         self.log.debug("instance flat execution list")
-        self.log.debug(self.flat_executionlist)
+        self.log.debug(self.instance_flat_executionlist)
         self.log.debug("-----------------")
 
     def initialize(self):
-        for item in self.raw_execution_list:
+        for item in self.cfg_execution_list:
             if 'xdemocomponent' in item[0]:
                 self.add_component(item)
             if 'xdemogroup' in item[0]:
@@ -64,14 +65,14 @@ class SystemInstance:
         c.initialize(_component_data)
         self.components.append(c)
         tmp_component = {"component": c}
-        self.flat_executionlist.append(tmp_component)
+        self.instance_flat_executionlist.append(tmp_component)
 
     def add_group(self, _group_data):
         g = Group(self.log)
         g.initialize(_group_data)
         self.groups.append(g)
         tmp_group = {"group": g}
-        self.flat_executionlist.append(tmp_group)
+        self.instance_flat_executionlist.append(tmp_group)
 
 
 class Component:
@@ -92,6 +93,7 @@ class Component:
 
     def initialize(self, _component_data):
         try:
+            # a component may occur at 'top level' or can be a member of a group --> sublevel
             if 'level' in _component_data[0]:
                 self.level = _component_data[0]['level']
             elif 'sublevel' in _component_data[0]:

@@ -30,10 +30,10 @@ Authors: Florian Lier
 
 """
 
+# STD
 import os
 import sys
 import yaml
-from pprint import pprint
 
 
 class SystemConfig:
@@ -180,7 +180,8 @@ class SystemConfig:
                                                                                                        self.runtimeenvironment,
                                                                                                        self.executionduration,
                                                                                                        self.finishtrigger))
-        self.log.debug("-----------------")
-        self.log.debug("flat execution list")
-        self.log.debug(pprint(self.flat_execution_list))
-        self.log.debug("-----------------")
+        # self.log.debug("-----------------")
+        # self.log.debug("flat execution list")
+        # from pprint import pprint
+        # self.log.debug(pprint(self.flat_execution_list))
+        # self.log.debug("-----------------")
