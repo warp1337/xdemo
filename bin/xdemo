@@ -42,9 +42,9 @@ from xdemo.launcher.systemlauncher import SystemLauncher
 if __name__ == "__main__":
 
     logger = logging.getLogger("xdemo")
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    ch.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", "%H:%M:%S")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
@@ -58,5 +58,5 @@ if __name__ == "__main__":
     while time.time() - now < 5:
         time.sleep(0.1)
 
-    sl.stop()
-    sl.disconnect()
+    sl.stop_tasks()
+    sl.disconnect_tasks()
