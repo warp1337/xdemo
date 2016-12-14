@@ -1,7 +1,7 @@
 -  xdemocomponent:
     name: "top"
     platform: "linux"
-    command: "/usr/sbin/top"
+    command: "/usr/bin/top"
     executionhost: "testhost"
     autostart: true
     blockexecution: true

@@ -35,8 +35,9 @@ Authors: Florian Lier
 """ THIS FILE WAS PART OF THE FABRIC API AND HAS BEEN ALTERED BY THE AUTHOR """
 
 # STD
-import inspect
 import sys
+import time
+import inspect
 import textwrap
 
 # FABRIC
@@ -252,7 +253,7 @@ def _execute(task, host, my_env, args, kwargs, jobs, queue, multiprocessing, log
     """
     # Log to stdout
     if state.output.running and not hasattr(task, 'return_value'):
-        log.info("[%s] executing task '%s'" % (host, my_env['command']))
+        log.debug("[%s] executing task '%s'" % (host, my_env['command']))
     # Create per-run env with connection settings
     local_env = to_dict(host)
     local_env.update(my_env)
@@ -319,7 +320,7 @@ def _is_task(task):
     return isinstance(task, Task)
 
 
-def execute_fab_patch(task, _queue, _job_queue, log, *args, **kwargs):
+def execute_fab_patch(task, _queue, _job_queue, _exit_queue, log, *args, **kwargs):
     """
     Execute ``task`` (callable or name), honoring host/role decorators, etc.
 
@@ -443,7 +444,7 @@ def execute_fab_patch(task, _queue, _job_queue, log, *args, **kwargs):
 
         # If running in parallel, block until job queue is emptied
         if _job_queue:
-            err = "One or more hosts failed while executing task '%s'" % (
+            err = "one or more hosts failed while executing task '%s'" % (
                 my_env['command']
             )
             _job_queue.close()
@@ -460,9 +461,12 @@ def execute_fab_patch(task, _queue, _job_queue, log, *args, **kwargs):
                     elif isinstance(d['results'], BaseException):
                         # error(err, exception=d['results'])
                         log.error(err)
-                    else:
+                    elif _exit_queue.empty():
                         # error(err)
                         log.error(err)
+                    else:
+                        log.info('[%s] %s closed SIGNAL %s [OK]' % (my_env['all_hosts'][0], my_env['command'], d['exit_code']))
+
                 results[name] = d['results']
 
     # Or just run once for local-only

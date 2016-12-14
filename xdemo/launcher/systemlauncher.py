@@ -31,87 +31,106 @@ Authors: Florian Lier
 """
 # STD
 import time
+import multiprocessing
 
 # SELF
-from xdemo.processexecution.process_executor import ProcessExecutor, SimpleProcessExecutor
+from xdemo.processexecution.process_executor import ProcessExecutorTread
+from xdemo.utilities.ssh import kill_single_task, get_process_pid_from_remote_host
 
 
 class SystemLauncher:
 
     def __init__(self, _system_instance, _log):
         self.log = _log
-        self.system_instance = _system_instance
         self.executor_list = []
-        self.kill_pid_list = []
-
+        self.system_instance = _system_instance
         self.collect_components_and_groups()
-        self.deploy_tasks()
-        self.iterate_process_queues()
 
     def collect_components_and_groups(self):
         for item in self.system_instance.instance_flat_executionlist:
-            self.log.debug("execution iterator")
-            self.log.debug(item)
-            pe = ProcessExecutor(item, self.system_instance, self.log)
-            self.executor_list.append(pe)
+            pid_queue = multiprocessing.Queue()
+            exit_queue = multiprocessing.Queue()
+            pet = ProcessExecutorTread(item, self.system_instance, exit_queue, pid_queue, self.log)
+            self.executor_list.append(pet)
 
-    def deploy_tasks(self):
+    def deploy_tasks(self, _ready_queue):
+
+        tree = "|"
+
         for executor in self.executor_list:
+            tree += "-"
             if executor.type == "component":
+                local_pid = None
                 now = time.time()
-                host = executor.target.executionhost
-                cmd = executor.target.command
+                host = executor.get_executionhost()
+                cmd = executor.get_task_cmd()
+                name = executor.get_task_name()
                 # Make this a command line option
-                timeout = 30
-                pid = None
-                if executor.target.blockexecution is True:
+                timeout = 2
+
+                if executor.task.blockexecution is True:
+
                     executor.start()
+
                     while time.time() - now <= timeout:
                         if len(executor.job_queue._running) < 1:
                             pass
                         else:
-                            pid = executor.job_queue._running[0].pid
-                            self.kill_pid_list.append(pid)
+                            local_pid = executor.job_queue._running[0].pid
                             break
                         # Save some CPU cycles, 10ms
                         time.sleep(0.01)
-                    # After timeout
-                    if pid is not None:
-                        self.log.info("[%s] pid (%s) confirmed for %s [blocking]" % (host, pid, cmd))
+
+                    # After timeout has been reached --->
+                    if local_pid is not None:
+                        self.log.info("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
+                        self.log.info(tree + " %s" % cmd)
+                        # Be careful this is the local multiprocess PID!
+                        executor.set_pid(local_pid)
                     else:
-                        self.log.error("[%s] pid (%s) not found for %s [blocking]" % (host, cmd, pid))
+                        self.log.info("%s [LPID %s] [ERROR]" % (cmd, local_pid))
+                        executor.set_pid(None)
+
                 else:
+
                     executor.start()
-                    pid = executor.job_queue._running[0].pid
-                    self.kill_pid_list.append(pid)
-                    if pid is not None:
-                        self.log.info("[%s] pid (%s) confirmed for %s" % (host, pid, cmd))
+                    local_pid = executor.job_queue._running[0].pid
+
+                    if local_pid is not None:
+                        # Be careful this is the local multiprocess PID!
+                        self.log.info("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
+                        self.log.info(tree + " %s" % cmd)
+                        executor.set_pid(local_pid)
                     else:
-                        self.log.error("[%s] pid (%s) not found for %s" % (host, cmd, pid))
-            # Save some CPU cycles, 50ms
-            time.sleep(0.05)
+                        self.log.error("%s [LPID %s] [ERROR]" % (cmd, local_pid))
+                        executor.set_pid(None)
 
-    def iterate_job_queues(self):
-        for executor in self.executor_list:
-            if executor.type == "component":
-                print executor.queue
+            # Save some CPU cycles, 10ms
+            time.sleep(0.01)
 
-    def iterate_process_queues(self):
-        for executor in self.executor_list:
-            if executor.type == "component":
-                # print executor.job_queue._queued
-                for job in executor.job_queue._running:
-                    # print job.pid
-                    pass
+        # Launched all tasks
+        is_ready = True
+        _ready_queue.put(is_ready)
+
+        time.sleep(5)
+        self.stop_all_tasks()
 
     def stop_all_tasks(self):
-        for pid in self.kill_pid_list:
-            cmd = "kill -2 %s" % pid
-            # cmd = "gedit"
-            spe = SimpleProcessExecutor(cmd, "localhost", self.log)
-            spe.start()
+        self.log.info("[deployer] closing tasks now [OK]")
+        for task in self.executor_list:
+            if task.type == "component":
+                if not task.set_pid_queue.empty():
+                    pid = task.set_pid_queue.get()
+                    # Is it running?
+                    if pid is not None:
+                        exit_signal = True
+                        # Signal the internal job queue that an external exit was requested
+                        task.exit_signal_queue.put(exit_signal)
+                        # Get the actual PID
+                        pid, err = get_process_pid_from_remote_host(task.get_executionhost(), task.get_task_uuid())
+                        # Now stop the task
+                        kill_single_task(task.get_executionhost(), pid)
+                else:
+                    self.log.error("pid queue is empty")
 
-    def disconnect_tasks(self):
-        for executor in self.executor_list:
-            if executor.type == "component":
-                executor.disconnect_task()
+

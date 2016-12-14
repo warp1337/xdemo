@@ -33,6 +33,7 @@ Authors: Florian Lier
 """
 import time
 import logging
+import multiprocessing
 
 from xdemo.container.system import SystemInstance
 from xdemo.parsing.yamlconfig import SystemConfig
@@ -49,9 +50,24 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
+    logger.info("[XDEMO START]\n")
+
     config = "/tmp/etc/xdemo/systems/basic-example/linux-example.yaml"
     sc = SystemConfig(config, logger)
     si = SystemInstance(sc, logger)
     sl = SystemLauncher(si, logger)
 
-    # sl.stop_all_tasks()
+    read_task_queue = multiprocessing.Queue()
+    p = multiprocessing.Process(target=sl.deploy_tasks, args=(read_task_queue,))
+    p.start()
+
+    while read_task_queue.empty():
+        time.sleep(0.05)
+
+    logger.info("[deployer] launched all tasks [OK]")
+
+    p.join()
+
+    print "\n"
+    logger.info("[XDEMO END]")
+
