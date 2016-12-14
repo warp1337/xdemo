@@ -8,8 +8,8 @@
       # - "component_xeyes"
       # - "group_tools"
       # - "group_visualization"
-      # - "component_xeyes"
       - "component_xeyes"
-      - "component_xeyes"
+      - "component_xterm"
+      - "component_lsla"
       - "component_top"
     executionduration: 10

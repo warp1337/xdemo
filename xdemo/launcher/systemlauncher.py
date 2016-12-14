@@ -129,6 +129,7 @@ class SystemLauncher:
                         # Get the actual PID
                         pid, err = get_process_pid_from_remote_host(task.get_executionhost(), task.get_task_uuid())
                         # Now stop the task
+                        # print pid
                         kill_single_task(task.get_executionhost(), pid)
                 else:
                     self.log.error("pid queue is empty")
