@@ -46,7 +46,12 @@ from xdemo.fabpatch.adaptations import execute_fab_patch
 
 class ProcessExecutorTread(Thread):
 
-    def __init__(self, _component_or_group, _system_instance, _exit_signal_queue, _set_pid_queue, _log):
+    def __init__(self, _component_or_group,
+                 _system_instance,
+                 _exit_signal_queue,
+                 _set_pid_queue,
+                 _set_remote_pid_queue,
+                 _log):
 
         Thread.__init__(self)
         self.log = _log
@@ -59,6 +64,7 @@ class ProcessExecutorTread(Thread):
         self.output_pipe = StringIO.StringIO()
         self.system_instance = _system_instance
         self.cmd_queue = multiprocessing.Queue()
+        self.set_remote_pid_queue = _set_remote_pid_queue
         self.exit_signal_queue = _exit_signal_queue
         self.base_path = _system_instance.base_path
         self.job_queue = JobQueue(self.pool_size, self.queue)
@@ -124,6 +130,9 @@ class ProcessExecutorTread(Thread):
 
     def set_pid(self, _pid):
         self.set_pid_queue.put(_pid)
+
+    def set_remote_pid(self, _pid):
+        self.set_remote_pid_queue.put(_pid)
 
     def get_task_output(self):
         return self.output_pipe

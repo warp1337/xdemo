@@ -34,6 +34,7 @@ import time
 import multiprocessing
 
 # SELF
+from xdemo.utilities.generics import represents_int
 from xdemo.processexecution.process_executor import ProcessExecutorTread
 from xdemo.utilities.ssh import kill_single_task, get_process_pid_from_remote_host
 
@@ -50,7 +51,8 @@ class SystemLauncher:
         for item in self.system_instance.instance_flat_executionlist:
             pid_queue = multiprocessing.Queue()
             exit_queue = multiprocessing.Queue()
-            pet = ProcessExecutorTread(item, self.system_instance, exit_queue, pid_queue, self.log)
+            remote_pid_queue = multiprocessing.Queue()
+            pet = ProcessExecutorTread(item, self.system_instance, exit_queue, pid_queue, remote_pid_queue, self.log)
             self.executor_list.append(pet)
 
     def deploy_tasks(self, _ready_queue):
@@ -61,10 +63,12 @@ class SystemLauncher:
             tree += "-"
             if executor.type == "component":
                 local_pid = None
+                remote_pid = None
                 now = time.time()
                 host = executor.get_executionhost()
                 cmd = executor.get_task_cmd()
                 name = executor.get_task_name()
+                uuid = executor.get_task_uuid()
                 # Make this a command line option
                 timeout = 2
 
@@ -84,28 +88,52 @@ class SystemLauncher:
                     # After timeout has been reached --->
                     if local_pid is not None:
                         # self.log.debug("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
-                        self.log.info("spawning %s@%s [blocking] [OK]" % (name, host))
-                        self.log.info(tree + " %s" % cmd)
+                        self.log.debug("deploying %s@%s [blocking]" % (name, host))
+                        self.log.debug(tree + " %s" % cmd)
                         # Be careful this is the local multiprocess PID!
                         executor.set_pid(local_pid)
                     else:
-                        self.log.info("%s [LPID %s] [ERROR]" % (cmd, local_pid))
+                        self.log.info("%s  no LOCAL PID found [ERROR]" % (cmd))
                         executor.set_pid(None)
+
+                    #--------------------------------------------------------------------------------------------------#
+
+                    while time.time() - now <= timeout:
+                        tmp_pid = get_process_pid_from_remote_host(host, uuid)[0]
+                        print tmp_pid
+                        if not represents_int(tmp_pid):
+                            pass
+                        else:
+                            remote_pid = tmp_pid
+                            break
+                        # Save some CPU cycles, 100ms
+                        time.sleep(0.1)
+
+                    # After timeout has been reached --->
+                    if remote_pid is not None and remote_pid != "" and represents_int(remote_pid):
+                        # self.log.debug("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
+                        self.log.info("deployed %s@%s [PID %s] [blocking] [OK]" % (name, host, remote_pid))
+                        self.log.info(tree + " %s" % cmd)
+                        # Be careful this is the local multiprocess PID!
+                        executor.set_remote_pid(remote_pid)
+                    else:
+                        self.log.error("%s no REMOTE PID found [ERROR]" % cmd)
+                        executor.set_remote_pid(None)
 
                 else:
 
                     executor.start()
-                    local_pid = executor.job_queue._running[0].pid
+                    remote_pid = get_process_pid_from_remote_host(host, uuid)[0]
 
-                    if local_pid is not None:
-                        # Be careful this is the local multiprocess PID!
+                    if remote_pid is not None and remote_pid != "" and represents_int(remote_pid):
                         # self.log.debug("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
-                        self.log.info("spawning %s@%s [blocking] [OK]" % (name, host))
+                        self.log.info("deployed %s@%s [PID %s] [blocking] [OK]" % (name, host, remote_pid))
                         self.log.info(tree + " %s" % cmd)
-                        executor.set_pid(local_pid)
+                        # Be careful this is the local multiprocess PID!
+                        executor.set_remote_pid(remote_pid)
                     else:
-                        self.log.error("%s [LPID %s] [ERROR]" % (cmd, local_pid))
-                        executor.set_pid(None)
+                        self.log.error("%s no REMOTE PID found [ERROR]" % cmd)
+                        executor.set_remote_pid(None)
 
             # Save some CPU cycles, 10ms
             time.sleep(0.01)
@@ -121,24 +149,24 @@ class SystemLauncher:
         self.log.info("[deployer] stopping tasks now [OK]")
         for task in self.executor_list:
             if task.type == "component":
-                if not task.set_pid_queue.empty():
-                    pid = task.set_pid_queue.get()
+                if not task.set_pid_queue.empty() and not task.set_remote_pid_queue.empty():
+                    local_pid = task.set_pid_queue.get()
+                    remote_pid = task.set_remote_pid_queue.get()
+                    print local_pid, remote_pid
                     # Is it running?
-                    if pid is not None:
+                    if represents_int(local_pid) and represents_int(remote_pid):
                         host = task.get_executionhost()
-                        uuid = task.get_task_uuid()
                         name = task.get_task_name()
                         running = task.is_alive()
+                        # Local thread is not running, we still want to kill the children
                         if not running:
-                            self.log.warning("[%s] %s already stopped [OK]" % (host, name))
+                            self.log.warning("[%s] %s already stopped" % (host, name))
                         exit_signal = True
                         # Signal the internal job queue that an external exit was requested
                         task.exit_signal_queue.put(exit_signal)
-                        # Get the actual PID
-                        pid, err = get_process_pid_from_remote_host(host, uuid)
                         # Now stop the task
-                        kill_single_task(host, pid)
+                        kill_single_task(host, remote_pid)
                 else:
-                    self.log.error("pid queue is empty")
+                    self.log.error("pid queue is empty [ERROR]")
 
 

@@ -465,7 +465,7 @@ def execute_fab_patch(task, _queue, _job_queue, _exit_queue, log, *args, **kwarg
                         # error(err)
                         log.error(err)
                     else:
-                        log.info('[%s] %s closed SIGNAL %s [OK]' % (my_env['all_hosts'][0], my_env['command'], d['exit_code']))
+                        log.info('[%s] local process for %s closed SIGNAL %s [OK]' % (my_env['all_hosts'][0], my_env['command'], d['exit_code']))
 
                 results[name] = d['results']
 
