@@ -92,21 +92,19 @@ class ProcessExecutorTread(Thread):
     def do(self, _cmd):
 
         @parallel
-        def task_thread(_raw_cmd):
+        def task_thread(_raw_cmd, _name):
             full_cmd = self.stage_execution_environment(_raw_cmd)
             with settings(host_string=self.task.executionhost, forward_agent=True, connection_attempts=5):
                 return_values = run(full_cmd, shell=True, stdout=self.output_pipe, stderr=self.output_pipe, quiet=True)
 
                 if self.exit_signal_queue.empty():
-                    self.log.info("-----------------")
-                    self.log.info("[%s] task returned" % self.task.executionhost)
-                    self.log.info(full_cmd)
-                    self.log.info("return code %s, failed: %s, succeeded: %s" % (return_values.return_code,
+                    self.log.info("[%s] %s task returned" % (self.task.executionhost, _name))
+                    self.log.debug(full_cmd)
+                    self.log.info("|- return code %s, failed: %s, succeeded: %s" % (return_values.return_code,
                                                                                  return_values.failed,
                                                                                  return_values.succeeded))
-                    self.log.info("-----------------")
                 else:
-                    self.log.info("[%s] %s was closed [OK]" % (self.task.executionhost, self.task.name))
+                    self.log.info("[%s] %s was stopped [OK]" % (self.task.executionhost, _name))
                     self.log.debug(full_cmd)
 
         @task
@@ -115,7 +113,7 @@ class ProcessExecutorTread(Thread):
             env.shell_env["DISPLAY"] = ":0.0"
             host_list = [self.task.executionhost]
             execute_fab_patch(task_thread, self.queue, self.job_queue, self.exit_signal_queue, self.log,
-                              _cmd, hosts=host_list)
+                              _cmd, self.name, hosts=host_list)
 
         deploy()
 

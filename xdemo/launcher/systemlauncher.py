@@ -116,21 +116,26 @@ class SystemLauncher:
         self.stop_all_tasks()
 
     def stop_all_tasks(self):
-        self.log.info("[deployer] closing tasks now [OK]")
+        self.log.info("[deployer] stopping tasks now [OK]")
         for task in self.executor_list:
             if task.type == "component":
                 if not task.set_pid_queue.empty():
                     pid = task.set_pid_queue.get()
                     # Is it running?
                     if pid is not None:
+                        host = task.get_executionhost()
+                        uuid = task.get_task_uuid()
+                        name = task.get_task_name()
+                        running = task.is_alive()
+                        if not running:
+                            self.log.info("[%s] %s already stopped [OK]" % (host, name))
                         exit_signal = True
                         # Signal the internal job queue that an external exit was requested
                         task.exit_signal_queue.put(exit_signal)
                         # Get the actual PID
-                        pid, err = get_process_pid_from_remote_host(task.get_executionhost(), task.get_task_uuid())
+                        pid, err = get_process_pid_from_remote_host(host, uuid)
                         # Now stop the task
-                        # print pid
-                        kill_single_task(task.get_executionhost(), pid)
+                        kill_single_task(host, pid)
                 else:
                     self.log.error("pid queue is empty")
 

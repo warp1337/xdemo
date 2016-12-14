@@ -12,4 +12,5 @@
       - "component_xterm"
       - "component_lsla"
       - "component_top"
+      - "component_gedit"
     executionduration: 10

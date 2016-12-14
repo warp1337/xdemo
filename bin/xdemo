@@ -50,7 +50,7 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    logger.info("[XDEMO START]\n")
+    logger.info("[XDEMO START]")
 
     config = "/tmp/etc/xdemo/systems/basic-example/linux-example.yaml"
     sc = SystemConfig(config, logger)
@@ -64,10 +64,9 @@ if __name__ == "__main__":
     while read_task_queue.empty():
         time.sleep(0.05)
 
-    logger.info("[deployer] launched all tasks [OK]")
+    logger.info("[deployer] deployed all tasks [OK]")
 
     p.join()
 
-    print "\n"
     logger.info("[XDEMO END]")
 
