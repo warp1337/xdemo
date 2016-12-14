@@ -83,7 +83,8 @@ class SystemLauncher:
 
                     # After timeout has been reached --->
                     if local_pid is not None:
-                        self.log.info("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
+                        # self.log.debug("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
+                        self.log.info("spawning %s@%s [blocking] [OK]" % (name, host))
                         self.log.info(tree + " %s" % cmd)
                         # Be careful this is the local multiprocess PID!
                         executor.set_pid(local_pid)
@@ -98,7 +99,8 @@ class SystemLauncher:
 
                     if local_pid is not None:
                         # Be careful this is the local multiprocess PID!
-                        self.log.info("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
+                        # self.log.debug("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
+                        self.log.info("spawning %s@%s [blocking] [OK]" % (name, host))
                         self.log.info(tree + " %s" % cmd)
                         executor.set_pid(local_pid)
                     else:
@@ -128,7 +130,7 @@ class SystemLauncher:
                         name = task.get_task_name()
                         running = task.is_alive()
                         if not running:
-                            self.log.info("[%s] %s already stopped [OK]" % (host, name))
+                            self.log.warning("[%s] %s already stopped [OK]" % (host, name))
                         exit_signal = True
                         # Signal the internal job queue that an external exit was requested
                         task.exit_signal_queue.put(exit_signal)

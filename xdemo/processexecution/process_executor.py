@@ -98,11 +98,16 @@ class ProcessExecutorTread(Thread):
                 return_values = run(full_cmd, shell=True, stdout=self.output_pipe, stderr=self.output_pipe, quiet=True)
 
                 if self.exit_signal_queue.empty():
-                    self.log.info("[%s] %s task returned" % (self.task.executionhost, _name))
+                    self.log.warning("[%s] %s task returned" % (self.task.executionhost, _name))
                     self.log.debug(full_cmd)
-                    self.log.info("|- return code %s, failed: %s, succeeded: %s" % (return_values.return_code,
-                                                                                 return_values.failed,
-                                                                                 return_values.succeeded))
+                    if return_values.failed:
+                        self.log.error("|- return code %s, failed: %s, succeeded: %s" % (return_values.return_code,
+                                                                                         return_values.failed,
+                                                                                         return_values.succeeded))
+                    else:
+                        self.log.warning("|- return code %s, failed: %s, succeeded: %s" % (return_values.return_code,
+                                                                                           return_values.failed,
+                                                                                           return_values.succeeded))
                 else:
                     self.log.info("[%s] %s was stopped [OK]" % (self.task.executionhost, _name))
                     self.log.debug(full_cmd)

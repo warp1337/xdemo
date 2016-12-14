@@ -31,14 +31,19 @@ Authors: Florian Lier
 <flier>@techfak.uni-bielefeld.de
 
 """
+
+# STD
 import time
 import logging
 import multiprocessing
 
+# SELF
 from xdemo.container.system import SystemInstance
 from xdemo.parsing.yamlconfig import SystemConfig
 from xdemo.launcher.systemlauncher import SystemLauncher
 
+# LOGGING
+from colorlog import ColoredFormatter
 
 if __name__ == "__main__":
 
@@ -47,6 +52,18 @@ if __name__ == "__main__":
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", "%H:%M:%S")
+    formatter = ColoredFormatter(
+        "%(asctime)s-%(log_color)s%(levelname)s-%(reset)s%(white)s%(message)s",
+        datefmt="%H:%M:%S",
+        reset=True,
+        log_colors={
+            'DEBUG': 'cyan',
+            'INFO': 'blue',
+            'WARNING': 'yellow',
+            'ERROR': 'red',
+            'CRITICAL': 'red'
+        }
+    )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
