@@ -40,7 +40,6 @@ from xdemo.utilities.generics import represents_int
 from xdemo.processexecution.process_executor import ProcessExecutorTread
 from xdemo.utilities.ssh import kill_single_task
 
-
 class SystemLauncher:
 
     def __init__(self, _system_instance, _screen_pool, _log):
@@ -85,7 +84,6 @@ class SystemLauncher:
                 self.screen_pool.send_cmd(uuid, final_cmd)
 
     def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
-        tmp_cmd = ""
         if self.clean_str(_platform) == 'linux':
             if self.clean_str(_host) == 'localhost':
                 return _cmd.strip()
@@ -104,6 +102,10 @@ class SystemLauncher:
 
     def mk_id(self, _name, _uuid):
         return self.clean_str(_name) + "-" + self.clean_str(_uuid)
+
+    def is_component_alive(self, _uuid):
+        # return self.screen_pool.get_screen_status(_uuid)
+        pass
 
     # def deploy_tasks(self, _ready_queue):
     #

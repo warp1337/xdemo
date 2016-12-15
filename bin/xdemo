@@ -90,6 +90,8 @@ if __name__ == "__main__":
 
     time.sleep(5)
 
+    all_screens = sp.list_all_screens()
+
     sp.kill_all_screen_sessions()
 
     # cp = ConnectionPool(logger)
