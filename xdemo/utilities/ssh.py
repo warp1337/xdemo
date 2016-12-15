@@ -37,15 +37,17 @@ from subprocess import PIPE
 
 def get_process_pid_from_remote_host(_host, _uuid):
     ssh_cmd = "ssh " + os.environ["USER"] + "@" + _host + " 'pgrep -f %s'" % _uuid
-    print ssh_cmd
     proc = subprocess.Popen(ssh_cmd, shell=True, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
     out_arr = out.split("\n")
+    print ssh_cmd
+    print out_arr
     return out_arr[0], err
 
 
-def kill_single_task(_host, _pid):
-    FNULL = open(os.devnull, 'w')
-    # ssh_cmd = "ssh " + os.environ["USER"] + "@" + _host + " 'kill -s SIGINT %s' " % str(_pid)
-    ssh_cmd = "ssh " + os.environ["USER"] + "@" + _host + " 'pkill --signal 2 -P %s' " % str(_pid)
-    proc = subprocess.Popen(ssh_cmd, shell=True, stdout=FNULL, stderr=FNULL)
+def kill_single_task(_host, _uuid):
+    ssh_cmd = "ssh " + os.environ["USER"] + "@" + _host + " 'pkill -f %s' " % _uuid
+    proc = subprocess.Popen(ssh_cmd, shell=True, stdout=PIPE, stderr=PIPE)
+    out, err = proc.communicate()
+    print ssh_cmd
+    print out

@@ -153,3 +153,4 @@ class ProcessExecutorTread(Thread):
         if self.type == "component":
             self.cmd_queue.put(self.cmd)
             self.do(self.cmd)
+            self.log.info("%s thread exited" % self.name)

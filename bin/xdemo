@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     logger.info("[XDEMO START]")
 
-    config = "/tmp/etc/xdemo/systems/basic-example/linux-example.yaml"
+    config = "/home/fl/repro_systems/xdemosandbox/etc/xdemo/systems/basic-example/linux-example.yaml"
     sc = SystemConfig(config, logger)
     si = SystemInstance(sc, logger)
     sl = SystemLauncher(si, logger)
@@ -81,7 +81,17 @@ if __name__ == "__main__":
     while read_task_queue.empty():
         time.sleep(0.05)
 
+    read_pid_queue = multiprocessing.Queue()
+    sl.collect_remote_tasks_pids(read_pid_queue)
+
+    while read_pid_queue.empty():
+        time.sleep(0.05)
+
     logger.info("[deployer] deployed all tasks [OK]")
+
+    time.sleep(15)
+
+    sl.stop_all_tasks()
 
     p.join()
 

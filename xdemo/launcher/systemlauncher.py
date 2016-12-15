@@ -59,16 +59,16 @@ class SystemLauncher:
 
         tree = "|"
 
+        # Get the local PID of the multiprocess spawning the SSH session
         for executor in self.executor_list:
             tree += "-"
             if executor.type == "component":
                 local_pid = None
-                remote_pid = None
                 now = time.time()
-                host = executor.get_executionhost()
                 cmd = executor.get_task_cmd()
                 name = executor.get_task_name()
                 uuid = executor.get_task_uuid()
+                host = executor.get_executionhost()
                 # Make this a command line option
                 timeout = 2
 
@@ -86,8 +86,7 @@ class SystemLauncher:
                         time.sleep(0.01)
 
                     # After timeout has been reached --->
-                    if local_pid is not None:
-                        # self.log.debug("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
+                    if local_pid is not None and local_pid != "" and represents_int(local_pid):
                         self.log.debug("deploying %s@%s [blocking]" % (name, host))
                         self.log.debug(tree + " %s" % cmd)
                         # Be careful this is the local multiprocess PID!
@@ -96,44 +95,16 @@ class SystemLauncher:
                         self.log.info("%s  no LOCAL PID found [ERROR]" % (cmd))
                         executor.set_pid(None)
 
-                    #--------------------------------------------------------------------------------------------------#
-
-                    while time.time() - now <= timeout:
-                        tmp_pid = get_process_pid_from_remote_host(host, uuid)[0]
-                        print tmp_pid
-                        if not represents_int(tmp_pid):
-                            pass
-                        else:
-                            remote_pid = tmp_pid
-                            break
-                        # Save some CPU cycles, 100ms
-                        time.sleep(0.1)
-
-                    # After timeout has been reached --->
-                    if remote_pid is not None and remote_pid != "" and represents_int(remote_pid):
-                        # self.log.debug("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
-                        self.log.info("deployed %s@%s [PID %s] [blocking] [OK]" % (name, host, remote_pid))
-                        self.log.info(tree + " %s" % cmd)
-                        # Be careful this is the local multiprocess PID!
-                        executor.set_remote_pid(remote_pid)
-                    else:
-                        self.log.error("%s no REMOTE PID found [ERROR]" % cmd)
-                        executor.set_remote_pid(None)
-
                 else:
-
                     executor.start()
-                    remote_pid = get_process_pid_from_remote_host(host, uuid)[0]
+                    local_pid = executor.job_queue._running[0].pid
 
-                    if remote_pid is not None and remote_pid != "" and represents_int(remote_pid):
-                        # self.log.debug("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
-                        self.log.info("deployed %s@%s [PID %s] [blocking] [OK]" % (name, host, remote_pid))
-                        self.log.info(tree + " %s" % cmd)
+                    if local_pid is not None and local_pid != "" and represents_int(local_pid):
                         # Be careful this is the local multiprocess PID!
-                        executor.set_remote_pid(remote_pid)
+                        executor.set_pid(local_pid)
                     else:
-                        self.log.error("%s no REMOTE PID found [ERROR]" % cmd)
-                        executor.set_remote_pid(None)
+                        self.log.info("%s  no LOCAL PID found [ERROR]" % (cmd))
+                        executor.set_pid(None)
 
             # Save some CPU cycles, 10ms
             time.sleep(0.01)
@@ -142,8 +113,52 @@ class SystemLauncher:
         is_ready = True
         _ready_queue.put(is_ready)
 
-        time.sleep(5)
-        self.stop_all_tasks()
+    def collect_remote_tasks_pids(self, _ready_queue):
+
+        tree = "|"
+
+        # Get the local PID of the multiprocess spawning the SSH session
+        for executor in self.executor_list:
+            tree += "-"
+            if executor.type == "component":
+                remote_pid = None
+                now = time.time()
+                cmd = executor.get_task_cmd()
+                name = executor.get_task_name()
+                uuid = executor.get_task_uuid()
+                host = executor.get_executionhost()
+                # Make this a command line option
+                timeout = 5
+
+                remote_pid = None
+
+                while time.time() - now <= timeout:
+                    tmp_pid = get_process_pid_from_remote_host(host, uuid)[0]
+                    if tmp_pid is not None and tmp_pid != "" and represents_int(tmp_pid):
+                        remote_pid = tmp_pid
+                        break
+                    else:
+                        pass
+                    # Save some CPU cycles, 100ms
+                    time.sleep(1)
+
+                # After timeout has been reached --->
+                if remote_pid is not None and remote_pid != "" and represents_int(remote_pid):
+                    # self.log.debug("spawning %s@%s [LOCAL PID %s] [blocking] [OK]" % (name, host, local_pid))
+                    self.log.info("deployed %s@%s [PID %s] [blocking] [OK]" % (name, host, remote_pid))
+                    self.log.info(tree + " %s" % cmd)
+                    # Be careful this is the local multiprocess PID!
+                    executor.set_remote_pid(remote_pid)
+                else:
+                    self.log.error("%s no REMOTE PID found [ERROR]" % cmd)
+                    executor.set_remote_pid(None)
+
+            # Save some CPU cycles, 10ms
+            time.sleep(0.01)
+
+        # Collected all PIDS
+        is_ready = True
+        _ready_queue.put(is_ready)
 
     def stop_all_tasks(self):
         self.log.info("[deployer] stopping tasks now [OK]")
@@ -152,12 +167,13 @@ class SystemLauncher:
                 if not task.set_pid_queue.empty() and not task.set_remote_pid_queue.empty():
                     local_pid = task.set_pid_queue.get()
                     remote_pid = task.set_remote_pid_queue.get()
-                    print local_pid, remote_pid
                     # Is it running?
                     if represents_int(local_pid) and represents_int(remote_pid):
                         host = task.get_executionhost()
                         name = task.get_task_name()
                         running = task.is_alive()
+                        uuid = task.get_task_uuid()
+                        print task.name, running
                         # Local thread is not running, we still want to kill the children
                         if not running:
                             self.log.warning("[%s] %s already stopped" % (host, name))
@@ -165,7 +181,7 @@ class SystemLauncher:
                         # Signal the internal job queue that an external exit was requested
                         task.exit_signal_queue.put(exit_signal)
                         # Now stop the task
-                        kill_single_task(host, remote_pid)
+                        kill_single_task(host, uuid)
                 else:
                     self.log.error("pid queue is empty [ERROR]")
 
