@@ -32,6 +32,7 @@ Authors: Florian Lier
 
 # STD
 import sys
+import uuid
 
 
 class SystemInstance:
@@ -40,6 +41,7 @@ class SystemInstance:
         self.log = _log
         self.groups = []
         self.components = []
+        self.uuid = str(uuid.uuid4())
         self.instance_flat_executionlist = []
         self.base_path = _systemconfig.base_path
         self.name = str(_systemconfig.name)
@@ -49,8 +51,6 @@ class SystemInstance:
         self.cfg_execution_list = _systemconfig.flat_execution_list
 
         self.initialize()
-        self.log.debug("instance flat execution list")
-        self.log.debug(self.instance_flat_executionlist)
 
     def initialize(self):
         for item in self.cfg_execution_list:
@@ -89,6 +89,7 @@ class Component:
         self.description = None
         self.executionhost = None
         self.blockexecution = None
+        self.uuid = str(uuid.uuid4())
 
     def initialize(self, _component_data):
         try:
@@ -122,6 +123,7 @@ class Group:
         self.description = None
         self.blockexecution = None
         self.flat_execution_list = []
+        self.uuid = str(uuid.uuid4())
 
     def initialize(self, _group_data):
         try:

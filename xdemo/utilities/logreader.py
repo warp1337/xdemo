@@ -30,13 +30,37 @@ Authors: Florian Lier
 
 """
 
-import os
-import subprocess
-from subprocess import PIPE
+# STD
+import time
+from os.path import getsize
+from threading import Thread
 
 
-def kill_single_task(_host, _uuid):
-    ssh_cmd = "ssh " + os.environ["USER"] + "@" + _host + " 'pgrep -f %s | xargs -n1 pkill -P' " % _uuid
-    p = subprocess.Popen(ssh_cmd, shell=True, stdout=PIPE, stderr=PIPE, executable='/bin/bash')
-    # out, err = p.communicate()
-    return p.returncode
+class LogReader(Thread):
+
+    def __init__(self, _file, _comm_queue, _log, _name):
+        Thread.__init__(self)
+        self.log = _log
+        self.file = _file
+        self.keep_running = True
+        self.connection_queue = _comm_queue
+        self.log.info("[%s] initialized log reader" % _name)
+
+    def stop(self):
+        self.keep_running = False
+
+    def run(self):
+        last_size = getsize(self.file)
+        while self.keep_running:
+            cur_size = getsize(self.file)
+            if cur_size != last_size:
+                f = open(self.file, 'r')
+                f.seek(last_size if cur_size > last_size else 0)
+                text = f.read()
+                f.close()
+                last_size = cur_size
+                self.connection_queue.put(text)
+            else:
+                self.connection_queue.put("")
+            # Save CPU cycles 10ms
+            time.sleep(0.01)

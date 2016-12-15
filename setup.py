@@ -81,7 +81,7 @@ setup(name="xdemo",
                    'Programming Language :: Python',
                    'Topic :: Text Processing :: Markup :: XML'],
 
-      install_requires=['fabric==1.13.1', 'pyyaml==3.12', 'colorlog'],
+      install_requires=['fabric==1.13.1', 'pyyaml==3.12', 'colorlog', 'screenutils'],
 
       # Workaround for: http://bugs.python.org/issue856103
       zip_safe=False

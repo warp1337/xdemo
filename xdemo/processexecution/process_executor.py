@@ -49,8 +49,7 @@ class ProcessExecutorTread(Thread):
     def __init__(self, _component_or_group,
                  _system_instance,
                  _exit_signal_queue,
-                 _set_pid_queue,
-                 _set_remote_pid_queue,
+                 _local_pid_queue,
                  _log):
 
         Thread.__init__(self)
@@ -59,12 +58,12 @@ class ProcessExecutorTread(Thread):
         self.pool_size = 1
         self.command_prefix = ""
         self.uuid = str(uuid.uuid4())
-        self.set_pid_queue = _set_pid_queue
         self.queue = multiprocessing.Queue()
         self.output_pipe = StringIO.StringIO()
         self.system_instance = _system_instance
+        self.local_pid_queue = _local_pid_queue
         self.cmd_queue = multiprocessing.Queue()
-        self.set_remote_pid_queue = _set_remote_pid_queue
+        self.stop_queue = multiprocessing.Queue()
         self.exit_signal_queue = _exit_signal_queue
         self.base_path = _system_instance.base_path
         self.job_queue = JobQueue(self.pool_size, self.queue)
@@ -128,11 +127,8 @@ class ProcessExecutorTread(Thread):
 
         deploy()
 
-    def set_pid(self, _pid):
-        self.set_pid_queue.put(_pid)
-
-    def set_remote_pid(self, _pid):
-        self.set_remote_pid_queue.put(_pid)
+    def set_local_pid(self, _pid):
+        self.local_pid_queue.put(_pid)
 
     def get_task_output(self):
         return self.output_pipe
@@ -149,8 +145,18 @@ class ProcessExecutorTread(Thread):
     def get_executionhost(self):
         return self.executionhost
 
+    def get_stop_queue(self):
+        return self.stop_queue
+
+    def get_local_pid_queue(self):
+        return self.local_pid_queue
+
+    def get_local_pid(self):
+        return self.local_pid_queue.get()
+
     def run(self):
         if self.type == "component":
             self.cmd_queue.put(self.cmd)
             self.do(self.cmd)
-            self.log.info("%s thread exited" % self.name)
+            self.stop_queue.put(True)
+            self.log.debug("%s thread exited" % self.name)
