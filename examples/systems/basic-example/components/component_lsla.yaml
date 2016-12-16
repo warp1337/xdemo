@@ -1,7 +1,8 @@
 -  xdemocomponent:
     name: "lsla"
     platform: "posix"
-    command: "ls -la"
+    command: |
+        ls -la $HOME;
     executionhost: "core"
     autostart: true
     blockexecution: true

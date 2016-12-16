@@ -30,9 +30,6 @@ Authors: Florian Lier
 
 """
 
-# SELF
-from xdemo.utilities.operatingsystem import get_localhost_name
-
 
 class SystemLauncherClient:
 
@@ -45,7 +42,6 @@ class SystemLauncherClient:
         self.local_hostname = _system_instance.local_hostname
         self.local_platform = _system_instance.local_platform
         self.runtimeenvironment = _system_instance.runtimeenvironment
-        # self.cmd_template = ""
 
     def mk_screen_sessions(self):
         for item in self.system_instance.instance_flat_executionlist:
@@ -65,17 +61,18 @@ class SystemLauncherClient:
                 cmd = item['component'].command
                 platform = item['component'].platform
                 host = item['component'].executionhost
-                full_cmd = self.construct_command(host, platform, cmd, True, True)
-                if full_cmd is None:
+                env_command, final_cmd = self.construct_command(host, platform, cmd, True, True)
+                if final_cmd is None:
                     return
                 else:
                     screen_name = self.mk_id("xdemo_component", name, self.local_hostname)
-                    self.screen_pool.send_cmd(screen_name, full_cmd, cmd)
+                    self.screen_pool.send_cmd(screen_name, env_command, cmd)
+                    self.screen_pool.send_cmd(screen_name, final_cmd, cmd)
 
     def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
         if self.clean_str(_host) == self.local_hostname and self.clean_str(_platform) == self.local_platform:
-            tmp_cmd = "source %s; " % self.runtimeenvironment.strip()
-            return tmp_cmd+_cmd.strip()
+            env_cmd = "source %s" % self.runtimeenvironment
+            return env_cmd, _cmd.strip()
         else:
             return None
 
