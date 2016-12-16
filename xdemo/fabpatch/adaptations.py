@@ -5,7 +5,7 @@ from __future__ import with_statement
 This file is part of XDEMO
 
 Copyright(c) <Florian Lier>
-https://github.com/warp1337/xdemo
+https://github.com/warp1337/xdemo_client
 
 This file may be licensed under the terms of the
 GNU Lesser General Public License Version 3 (the ``LGPL''),

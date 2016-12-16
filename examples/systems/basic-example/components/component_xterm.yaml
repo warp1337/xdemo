@@ -1,8 +1,8 @@
 -  xdemocomponent:
     name: "xterm"
-    platform: "linux"
+    platform: "posix"
     command: "/usr/bin/xterm"
-    executionhost: "localhost"
+    executionhost: "core"
     autostart: true
     blockexecution: true
     observer:

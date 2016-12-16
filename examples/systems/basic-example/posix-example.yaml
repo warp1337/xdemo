@@ -1,11 +1,10 @@
 -  xdemosystem:
     name: "linux-example"
     runtimeenvironment:
-      linux: "environment-linux.sh"
+      posix: "environment-posix.sh"
       darwin: "environment-darwin.sh"
       windows: "environment-win.bat"
     executionorder:
-      # - "component_xeyes"
       # - "group_tools"
       # - "group_visualization"
       - "component_xeyes"

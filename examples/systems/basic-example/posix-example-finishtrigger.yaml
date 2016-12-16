@@ -1,7 +1,7 @@
 -  xdemosystem:
     name: "linux-example-finishtrigger"
     runtimeenvironment:
-      linux: "environment-linux.sh"
+      posix: "environment-linux.sh"
       macos: "environment-darwin.sh"
       windows: "environment-win.bat"
     executionorder:

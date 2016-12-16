@@ -35,10 +35,13 @@ import os
 import sys
 import yaml
 
+# SELF
+from xdemo.utilities.operatingsystem import is_file
+
 
 class SystemConfig:
 
-    def __init__(self, _configfile, _logger):
+    def __init__(self, _configfile, _logger, _hostname, _platform):
         self.name = None
         self.groups = []
         self.log = _logger
@@ -49,6 +52,8 @@ class SystemConfig:
         self.executionduration = None
         self.flat_execution_list = []
         self.runtimeenvironment = None
+        self.local_platform = _platform
+        self.local_hostname = _hostname
         self.cfg_file = str(_configfile).strip()
 
         # Constructor functions to get the system data
@@ -56,7 +61,7 @@ class SystemConfig:
         self.load_system_cfg_file()
         self.load_system_entities()
         self.extract_base_data()
-        self.debug_info()
+        self.test_environment_files()
 
     # Helper function print the config
     def print_system_cfg_file(self):
@@ -74,10 +79,21 @@ class SystemConfig:
     def get_system_base_path(self):
         tmp_path = os.path.dirname(os.path.abspath(self.cfg_file))
         if os.path.exists(tmp_path):
-            self.base_path = tmp_path
+            self.base_path = tmp_path+"/"
         else:
             self.log.error("path does not exist %s", tmp_path)
             sys.exit(1)
+
+    # Check for convention of environment files
+    def test_environment_files(self):
+        if self.local_platform == 'posix':
+            target = self.base_path+self.runtimeenvironment[self.local_platform]
+            if is_file(target):
+                self.log.info("[config] found env file %s" % self.runtimeenvironment[self.local_platform])
+                self.runtimeenvironment = target
+            else:
+                self.log.error("[config] env file %s not found" % target)
+                sys.exit(1)
 
     # Load and serialize the global system config file
     def load_system_cfg_file(self):
@@ -178,6 +194,4 @@ class SystemConfig:
                                                                                                        self.runtimeenvironment,
                                                                                                        self.executionduration,
                                                                                                        self.finishtrigger))
-        # self.log.debug("flat execution list")
-        # from pprint import pprint
-        # self.log.debug(pprint(self.flat_execution_list))
+

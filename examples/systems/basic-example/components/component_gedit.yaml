@@ -1,8 +1,8 @@
 -  xdemocomponent:
     name: "gedit"
-    platform: "linux"
+    platform: "posix"
     command: "/usr/bin/gedit"
-    executionhost: "localhost"
+    executionhost: "core"
     autostart: true
     blockexecution: true
     observer:

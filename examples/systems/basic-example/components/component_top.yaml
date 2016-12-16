@@ -1,8 +1,8 @@
 -  xdemocomponent:
     name: "top"
-    platform: "linux"
+    platform: "posix"
     command: "/usr/bin/top"
-    executionhost: "testhost"
+    executionhost: "core"
     autostart: true
     blockexecution: true
     observer:

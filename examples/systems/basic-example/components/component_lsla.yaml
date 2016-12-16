@@ -1,8 +1,8 @@
 -  xdemocomponent:
     name: "lsla"
-    platform: "linux"
-    command: "/bin/ls"
-    executionhost: "localhost"
+    platform: "posix"
+    command: "ls -la"
+    executionhost: "core"
     autostart: true
     blockexecution: true
     observer:

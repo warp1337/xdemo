@@ -5,6 +5,7 @@
 # Prefix of the System. This is where your system is installed.
 # You may use this to expand your environment variables below.
 export XDEMOPREFIX=@xdemoprefix@
+export XDEMOROOT=@xdemoroot@
 
 # In case you installed your system in any other location:
 # Before starting xdemo export or set the prefix in your

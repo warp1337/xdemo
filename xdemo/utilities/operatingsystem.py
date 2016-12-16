@@ -32,7 +32,16 @@ Authors: Florian Lier
 
 
 import os
+from socket import gethostname
 
 
 def get_operating_system():
-    return os.name
+    return os.name.strip().lower()
+
+
+def get_localhost_name():
+    return gethostname().strip().lower()
+
+
+def is_file(_file):
+    return os.path.isfile(_file)

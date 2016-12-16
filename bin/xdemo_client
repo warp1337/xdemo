@@ -5,7 +5,7 @@
 This file is part of XDEMO
 
 Copyright(c) <Florian Lier>
-https://github.com/warp1337/xdemo
+https://github.com/warp1337/xdemo_client
 
 This file may be licensed under the terms of the
 GNU Lesser General Public License Version 3 (the ``LGPL''),
@@ -34,29 +34,27 @@ Authors: Florian Lier
 
 # STD
 import os
+import sys
 import time
+import signal
 import logging
-import multiprocessing
+from optparse import OptionParser
 
 # SELF
 from xdemo.container.system import SystemInstance
 from xdemo.parsing.yamlconfig import SystemConfig
 from xdemo.connections.screenclient import ScreenPool
-from xdemo.utilities.logreader import LogReader
-from xdemo.connections.sshclient import ConnectionPool
-from xdemo.launcher.systemlauncher import SystemLauncher
+from xdemo.launcher.systemlauncher import SystemLauncherClient
+from xdemo.utilities.operatingsystem import get_operating_system, get_localhost_name
 
 # LOGGING
 from colorlog import ColoredFormatter
 
-# FABRIC
-from fabric.state import connections
-from fabric.network import disconnect_all
-
-
 if __name__ == "__main__":
 
-    logger = logging.getLogger("xdemo")
+    ### LOGGING ####
+
+    logger = logging.getLogger("xdemo_client")
     logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
@@ -76,54 +74,73 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    os.system("mkdir -p /tmp/xdemo/logs/")
+    ### FOLDERS AND PLATFORM ####
 
-    logger.info("[XDEMO START]")
+    target_platform = get_operating_system()
 
-    config = "/home/fl/repro_systems/xdemosandbox/etc/xdemo/systems/basic-example/linux-example.yaml"
-    sc = SystemConfig(config, logger)
+    if target_platform == 'posix' or target_platform == 'darwin':
+        os.system("mkdir -p /tmp/xdemo_client/logs/")
+    else:
+        logger.error("Windows[C] support not yet implemented")
+        sys.exit(1)
+
+    hostname = get_localhost_name()
+
+    ### OPTIONS ####
+
+    parser = OptionParser(usage="Usage: %prog [options] PATH_TO_CFG_FILE.yaml",
+
+                          version="%prog 0.1")
+
+    parser.add_option("-c", "--config",
+
+                      action="store",
+
+                      dest="configfile",
+
+                      help="the xdemo system config")
+
+    (options, args) = parser.parse_args()
+
+    if not os.path.exists(options.configfile):
+        print "\n\n"
+
+        parser.error("The *.yaml file '%s' does not exist!" % args[0])
+
+        sys.exit(1)
+
+    logger.info("[ XDEMO CLIENT START | %s ]" % hostname)
+
+    ### SIGTRAP ###
+
+    exit_grace = False
+
+
+    def signal_handler(signum, frame):
+        global exit_grace
+        logger.warning("[ CTRL+C ] trying to gracefully terminate")
+        exit_grace = True
+
+
+    signal.signal(signal.SIGINT, signal_handler)
+
+    ### BOOTSTRAPPING ####
+
+    sc = SystemConfig(options.configfile, logger, hostname, target_platform)
     si = SystemInstance(sc, logger)
     sp = ScreenPool(logger)
-    sl = SystemLauncher(si, sp, logger)
+    sl = SystemLauncherClient(si, sp, logger)
     sl.mk_screen_sessions()
     sl.deploy_commands()
 
-    time.sleep(5)
+    logger.info("[ XDEMO CLIENT RUNNING | %s ]" % hostname)
+    ### LOOP ####
 
-    all_screens = sp.list_all_screens()
+    while not exit_grace:
+        time.sleep(0.1)
+
+    ### DE-BOOTSTRAPPING ####
 
     sp.kill_all_screen_sessions()
 
-    # cp = ConnectionPool(logger)
-    #
-    # cp.add_client_to_pool("thorium")
-    # cp.send_cmd_to_connetion("thorium", "ls")
-    # cp.send_cmd_to_connetion("thorium", "xterm", True)
-    #
-    # cp.close_all_connections()
-
-    # sl = SystemLauncher(si, logger)
-    #
-    # task_ready_queue = multiprocessing.Queue()
-    # p = multiprocessing.Process(target=sl.deploy_tasks, args=(task_ready_queue,))
-    # p.start()
-    #
-    # while task_ready_queue.empty():
-    #     time.sleep(0.05)
-    #
-    # logger.info("[deployer] deployed all tasks [OK]")
-    #
-    # time.sleep(5)
-    #
-    # sl.stop_all_tasks()
-    #
-    # p.join()
-    #
-    # for key in connections.keys():
-    #     logger.debug(connections[key])
-    #     connections[key].close()
-    #
-    # disconnect_all()
-
-    logger.info("[XDEMO END]")
-
+    logger.info("[ XDEMO CLIENT STOP | %s ]" % hostname)

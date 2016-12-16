@@ -37,7 +37,7 @@ from setuptools import setup, find_packages
 version = "master"
 filename = "master"
 
-setup(name="xdemo",
+setup(name="xdemo_client",
 
       version=filename,
 
@@ -49,13 +49,13 @@ setup(name="xdemo",
 
       author_email="flier[at]techfak.uni-bielefeld.de",
 
-      url="https://github.com/warp1337/xdemo",
+      url="https://github.com/warp1337/xdemo_client",
 
-      download_url="https://github.com/warp1337/xdemo",
+      download_url="https://github.com/warp1337/xdemo_client",
 
       packages=find_packages(exclude=["*.unittests", "*.unittests.*", "unittests.*", "unittests"]),
 
-      scripts=[],
+      scripts=['bin/xdemo_client'],
 
       package_data={'xdemo': ['examples/*']},
 

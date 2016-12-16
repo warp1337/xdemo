@@ -46,6 +46,8 @@ class SystemInstance:
         self.base_path = _systemconfig.base_path
         self.name = str(_systemconfig.name)
         self.finishtrigger = _systemconfig.finishtrigger
+        self.local_platform = _systemconfig.local_platform
+        self.local_hostname = _systemconfig.local_hostname
         self.executionduration = _systemconfig.executionduration
         self.runtimeenvironment = _systemconfig.runtimeenvironment
         self.cfg_execution_list = _systemconfig.flat_execution_list

@@ -1,7 +1,7 @@
 -  xdemosystem:
     name: "linux-example-infinite"
     runtimeenvironment:
-      linux: "environment-linux.sh"
+      posix: "environment-linux.sh"
       macos: "environment-darwin.sh"
       windows: "environment-win.bat.in"
     executionorder:
