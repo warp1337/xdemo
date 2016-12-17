@@ -51,7 +51,8 @@ class SystemLauncherClient:
                 if self.clean_str(component_host) == self.local_hostname:
                     name = item['component'].name.strip()
                     screen_name = self.mk_id("xdemo_component", name, self.local_hostname)
-                    new_screen_session = self.screen_pool.new_screen_session(self.clean_str(screen_name))
+                    new_screen_session = self.screen_pool.new_screen_session(self.clean_str(screen_name),
+                                                                             self.runtimeenvironment)
                     informed_item = {self.clean_str(screen_name): new_screen_session}
                     self.hierarchical_session_list.append(informed_item)
 
@@ -62,21 +63,19 @@ class SystemLauncherClient:
                 cmd = item['component'].command
                 platform = item['component'].platform
                 host = item['component'].executionhost
-                env_command, final_cmd = self.construct_command(host, platform, cmd, True, True)
-                if final_cmd is None and env_command is None:
+                final_cmd = self.construct_command(host, platform, cmd, True, True)
+                if final_cmd is None:
                     continue
                 else:
                     screen_name = self.mk_id("xdemo_component", name, self.local_hostname)
-                    self.screen_pool.send_cmd(screen_name, None, env_command)
-                    self.screen_pool.send_cmd(screen_name, final_cmd, None)
+                    self.screen_pool.send_cmd(screen_name, final_cmd)
 
     def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
         if self.clean_str(_host) == self.local_hostname and self.clean_str(_platform) == self.local_platform:
-            env_cmd = "source %s" % self.runtimeenvironment
-            return env_cmd, _cmd.strip()
+            return _cmd.strip()
         else:
             self.log.debug("[launcher] skipping %s | host %s | platform %s" % (_cmd, _host, _platform))
-            return None, None
+            return None
 
     @staticmethod
     def clean_str(_input_string):

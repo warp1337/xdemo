@@ -31,7 +31,7 @@ Authors: Florian Lier
 """
 
 # SCREEN UTILS
-from screenutils import Screen, list_screens
+from xdemo.screenutils.screen import Screen, list_screens
 
 
 class ScreenPool(object):
@@ -39,10 +39,10 @@ class ScreenPool(object):
         self.log = _log
         self.s_sessions = {}
 
-    def new_screen_session(self, _screen_name):
+    def new_screen_session(self, _screen_name, _runtimeenvironment):
         uid = _screen_name.strip()
-        s_session = Screen(uid)
-        s_session.initialize()
+        s_session = Screen(uid, self.log)
+        s_session.initialize(_runtimeenvironment)
         s_session.enable_logs("/tmp/xdemo_client/logs/" + uid + ".log")
         self.s_sessions[uid] = s_session
         return s_session
@@ -105,16 +105,12 @@ class ScreenPool(object):
             self.s_sessions[name].kill()
             self.log.info("[screen] session %s killed" % name)
 
-    def send_cmd(self, _screen_name, _cmd=None, _env_cmd=None):
+    def send_cmd(self, _screen_name, _cmd):
         uid = _screen_name.strip()
         result = self.check_exists_in_pool(uid)
         if result is not None:
-            if _env_cmd is None:
-                result.send_commands(_cmd)
-                self.log.info("[screen] cmd '%s' deployed" % _cmd)
-            else:
-                result.send_commands(_env_cmd)
-                self.log.debug("[screen] env_cmd '%s' deployed" % _cmd)
+            result.send_commands(_cmd)
+            self.log.info("[screen] cmd '%s' deployed" % _cmd)
         else:
             self.log.error("[screen] session %s does not exist" % uid)
             return None
