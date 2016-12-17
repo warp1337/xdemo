@@ -181,6 +181,9 @@ class Screen(object):
         """send commands to the active gnu-screen"""
         self._check_exists()
         for command in commands:
+            source_cmd = ". %s && " % self.runtimeenvironment
+            # Check why vars are still not expanded
+            final_command = source_cmd + command
             self._screen_commands('stuff "' + command + '" ',
                                   'eval "stuff \\015"')
 
