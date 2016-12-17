@@ -181,9 +181,6 @@ class Screen(object):
         """send commands to the active gnu-screen"""
         self._check_exists()
         for command in commands:
-            source_cmd = ". %s && " % self.runtimeenvironment
-            # Check why vars are still not expanded
-            final_command = source_cmd + command
             self._screen_commands('stuff "' + command + '" ',
                                   'eval "stuff \\015"')
 
@@ -196,7 +193,8 @@ class Screen(object):
         a glossary of the existing screen command in `man screen`"""
         self._check_exists()
         for command in commands:
-            system('screen -x ' + self.id + ' -X ' + command)
+            source_cmd = ". %s && " % self.runtimeenvironment
+            system(source_cmd + 'screen -x ' + self.id + ' -X ' + command)
             sleep(0.02)
 
     def _check_exists(self, message="Error code: 404."):
