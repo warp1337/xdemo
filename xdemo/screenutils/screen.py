@@ -161,7 +161,7 @@ class Screen(object):
             # support Unicode (-U),
             # attach to a new/existing named screen (-R).
             source_cmd = ". %s &&" % _environment
-            self.log.info("[screen] new screen using env %s" % os.path.basename(_environment))
+            self.log.info("[screen] new session using env %s" % os.path.basename(_environment))
             system(source_cmd + ' screen -UR ' + self.name)
 
     def interrupt(self):
