@@ -34,6 +34,7 @@ and has been altered by the author. Thanks for this great Screen class!
 """
 
 # STD
+import os
 import sys
 try:
     from commands import getoutput
@@ -160,6 +161,7 @@ class Screen(object):
             # support Unicode (-U),
             # attach to a new/existing named screen (-R).
             source_cmd = ". %s &&" % _environment
+            self.log.info("[screen] new screen using env %s" % os.path.basename(_environment))
             system(source_cmd + ' screen -UR ' + self.name)
 
     def interrupt(self):

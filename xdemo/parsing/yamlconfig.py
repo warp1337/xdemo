@@ -89,7 +89,7 @@ class SystemConfig:
             env_file = self.runtimeenvironment[self.local_platform].strip()
             target = self.base_path + env_file
             if is_file(target):
-                self.log.info("[config] using %s" % env_file)
+                self.log.debug("[config] using %s" % env_file)
                 self.runtimeenvironment = target
             else:
                 self.log.error("[config] env file %s not found" % target)
