@@ -40,7 +40,6 @@ from xdemo.utilities.operatingsystem import is_file
 
 
 class SystemConfig:
-
     def __init__(self, _configfile, _logger, _hostname, _platform):
         self.name = None
         self.groups = []
@@ -69,27 +68,28 @@ class SystemConfig:
 
     # Get the base data for this system, like name, envionment, etc
     def extract_base_data(self):
-        self.name = self.cfg_instance[0]['xdemosystem']['name']
+        self.name = self.cfg_instance[0]['xdemosystem']['name'].strip()
         self.runtimeenvironment = self.cfg_instance[0]['xdemosystem']['runtimeenvironment']
         self.executionduration = self.cfg_instance[0]['xdemosystem']['executionduration']
         if 'finishtrigger' in self.cfg_instance[0]['xdemosystem']:
-            self.finishtrigger = self.cfg_instance['finishtrigger']
+            self.finishtrigger = self.cfg_instance['finishtrigger'].strip()
 
     # Extract the base path from given config file
     def get_system_base_path(self):
         tmp_path = os.path.dirname(os.path.abspath(self.cfg_file))
         if os.path.exists(tmp_path):
-            self.base_path = tmp_path+"/"
+            self.base_path = tmp_path + "/"
         else:
-            self.log.error("path does not exist %s", tmp_path)
+            self.log.error("[config] path does not exist %s", tmp_path)
             sys.exit(1)
 
     # Check for convention of environment files
     def test_environment_files(self):
         if self.local_platform == 'posix':
-            target = self.base_path+self.runtimeenvironment[self.local_platform]
+            env_file = self.runtimeenvironment[self.local_platform].strip()
+            target = self.base_path + env_file
             if is_file(target):
-                self.log.info("[config] found env file %s" % self.runtimeenvironment[self.local_platform])
+                self.log.info("[config] using %s" % env_file)
                 self.runtimeenvironment = target
             else:
                 self.log.error("[config] env file %s not found" % target)
@@ -105,12 +105,12 @@ class SystemConfig:
                     self.log.error(e)
                     sys.exit(1)
         else:
-            self.log.error("config file does not exist %s", self.cfg_file)
+            self.log.error("[config] file does not exist %s", self.cfg_file)
             sys.exit(1)
 
     # Get all components and their values
     def load_system_component_config(self, _component, _level):
-        current_config = self.base_path + ("/components/") + _component + ".yaml"
+        current_config = self.base_path + ("/components/") + _component.strip() + ".yaml"
         if os.path.isfile(current_config):
             with open(current_config, 'r') as component_config:
                 try:
@@ -122,12 +122,12 @@ class SystemConfig:
                     self.log.error(e)
                     sys.exit(1)
         else:
-            self.log.error("config file does not exist %s", current_config)
+            self.log.error("[config] file does not exist %s", current_config)
             sys.exit(1)
 
     # Get all components and their values
     def extract_component_config(self, _component, _level):
-        current_config = self.base_path + ("/components/") + _component + ".yaml"
+        current_config = self.base_path + ("/components/") + _component.strip() + ".yaml"
         if os.path.isfile(current_config):
             with open(current_config, 'r') as component_config:
                 try:
@@ -138,12 +138,12 @@ class SystemConfig:
                     self.log.error(e)
                     sys.exit(1)
         else:
-            self.log.error("config file does not exist %s", current_config)
+            self.log.error("[config] file does not exist %s", current_config)
             sys.exit(1)
 
     # Get all groups and included components
     def load_system_group_config(self, _group, _level):
-        current_config = self.base_path + ("/groups/") + _group + ".yaml"
+        current_config = self.base_path + ("/groups/") + _group.strip() + ".yaml"
         if os.path.isfile(current_config):
             with open(current_config, 'r') as group_config:
                 try:
@@ -152,7 +152,8 @@ class SystemConfig:
                     tmp_group[0]['xdemogroup']["flat_execution_list"] = []
                     sublevel = 0
                     for item in tmp_group[0]['xdemogroup']['components']:
-                        tmp_group[0]['xdemogroup']["flat_execution_list"].append(self.extract_component_config(str(item), sublevel))
+                        tmp_group[0]['xdemogroup']["flat_execution_list"].append(
+                            self.extract_component_config(str(item), sublevel))
                         sublevel += 1
                     self.groups.append(tmp_group)
                     self.flat_execution_list.append(tmp_group)
@@ -160,7 +161,7 @@ class SystemConfig:
                     self.log.error(e)
                     sys.exit(1)
         else:
-            self.log.error("config file does not exist %s", current_config)
+            self.log.error("[config] file does not exist %s", current_config)
             sys.exit(1)
 
     # Extract all groups and components from config file
@@ -178,20 +179,20 @@ class SystemConfig:
                         exec_level += 1
                         continue
                     else:
-                        self.log.error("group or component name is not valid %s" % item)
+                        self.log.error("[config] group or component name is not valid %s" % item)
                         sys.exit(1)
             else:
-                self.log.error("config file does not exist contain entry executionorder")
+                self.log.error("[config] file does not exist contain entry executionorder")
                 sys.exit(1)
         else:
-            self.log.error("config file does not exist contain entry xdemosystem")
+            self.log.error("[config] file does not exist contain entry xdemosystem")
             sys.exit(1)
 
     # If level is debug, print some info
     def debug_info(self):
-        self.log.debug("system base data")
-        self.log.debug("name: %s, runtimeenvironment: %s executionduration: %s, finsishtrigger: %s" % (self.name,
-                                                                                                       self.runtimeenvironment,
-                                                                                                       self.executionduration,
-                                                                                                       self.finishtrigger))
-
+        self.log.debug("[config] system base data")
+        self.log.debug(
+            "[config] name: %s, runtimeenvironment: %s executionduration: %s, finsishtrigger: %s" % (self.name,
+                                                                                                     self.runtimeenvironment,
+                                                                                                     self.executionduration,
+                                                                                                     self.finishtrigger))

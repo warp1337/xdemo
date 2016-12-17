@@ -34,7 +34,6 @@ import paramiko
 
 
 class ConnectionPool:
-
     def __init__(self, _log):
         self.pool = {}
         self.log = _log
@@ -61,17 +60,16 @@ class ConnectionPool:
             return None
 
     def send_cmd_to_connection(self, _hostname, _cmd, _requires_x=False):
-            client = self.__get_connetion(_hostname)
-            if client is not None:
-                if _requires_x is True:
-                    _cmd = "export DISPLAY=:0.0 && " + _cmd
-                self.log.info("executing command: %s" % _cmd)
-                stdin, stdout, stderr = client.exec_command(_cmd)
-                for line in stdout.read().splitlines():
-                    print line
+        client = self.__get_connetion(_hostname)
+        if client is not None:
+            if _requires_x is True:
+                _cmd = "export DISPLAY=:0.0 && " + _cmd
+            self.log.info("executing command: %s" % _cmd)
+            stdin, stdout, stderr = client.exec_command(_cmd)
+            for line in stdout.read().splitlines():
+                print line
 
-                for line in stderr.read().splitlines():
-                    print line
-            else:
-                self.log.warning("[%s] connection not active" % _hostname)
-
+            for line in stderr.read().splitlines():
+                print line
+        else:
+            self.log.warning("[%s] connection not active" % _hostname)

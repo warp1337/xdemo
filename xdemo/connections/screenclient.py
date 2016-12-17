@@ -35,7 +35,6 @@ from screenutils import Screen, list_screens
 
 
 class ScreenPool(object):
-
     def __init__(self, _log):
         self.log = _log
         self.s_sessions = {}
@@ -106,13 +105,16 @@ class ScreenPool(object):
             self.s_sessions[name].kill()
             self.log.info("[screen] session %s killed" % name)
 
-    def send_cmd(self, _screen_name, _full_cmd, _cmd):
+    def send_cmd(self, _screen_name, _cmd=None, _env_cmd=None):
         uid = _screen_name.strip()
         result = self.check_exists_in_pool(uid)
         if result is not None:
-            result.send_commands(_full_cmd)
-            self.log.info("[screen] cmd '%s' deployed" % _cmd)
-            self.log.debug("[screen] full cmd '%s' deployed" % _full_cmd)
+            if _env_cmd is None:
+                result.send_commands(_cmd)
+                self.log.info("[screen] cmd '%s' deployed" % _cmd)
+            else:
+                result.send_commands(_env_cmd)
+                self.log.debug("[screen] env_cmd '%s' deployed" % _cmd)
         else:
             self.log.error("[screen] session %s does not exist" % uid)
             return None

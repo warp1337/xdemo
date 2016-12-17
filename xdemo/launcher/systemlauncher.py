@@ -32,7 +32,6 @@ Authors: Florian Lier
 
 
 class SystemLauncherClient:
-
     def __init__(self, _system_instance, _screen_pool, _log):
         self.log = _log
         self.screen_pool = _screen_pool
@@ -44,6 +43,8 @@ class SystemLauncherClient:
         self.runtimeenvironment = _system_instance.runtimeenvironment
 
     def mk_screen_sessions(self):
+        # Empty row before detach, simply looks good.
+        print ""
         for item in self.system_instance.instance_flat_executionlist:
             if 'component' in item.keys():
                 component_host = item['component'].executionhost
@@ -62,19 +63,20 @@ class SystemLauncherClient:
                 platform = item['component'].platform
                 host = item['component'].executionhost
                 env_command, final_cmd = self.construct_command(host, platform, cmd, True, True)
-                if final_cmd is None:
-                    return
+                if final_cmd is None and env_command is None:
+                    continue
                 else:
                     screen_name = self.mk_id("xdemo_component", name, self.local_hostname)
-                    self.screen_pool.send_cmd(screen_name, env_command, cmd)
-                    self.screen_pool.send_cmd(screen_name, final_cmd, cmd)
+                    self.screen_pool.send_cmd(screen_name, None, env_command)
+                    self.screen_pool.send_cmd(screen_name, final_cmd, None)
 
     def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
         if self.clean_str(_host) == self.local_hostname and self.clean_str(_platform) == self.local_platform:
             env_cmd = "source %s" % self.runtimeenvironment
             return env_cmd, _cmd.strip()
         else:
-            return None
+            self.log.debug("[launcher] skipping %s | host %s | platform %s" % (_cmd, _host, _platform))
+            return None, None
 
     @staticmethod
     def clean_str(_input_string):
@@ -82,4 +84,3 @@ class SystemLauncherClient:
 
     def mk_id(self, _xdemo, _name, _host):
         return self.clean_str(_xdemo) + "_" + self.clean_str(_name) + "_" + self.clean_str(_host)
-

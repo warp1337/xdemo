@@ -37,7 +37,6 @@ from threading import Thread
 
 
 class LogReader(Thread):
-
     def __init__(self, _file, _comm_queue, _log, _name):
         Thread.__init__(self)
         self.log = _log

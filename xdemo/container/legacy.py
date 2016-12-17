@@ -45,7 +45,6 @@ from xdemo.fabpatch.adaptations import execute_fab_patch
 
 
 class MultiProcessExecutor:
-
     def __init__(self, _component_or_group, _system_instance, _log):
 
         self.log = _log
@@ -73,10 +72,12 @@ class MultiProcessExecutor:
             env.shell_env["xdemoid"] = self.uuid
             env.shell_env["DISPLAY"] = ":0.0"
             if self.target.platform == 'linux':
-                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment['linux'] + " && "
+                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment[
+                    'linux'] + " && "
                 return self.command_prefix + _cmd
             if self.target.platform == 'darwin':
-                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment['darwin'] + " && "
+                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment[
+                    'darwin'] + " && "
                 return self.command_prefix + _cmd
             if self.target.platform == 'windows':
                 # How does windows load an environment, I dont know...
@@ -127,7 +128,6 @@ class MultiProcessExecutor:
 
 
 class Worker(multiprocessing.Process):
-
     def __init__(self, _component_or_group, _system_instance, _log):
 
         super(Worker, self).__init__()
@@ -156,10 +156,12 @@ class Worker(multiprocessing.Process):
             env.shell_env["xdemoid"] = self.uuid
             env.shell_env["DISPLAY"] = ":0.0"
             if self.target.platform == 'linux':
-                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment['linux'] + " && "
+                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment[
+                    'linux'] + " && "
                 return self.command_prefix + _cmd
             if self.target.platform == 'darwin':
-                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment['darwin'] + " && "
+                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment[
+                    'darwin'] + " && "
                 return self.command_prefix + _cmd
             if self.target.platform == 'windows':
                 # How does windows load an environment, I dont know...

@@ -2,7 +2,7 @@
     name: "top"
     platform: "posix"
     command: "/usr/bin/top"
-    executionhost: "core"
+    executionhost: "fl-vb"
     autostart: true
     blockexecution: true
     observer:

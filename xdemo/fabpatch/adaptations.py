@@ -47,6 +47,7 @@ from fabric.network import to_dict, disconnect_all
 from fabric.context_managers import settings
 from fabric.task_utils import crawl, merge, parse_kwargs
 from fabric.exceptions import NetworkError
+
 # from fabric.job_queue import JobQueue
 
 
@@ -64,8 +65,10 @@ if sys.version_info[:2] == (2, 5):
         def __getitem__(self, idx):
             return self._tuple[idx]
 
+
     def patched_get_argspec(func):
         return ArgSpec(*inspect._getargspec(func))
+
 
     inspect._getargspec = inspect.getargspec
     inspect.getargspec = patched_get_argspec
@@ -88,7 +91,7 @@ def get_task_details(task):
             args_without_defaults + [
                 '%s=%r' % (arg, default)
                 for arg, default in zip(args_with_defaults, default_args)
-            ])
+                ])
     ))
 
     return '\n'.join(details)
@@ -97,6 +100,7 @@ def get_task_details(task):
 def _get_list(env):
     def inner(key):
         return env.get(key, [])
+
     return inner
 
 
@@ -120,7 +124,7 @@ class Task(object):
 
     # TODO: make it so that this wraps other decorators as expected
     def __init__(self, alias=None, aliases=None, default=False, name=None,
-        *args, **kwargs):
+                 *args, **kwargs):
         if alias is not None:
             self.aliases = [alias, ]
         if aliases is not None:
@@ -189,6 +193,7 @@ class WrappedCallableTask(Task):
 
     .. seealso:: `~fabric.docs.unwrap_tasks`, `~fabric.decorators.task`
     """
+
     def __init__(self, callable, *args, **kwargs):
         super(WrappedCallableTask, self).__init__(*args, **kwargs)
         self.wrapped = callable
@@ -261,8 +266,9 @@ def _execute(task, host, my_env, args, kwargs, jobs, queue, multiprocessing, log
     if queue is not None:
         local_env.update({'parallel': True, 'linewise': True})
     # Handle parallel execution
-    if queue is not None: # Since queue is only set for parallel
+    if queue is not None:  # Since queue is only set for parallel
         name = local_env['host_string']
+
         # Wrap in another callable that:
         # * expands the env it's given to ensure parallel, linewise, etc are
         #   all set correctly and explicitly. Such changes are naturally
@@ -276,10 +282,11 @@ def _execute(task, host, my_env, args, kwargs, jobs, queue, multiprocessing, log
 
             def submit(result):
                 queue.put({'name': name, 'result': result})
+
             try:
                 state.connections.clear()
                 submit(task.run(*args, **kwargs))
-            except BaseException, e: # We really do want to capture everything
+            except BaseException, e:  # We really do want to capture everything
                 # SystemExit implies use of abort(), which prints its own
                 # traceback, host info etc -- so we don't want to double up
                 # on that. For everything else, though, we need to make
@@ -287,14 +294,14 @@ def _execute(task, host, my_env, args, kwargs, jobs, queue, multiprocessing, log
                 # print.
                 if e.__class__ is not SystemExit:
                     if not (isinstance(e, NetworkError) and
-                            _is_network_error_ignored()):
+                                _is_network_error_ignored()):
                         log.error("!!! parallel execution exception under host %r:\n" % name)
                     submit(e)
                 # Here, anything -- unexpected exceptions, or abort()
                 # driven SystemExits -- will bubble up and terminate the
                 # child process.
                 if not (isinstance(e, NetworkError) and
-                        _is_network_error_ignored()):
+                            _is_network_error_ignored()):
                     raise
 
         # Stuff into Process wrapper
@@ -465,7 +472,8 @@ def execute_fab_patch(task, _queue, _job_queue, _exit_queue, log, *args, **kwarg
                         # error(err)
                         log.error(err)
                     else:
-                        log.info('[%s] local process for %s closed SIGNAL %s [OK]' % (my_env['all_hosts'][0], my_env['command'], d['exit_code']))
+                        log.info('[%s] local process for %s closed SIGNAL %s [OK]' % (
+                        my_env['all_hosts'][0], my_env['command'], d['exit_code']))
 
                 results[name] = d['results']
 

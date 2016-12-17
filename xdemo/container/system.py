@@ -36,7 +36,6 @@ import uuid
 
 
 class SystemInstance:
-
     def __init__(self, _systemconfig, _log):
         self.log = _log
         self.groups = []
@@ -77,7 +76,6 @@ class SystemInstance:
 
 
 class Component:
-
     def __init__(self, _log):
         self.log = _log
         self.name = None
@@ -115,7 +113,6 @@ class Component:
 
 
 class Group:
-
     def __init__(self, _log):
         self.log = _log
         self.name = None
@@ -145,7 +142,6 @@ class Group:
 
 
 class Observer:
-
     def __init__(self):
         self.type = None
         self.maxwaittime = None

@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
     ### OPTIONS ####
 
-    parser = OptionParser(usage="Usage: %prog [options] PATH_TO_CFG_FILE.yaml",
+    parser = OptionParser(usage="Usage: %prog [options]",
 
                           version="%prog 0.1")
 
@@ -98,18 +98,22 @@ if __name__ == "__main__":
 
                       dest="configfile",
 
-                      help="the xdemo system config")
+                      help="xdemo system config file [*.yaml]")
 
     (options, args) = parser.parse_args()
 
-    if not os.path.exists(options.configfile):
-        print "\n\n"
-
-        parser.error("The *.yaml file '%s' does not exist!" % args[0])
-
+    if not options.configfile:
+        logger.error("no *.yaml config provided")
+        parser.print_help()
         sys.exit(1)
 
-    logger.info("[ XDEMO CLIENT START | %s ]" % hostname)
+    cfg = str(options.configfile)
+
+    if not os.path.exists(cfg):
+        logger.error("the *.yaml file '%s' does not exist!" % cfg)
+        sys.exit(1)
+
+    logger.info("[ XDEMO CLIENT START | %s | %s ]" % (hostname, target_platform))
 
     ### SIGTRAP ###
 
@@ -133,7 +137,8 @@ if __name__ == "__main__":
     sl.mk_screen_sessions()
     sl.deploy_commands()
 
-    logger.info("[ XDEMO CLIENT RUNNING | %s ]" % hostname)
+    logger.info("[ XDEMO CLIENT RUNNING | %s | %s ]" % (hostname, target_platform))
+
     ### LOOP ####
 
     while not exit_grace:
@@ -143,4 +148,4 @@ if __name__ == "__main__":
 
     sp.kill_all_screen_sessions()
 
-    logger.info("[ XDEMO CLIENT STOP | %s ]" % hostname)
+    logger.info("[ XDEMO CLIENT STOP | %s | %s ]" % (hostname, target_platform))

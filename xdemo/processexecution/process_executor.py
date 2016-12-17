@@ -45,7 +45,6 @@ from xdemo.fabpatch.adaptations import execute_fab_patch
 
 
 class ProcessExecutorTread(Thread):
-
     def __init__(self, _component_or_group,
                  _system_instance,
                  _exit_signal_queue,
@@ -85,10 +84,12 @@ class ProcessExecutorTread(Thread):
             env.shell_env["xdemoid"] = self.uuid
             env.shell_env["DISPLAY"] = ":0.0"
             if self.task.platform == 'linux':
-                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment['linux'] + " && "
+                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment[
+                    'linux'] + " && "
                 return self.command_prefix + _cmd
             if self.task.platform == 'darwin':
-                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment['darwin'] + " && "
+                self.command_prefix = "source " + self.base_path + "/" + self.system_instance.runtimeenvironment[
+                    'darwin'] + " && "
                 return self.command_prefix + _cmd
             if self.task.platform == 'windows':
                 # How does windows load an environment, I dont know...
