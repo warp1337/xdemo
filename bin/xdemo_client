@@ -40,15 +40,15 @@ import signal
 import logging
 from optparse import OptionParser
 
-# SELF
-from xdemo.container.system import SystemInstance
-from xdemo.parsing.config import SystemConfig
-from xdemo.connection.screenclient import ScreenPool
-from xdemo.launcher.systemlauncher import SystemLauncherClient
-from xdemo.utilities.operatingsystem import get_operating_system, get_localhost_name
-
-# LOGGING
+# LOG
 from colorlog import ColoredFormatter
+
+# SELF
+from xdemo.parsing.config import SystemConfig
+from xdemo.container.system import SystemInstance
+from xdemo.screenutils.screenclient import ScreenPool
+from xdemo.launcher.syslaunch import SystemLauncherClient
+from xdemo.utilities.operatingsystem import get_operating_system, get_localhost_name
 
 if __name__ == "__main__":
 
