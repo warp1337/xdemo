@@ -100,7 +100,7 @@ class ScreenPool(object):
         result = self.check_exists_in_pool(uid)
         if result is not None:
             result.kill()
-            self.log.info("[screen] killed %s" % uid)
+            self.log.info("[screen] terminated %s" % uid)
         else:
             self.log.error("[screen] %s does not exist" % uid)
             return None
@@ -108,7 +108,7 @@ class ScreenPool(object):
     def kill_all_screen_sessions(self):
         for name in self.s_sessions.keys():
             self.s_sessions[name].kill()
-            self.log.info("[screen] %s killed" % name)
+            self.log.info("[screen] %s terminated" % name)
 
     def send_cmd(self, _screen_name, _cmd, _type):
         uid = _screen_name.strip()

@@ -66,7 +66,7 @@ class SystemLauncherClient:
 
         self.deploy_commands()
 
-    def inner_deploy(self, _component, executed_list, _type):
+    def inner_deploy(self, _component, executed_list_components, _type):
         # Name is actually derived from the path: component_something.yaml
         component_name = _component.name
         cmd = _component.command
@@ -77,25 +77,34 @@ class SystemLauncherClient:
             return
         else:
             screen_name = self.mk_id("xdemo", component_name, self.local_hostname)
-            if screen_name not in executed_list.keys():
+            if screen_name not in executed_list_components.keys():
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type)
-                executed_list[screen_name] = final_cmd
+                executed_list_components[screen_name] = "started"
             else:
                 self.log.warning("[launcher] skipping '%s' already deployed on %s --> duplicate in components/groups?" %
                                  (final_cmd, self.local_hostname))
 
     def deploy_commands(self):
-        executed_list = {}
+        executed_list_components = {}
+        executed_list_groups = {}
         for item in self.system_instance.flat_execution_list:
             if 'component' in item.keys():
                 _type = 'component'
                 component = item['component']
-                self.inner_deploy(component, executed_list, _type)
+                self.inner_deploy(component, executed_list_components, _type)
             if 'group' in item.keys():
                 _type = 'group'
-                self.log.info("[launcher] '%s' detected decending now" % item['group'].name)
-                for component in item['group'].flat_execution_list:
-                    self.inner_deploy(component, executed_list, _type)
+                group_name = item['group'].name
+                if group_name not in executed_list_groups.keys():
+                    executed_list_groups[group_name] = "started"
+                    self.log.info("[launcher] '%s' detected decending now" % item['group'].name)
+                    for component in item['group'].flat_execution_list:
+                        self.inner_deploy(component, executed_list_components, _type)
+                else:
+                    self.log.warning(
+                        "[launcher] skipping '%s' already deployed on %s --> duplicate in components/groups?" %
+                        (item['group'].name, self.local_hostname))
+
 
     def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
         if _host == self.local_hostname and _platform == self.local_platform:

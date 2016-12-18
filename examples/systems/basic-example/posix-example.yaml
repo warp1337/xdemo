@@ -10,4 +10,6 @@
       - "component_ifconfig@fl-vb"
       - "component_cat@fl-vb"
       - "group_visualization"
+      - "component_cat@fl-vb"
+      - "group_visualization"
     executionduration: 10
