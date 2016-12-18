@@ -80,15 +80,19 @@ if __name__ == "__main__":
 
     ### FOLDERS AND PLATFORM ####
 
-    target_platform = get_operating_system()
+    target_platform = get_operating_system().strip()
+
+    log_folder = ""
 
     if target_platform == 'posix' or target_platform == 'darwin':
-        os.system("mkdir -p /tmp/xdemo_client/logs/")
+        user = os.environ['USER']
+        log_folder = "/tmp/xdemo_client/"+user+"/logs/"
+        os.system("mkdir -p " + log_folder)
     else:
         logger.error("Windows[C] support not yet implemented")
         sys.exit(1)
 
-    hostname = get_localhost_name()
+    hostname = get_localhost_name().strip()
 
     ### OPTIONS ####
 
@@ -134,12 +138,12 @@ if __name__ == "__main__":
 
     ### BOOTSTRAPPING ####
 
-    sc = SystemConfig(options.configfile, logger, hostname, target_platform)
+    cfg = options.configfile.strip()
+    sc = SystemConfig(cfg, logger, hostname, target_platform)
     si = SystemInstance(sc, logger)
-    sp = ScreenPool(logger)
+    sp = ScreenPool(logger, log_folder)
     sl = SystemLauncherClient(si, sp, logger)
     sl.mk_screen_sessions()
-    sl.deploy_commands()
 
     logger.info("[ XDEMO CLIENT RUNNING | %s | %s | PID %s ]" % (hostname, target_platform, this_client_pid))
 

@@ -56,7 +56,7 @@ class SystemConfig:
         self.local_hostname = _hostname
         self.cfg_file = str(_configfile).strip()
 
-        # Constructor functions to get the system data
+        # Constructor functions to initialize the system data
         self.get_system_base_path()
         self.load_system_cfg_file()
         self.load_system_entities()
@@ -117,7 +117,7 @@ class SystemConfig:
                 try:
                     tmp_component = yaml.load(component_config)
                     tmp_component[0]["level"] = _level
-                    # Insert executionhost and name
+                    # Insert executionhost and name, already stripped
                     tmp_component[0]['xdemocomponent']["name"] = _component
                     tmp_component[0]['xdemocomponent']["executionhost"] = _host
                     self.components.append(tmp_component)
@@ -137,7 +137,7 @@ class SystemConfig:
                 try:
                     actual_component_config = yaml.load(component_config)
                     actual_component_config[0]["sublevel"] = _level
-                    # Insert executionhost and name
+                    # Insert executionhost and name, already stripped
                     actual_component_config[0]['xdemocomponent']["name"] = _component
                     actual_component_config[0]['xdemocomponent']["executionhost"] = _host
                     return actual_component_config
@@ -156,7 +156,7 @@ class SystemConfig:
                 try:
                     tmp_group = yaml.load(group_config)
                     tmp_group[0]["level"] = _level
-                    # Inser group name
+                    # Insert group name, already stripped
                     tmp_group[0]['xdemogroup']['name'] = _group
                     tmp_group[0]['xdemogroup']["flat_execution_list"] = []
                     sublevel = 0

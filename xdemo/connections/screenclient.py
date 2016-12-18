@@ -35,17 +35,18 @@ from xdemo.screenutils.screen import Screen, list_screens
 
 
 class ScreenPool(object):
-    def __init__(self, _log):
+    def __init__(self, _log, _log_folder):
         self.log = _log
         self.s_sessions = {}
+        self.log_folder = _log_folder
 
     def new_screen_session(self, _screen_name, _runtimeenvironment):
-        uid = _screen_name.strip()
+        uid = _screen_name
         s_session = Screen(uid, self.log)
         s_session.initialize(_runtimeenvironment)
-        s_session.enable_logs("/tmp/xdemo_client/logs/" + uid + ".log")
+        s_session.enable_logs(self.log_folder + uid + ".log")
         if _screen_name in self.s_sessions.keys():
-            self.log.debug("[screen] %s exists --> duplicate in components?" % _screen_name)
+            self.log.debug("[screen] %s exists --> duplicate in components/groups?" % _screen_name)
             return None
         else:
             self.s_sessions[uid] = s_session
