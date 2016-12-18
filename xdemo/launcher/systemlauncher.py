@@ -78,11 +78,11 @@ class SystemLauncherClient:
         else:
             screen_name = self.mk_id("xdemo", component_name, self.local_hostname)
             if screen_name not in executed_list_components.keys():
-                self.screen_pool.send_cmd(screen_name, final_cmd, _type)
+                self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
                 executed_list_components[screen_name] = "started"
             else:
                 self.log.warning("[launcher] skipping '%s' already deployed on %s --> duplicate in components/groups?" %
-                                 (final_cmd, self.local_hostname))
+                                 (component_name, self.local_hostname))
 
     def deploy_commands(self):
         executed_list_components = {}
@@ -104,7 +104,6 @@ class SystemLauncherClient:
                     self.log.warning(
                         "[launcher] skipping '%s' already deployed on %s --> duplicate in components/groups?" %
                         (item['group'].name, self.local_hostname))
-
 
     def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
         if _host == self.local_hostname and _platform == self.local_platform:
