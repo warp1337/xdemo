@@ -118,7 +118,7 @@ class ScreenPool(object):
             if _type == 'component':
                 self.log.info("[screen] deployed '%s'" % _component_name)
             else:
-                self.log.info("\t[screen] deployed '%s'" % _component_name)
+                self.log.info(" \---[screen] deployed '%s'" % _component_name)
         else:
             self.log.error("[screen] %s does not exist" % uid)
             return None
