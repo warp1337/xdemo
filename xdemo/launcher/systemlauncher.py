@@ -97,7 +97,7 @@ class SystemLauncherClient:
                 group_name = item['group'].name
                 if group_name not in executed_list_groups.keys():
                     executed_list_groups[group_name] = "started"
-                    self.log.info("[launcher] '%s' detected decending now" % item['group'].name)
+                    self.log.info("[launcher] '%s' decending" % item['group'].name)
                     for component in item['group'].flat_execution_list:
                         self.inner_deploy(component, executed_list_components, _type)
                 else:
