@@ -4,16 +4,8 @@
     autostart: true
     blockexecution: true
     observer:
-      pid:
-        maxwaittime: 1
-        retrycount: 1
       stdout:
         maxwaittime: 2
         criteria: "This must be found in the STDOUT"
-        retrycount: 2
-      custom:
-        maxwaittime: 2
-        command: "/bin/ls"
-        retrycount: 2
     errorpolicy: "strict"
     description: "ifconfig configures a network interface"
