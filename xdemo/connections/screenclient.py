@@ -44,14 +44,18 @@ class ScreenPool(object):
         s_session = Screen(uid, self.log)
         s_session.initialize(_runtimeenvironment)
         s_session.enable_logs("/tmp/xdemo_client/logs/" + uid + ".log")
-        self.s_sessions[uid] = s_session
-        return s_session
+        if _screen_name in self.s_sessions.keys():
+            self.log.debug("[screen] %s exists --> duplicate in components?" % _screen_name)
+            return None
+        else:
+            self.s_sessions[uid] = s_session
+            return s_session
 
     def check_exists_in_pool(self, _screen_name):
         if _screen_name in self.s_sessions.keys():
             return self.s_sessions[_screen_name]
         else:
-            self.log.error("[screen] session %s does not exist" % _screen_name)
+            self.log.error("[screen] %s does not exist" % _screen_name)
             return None
 
     def get_screen_id(self, _screen_name):
@@ -60,7 +64,7 @@ class ScreenPool(object):
         if result is not None:
             return result.id
         else:
-            self.log.error("[screen] session %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % uid)
             return None
 
     def get_screen_status(self, _screen_name):
@@ -69,7 +73,7 @@ class ScreenPool(object):
         if result is not None:
             return result.status
         else:
-            self.log.error("[screen] session %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % uid)
             return None
 
     def get_screen_is_initialized(self, _screen_name):
@@ -78,7 +82,7 @@ class ScreenPool(object):
         if result is not None:
             return result.exists
         else:
-            self.log.error("[screen] session %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % uid)
             return None
 
     def get_screen_logfile(self, _screen_name):
@@ -87,7 +91,7 @@ class ScreenPool(object):
         if result is not None:
             return result._logfilename
         else:
-            self.log.error("[screen] session %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % uid)
             return None
 
     def kill_screen(self, _screen_name):
@@ -95,24 +99,24 @@ class ScreenPool(object):
         result = self.check_exists_in_pool(uid)
         if result is not None:
             result.kill()
-            self.log.info("[screen] session %s killed" % uid)
+            self.log.info("[screen] killed %s" % uid)
         else:
-            self.log.error("[screen] session %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % uid)
             return None
 
     def kill_all_screen_sessions(self):
         for name in self.s_sessions.keys():
             self.s_sessions[name].kill()
-            self.log.info("[screen] session %s killed" % name)
+            self.log.info("[screen] %s killed" % name)
 
     def send_cmd(self, _screen_name, _cmd):
         uid = _screen_name.strip()
         result = self.check_exists_in_pool(uid)
         if result is not None:
             result.send_commands(_cmd)
-            self.log.info("[screen] cmd '%s' deployed" % _cmd)
+            self.log.info("[screen] deployed '%s'" % _cmd)
         else:
-            self.log.error("[screen] session %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % uid)
             return None
 
     def list_all_screens(self):

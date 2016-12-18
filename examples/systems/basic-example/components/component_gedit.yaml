@@ -1,8 +1,6 @@
 -  xdemocomponent:
-    name: "gedit"
     platform: "posix"
     command: "/usr/bin/gedit"
-    executionhost: "fl-vb"
     autostart: true
     blockexecution: true
     observer:

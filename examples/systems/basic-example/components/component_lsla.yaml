@@ -1,8 +1,6 @@
 -  xdemocomponent:
-    name: "lsla"
     platform: "posix"
     command: "ls -la $XDEMOROOT; ls -la $XDEMOPREFIX"
-    executionhost: "fl-vb"
     autostart: true
     blockexecution: true
     observer:

@@ -41,7 +41,7 @@ class SystemInstance:
         self.groups = []
         self.components = []
         self.uuid = str(uuid.uuid4())
-        self.instance_flat_executionlist = []
+        self.flat_execution_list = []
         self.base_path = _systemconfig.base_path
         self.name = str(_systemconfig.name)
         self.finishtrigger = _systemconfig.finishtrigger
@@ -65,14 +65,14 @@ class SystemInstance:
         c.initialize(_component_data)
         self.components.append(c)
         tmp_component = {"component": c}
-        self.instance_flat_executionlist.append(tmp_component)
+        self.flat_execution_list.append(tmp_component)
 
     def add_group(self, _group_data):
         g = Group(self.log)
         g.initialize(_group_data)
         self.groups.append(g)
         tmp_group = {"group": g}
-        self.instance_flat_executionlist.append(tmp_group)
+        self.flat_execution_list.append(tmp_group)
 
 
 class Component:

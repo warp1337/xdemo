@@ -34,6 +34,7 @@ Authors: Florian Lier
 class SystemLauncherClient:
     def __init__(self, _system_instance, _screen_pool, _log):
         self.log = _log
+        executed_list = {}
         self.screen_pool = _screen_pool
         self.hierarchical_session_list = []
         self.system_instance = _system_instance
@@ -42,33 +43,54 @@ class SystemLauncherClient:
         self.local_platform = _system_instance.local_platform
         self.runtimeenvironment = _system_instance.runtimeenvironment
 
+    def inner_mk_session(self, component):
+        # Name is actually derived from the path: component_something.yaml
+        component_host = component.executionhost
+        if self.clean_str(component_host) == self.local_hostname:
+            component_name = component.name.strip()
+            screen_name = self.mk_id("xdemo", component_name, self.local_hostname)
+            new_screen_session = self.screen_pool.new_screen_session(self.clean_str(screen_name),
+                                                                     self.runtimeenvironment)
+            if new_screen_session is not None:
+                informed_item = {self.clean_str(screen_name): new_screen_session}
+                self.hierarchical_session_list.append(informed_item)
+
     def mk_screen_sessions(self):
         # Empty row before detach, simply looks good.
         print ""
-        for item in self.system_instance.instance_flat_executionlist:
+        for item in self.system_instance.flat_execution_list:
             if 'component' in item.keys():
-                component_host = item['component'].executionhost
-                if self.clean_str(component_host) == self.local_hostname:
-                    name = item['component'].name.strip()
-                    screen_name = self.mk_id("xdemo_component", name, self.local_hostname)
-                    new_screen_session = self.screen_pool.new_screen_session(self.clean_str(screen_name),
-                                                                             self.runtimeenvironment)
-                    informed_item = {self.clean_str(screen_name): new_screen_session}
-                    self.hierarchical_session_list.append(informed_item)
+                self.inner_mk_session(item['component'])
+            if 'group' in item.keys():
+                for component in item['group'].flat_execution_list:
+                    self.inner_mk_session(component)
+
+    def inner_deploy(self, _component, executed_list):
+        # Name is actually derived from the path: component_something.yaml
+        component_name = _component.name.strip()
+        cmd = _component.command
+        platform = _component.platform
+        host = _component.executionhost
+        final_cmd = self.construct_command(host, platform, cmd, True, True)
+        if final_cmd is None:
+            return
+        else:
+            screen_name = self.mk_id("xdemo", component_name, self.local_hostname)
+            if screen_name not in executed_list.keys():
+                self.screen_pool.send_cmd(screen_name, final_cmd)
+                executed_list[screen_name] = final_cmd
+            else:
+                self.log.warning("[launcher] '%s' already executed on %s --> duplicate in components?" %
+                                 (final_cmd, self.local_hostname))
 
     def deploy_commands(self):
-        for item in self.system_instance.instance_flat_executionlist:
+        executed_list = {}
+        for item in self.system_instance.flat_execution_list:
             if 'component' in item.keys():
-                name = item['component'].name.strip()
-                cmd = item['component'].command
-                platform = item['component'].platform
-                host = item['component'].executionhost
-                final_cmd = self.construct_command(host, platform, cmd, True, True)
-                if final_cmd is None:
-                    continue
-                else:
-                    screen_name = self.mk_id("xdemo_component", name, self.local_hostname)
-                    self.screen_pool.send_cmd(screen_name, final_cmd)
+                self.inner_deploy(item['component'], executed_list)
+            if 'group' in item.keys():
+                for component in item['group'].flat_execution_list:
+                    self.inner_deploy(component, executed_list)
 
     def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
         if self.clean_str(_host) == self.local_hostname and self.clean_str(_platform) == self.local_platform:
@@ -81,5 +103,5 @@ class SystemLauncherClient:
     def clean_str(_input_string):
         return _input_string.strip().lower()
 
-    def mk_id(self, _xdemo, _name, _host):
-        return self.clean_str(_xdemo) + "_" + self.clean_str(_name) + "_" + self.clean_str(_host)
+    def mk_id(self, _xdemo, _component_name, _host):
+        return self.clean_str(_xdemo) + "_" + self.clean_str(_component_name) + "_" + self.clean_str(_host)

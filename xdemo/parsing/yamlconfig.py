@@ -41,6 +41,7 @@ from xdemo.utilities.operatingsystem import is_file
 
 class SystemConfig:
     def __init__(self, _configfile, _logger, _hostname, _platform):
+        # Basic definitions
         self.name = None
         self.groups = []
         self.log = _logger
@@ -95,7 +96,7 @@ class SystemConfig:
                 self.log.error("[config] env file %s not found" % target)
                 sys.exit(1)
 
-    # Load and serialize the global system config file
+    # Load and serialize the global system config yaml file
     def load_system_cfg_file(self):
         if os.path.isfile(self.cfg_file):
             with open(self.cfg_file, 'r') as current_config:
@@ -108,31 +109,37 @@ class SystemConfig:
             self.log.error("[config] file does not exist %s", self.cfg_file)
             sys.exit(1)
 
-    # Get all components and their values
-    def load_system_component_config(self, _component, _level):
-        current_config = self.base_path + ("/components/") + _component.strip() + ".yaml"
+    # Get all components and their values from top level
+    def load_system_component_config(self, _component, _host, _level):
+        current_config = self.base_path + ("/components/") + _component + ".yaml"
         if os.path.isfile(current_config):
             with open(current_config, 'r') as component_config:
                 try:
                     tmp_component = yaml.load(component_config)
                     tmp_component[0]["level"] = _level
+                    # Insert executionhost and name
+                    tmp_component[0]['xdemocomponent']["name"] = _component
+                    tmp_component[0]['xdemocomponent']["executionhost"] = _host
                     self.components.append(tmp_component)
                     self.flat_execution_list.append(tmp_component)
                 except yaml.YAMLError as e:
                     self.log.error(e)
                     sys.exit(1)
         else:
-            self.log.error("[config] file does not exist %s", current_config)
+            self.log.error("[config] file %s does not exist", current_config)
             sys.exit(1)
 
-    # Get all components and their values
-    def extract_component_config(self, _component, _level):
-        current_config = self.base_path + ("/components/") + _component.strip() + ".yaml"
+    # Get all components and their values within a group
+    def extract_component_config(self, _component, _host, _level):
+        current_config = self.base_path + ("/components/") + _component + ".yaml"
         if os.path.isfile(current_config):
             with open(current_config, 'r') as component_config:
                 try:
                     actual_component_config = yaml.load(component_config)
                     actual_component_config[0]["sublevel"] = _level
+                    # Insert executionhost and name
+                    actual_component_config[0]['xdemocomponent']["name"] = _component
+                    actual_component_config[0]['xdemocomponent']["executionhost"] = _host
                     return actual_component_config
                 except yaml.YAMLError as e:
                     self.log.error(e)
@@ -143,17 +150,27 @@ class SystemConfig:
 
     # Get all groups and included components
     def load_system_group_config(self, _group, _level):
-        current_config = self.base_path + ("/groups/") + _group.strip() + ".yaml"
+        current_config = self.base_path + ("/groups/") + _group + ".yaml"
         if os.path.isfile(current_config):
             with open(current_config, 'r') as group_config:
                 try:
                     tmp_group = yaml.load(group_config)
                     tmp_group[0]["level"] = _level
+                    # Inser group name
+                    tmp_group[0]['xdemogroup']['name'] = _group
                     tmp_group[0]['xdemogroup']["flat_execution_list"] = []
                     sublevel = 0
                     for item in tmp_group[0]['xdemogroup']['components']:
+                        try:
+                            item.strip()
+                            tmp_item = item.split("@")
+                            name = tmp_item[0].strip()
+                            host = tmp_item[1].strip()
+                        except Exception, e:
+                            self.log.error("[config] no hostname provided? %s" % item)
+                            sys.exit(1)
                         tmp_group[0]['xdemogroup']["flat_execution_list"].append(
-                            self.extract_component_config(str(item), sublevel))
+                            self.extract_component_config(str(name), str(host), sublevel))
                         sublevel += 1
                     self.groups.append(tmp_group)
                     self.flat_execution_list.append(tmp_group)
@@ -171,28 +188,27 @@ class SystemConfig:
             if 'executionorder' in self.cfg_instance[0]['xdemosystem'].keys():
                 for item in self.cfg_instance[0]['xdemosystem']['executionorder']:
                     if "component_" in item:
-                        self.load_system_component_config(str(item), exec_level)
+                        try:
+                            item.strip()
+                            tmp_item = item.split("@")
+                            name = tmp_item[0].strip()
+                            host = tmp_item[1].strip()
+                        except Exception, e:
+                            self.log.error("[config] no hostname provided? %s" % item)
+                            sys.exit(1)
+                        self.load_system_component_config(str(name), str(host), exec_level)
                         exec_level += 1
                         continue
                     elif "group_" in item:
-                        self.load_system_group_config(str(item), exec_level)
+                        self.load_system_group_config(str(item.strip()), exec_level)
                         exec_level += 1
                         continue
                     else:
                         self.log.error("[config] group or component name is not valid %s" % item)
                         sys.exit(1)
             else:
-                self.log.error("[config] file does not exist contain entry executionorder")
+                self.log.error("[config] file does not exist contain entry 'executionorder'")
                 sys.exit(1)
         else:
-            self.log.error("[config] file does not exist contain entry xdemosystem")
+            self.log.error("[config] file does not exist contain entry 'xdemosystem'")
             sys.exit(1)
-
-    # If level is debug, print some info
-    def debug_info(self):
-        self.log.debug("[config] system base data")
-        self.log.debug(
-            "[config] name: %s, runtimeenvironment: %s executionduration: %s, finsishtrigger: %s" % (self.name,
-                                                                                                     self.runtimeenvironment,
-                                                                                                     self.executionduration,
-                                                                                                     self.finishtrigger))

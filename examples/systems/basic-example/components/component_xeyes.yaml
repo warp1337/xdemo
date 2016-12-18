@@ -1,8 +1,6 @@
 -  xdemocomponent:
-    name: "xeyes"
     platform: "posix"
     command: "/usr/bin/xeyes"
-    executionhost: "fl-vb"
     autostart: true
     blockexecution: true
     observer:

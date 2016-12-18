@@ -1,8 +1,6 @@
 -  xdemocomponent:
-    name: "top"
     platform: "posix"
     command: "/usr/bin/top"
-    executionhost: "fl-vb"
     autostart: true
     blockexecution: true
     observer:

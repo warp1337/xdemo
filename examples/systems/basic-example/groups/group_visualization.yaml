@@ -1,9 +1,8 @@
 -  xdemogroup:
-    name: "visualization"
     autostart: true
     blockexecution: true
     errorpolicy: "strict"
     description: "This group starts applications that need X11"
     components:
-      - "component_xeyes"
-      - "component_xterm"
+      - "component_xeyes@fl-vb"
+      - "component_xterm@fl-vb"
