@@ -41,7 +41,7 @@ from fabric.api import *
 from fabric.job_queue import JobQueue
 
 # SELF
-from xdemo.fabpatch.adaptations import execute_fab_patch
+from xdemo.patched.xdemofab import execute_fab_patch
 
 
 class ProcessExecutorTread(Thread):

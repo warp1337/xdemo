@@ -41,7 +41,7 @@ from fabric.api import *
 from fabric.job_queue import JobQueue
 from fabric.network import disconnect_all
 
-from xdemo.fabpatch.adaptations import execute_fab_patch
+from xdemo.patched.xdemofab import execute_fab_patch
 
 
 class MultiProcessExecutor:

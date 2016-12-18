@@ -445,7 +445,7 @@ def execute_fab_patch(task, _queue, _job_queue, _exit_queue, log, *args, **kwarg
                 else:
                     raise
 
-            # If requested, clear out connections here and not just at the end.
+            # If requested, clear out connection here and not just at the end.
             if state.env.eagerly_disconnect:
                 disconnect_all()
 

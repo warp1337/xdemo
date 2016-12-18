@@ -42,8 +42,8 @@ from optparse import OptionParser
 
 # SELF
 from xdemo.container.system import SystemInstance
-from xdemo.parsing.yamlconfig import SystemConfig
-from xdemo.connections.screenclient import ScreenPool
+from xdemo.parsing.config import SystemConfig
+from xdemo.connection.screenclient import ScreenPool
 from xdemo.launcher.systemlauncher import SystemLauncherClient
 from xdemo.utilities.operatingsystem import get_operating_system, get_localhost_name
 

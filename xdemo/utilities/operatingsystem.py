@@ -35,11 +35,11 @@ from socket import gethostname
 
 
 def get_operating_system():
-    return os.name.strip().lower()
+    return os.name.strip()
 
 
 def get_localhost_name():
-    return gethostname().strip().lower()
+    return gethostname().strip()
 
 
 def is_file(_file):
