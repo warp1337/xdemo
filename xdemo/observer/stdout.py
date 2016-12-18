@@ -36,14 +36,15 @@ from os.path import getsize
 from threading import Thread
 
 
-class LogReader(Thread):
-    def __init__(self, _file, _comm_queue, _log, _name):
+class StdoutObserver(Thread):
+    def __init__(self, _file, _log, _component_name, _criteria):
         Thread.__init__(self)
+        self.ok = False
         self.log = _log
         self.file = _file
         self.keep_running = True
-        self.connection_queue = _comm_queue
-        self.log.debug("[%s] initialized log reader" % _name)
+        self.criteria = _criteria
+        self.log.debug("[observer] STDOUT of '%s'" % _component_name)
 
     def stop(self):
         self.keep_running = False
@@ -58,8 +59,42 @@ class LogReader(Thread):
                 text = f.read()
                 f.close()
                 last_size = cur_size
-                self.connection_queue.put(text)
+                if self.criteria in text:
+                    self.ok = True
             else:
-                self.connection_queue.put("")
-            # Save CPU cycles 10ms
-            time.sleep(0.01)
+                pass
+            # Save CPU cycles 1ms
+            time.sleep(0.001)
+
+
+class StdoutExcludeObserver(Thread):
+    def __init__(self, _file, _log, _component_name, _criteria):
+        Thread.__init__(self)
+        self.ok = False
+        self.log = _log
+        self.file = _file
+        self.keep_running = True
+        self.criteria = _criteria
+        self.log.debug("[observer] STDOUTEXCLUDE of '%s'" % _component_name)
+
+    def stop(self):
+        self.keep_running = False
+
+    def run(self):
+        last_size = getsize(self.file)
+        while self.keep_running:
+            cur_size = getsize(self.file)
+            if cur_size != last_size:
+                f = open(self.file, 'r')
+                f.seek(last_size if cur_size > last_size else 0)
+                text = f.read()
+                f.close()
+                last_size = cur_size
+                if self.criteria not in text:
+                    self.ok = True
+                else:
+                    self.ok = False
+            else:
+                pass
+            # Save CPU cycles 1ms
+            time.sleep(0.001)
