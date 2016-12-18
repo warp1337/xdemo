@@ -110,12 +110,15 @@ class ScreenPool(object):
             self.s_sessions[name].kill()
             self.log.info("[screen] %s killed" % name)
 
-    def send_cmd(self, _screen_name, _cmd):
+    def send_cmd(self, _screen_name, _cmd, _type):
         uid = _screen_name.strip()
         result = self.check_exists_in_pool(uid)
         if result is not None:
             result.send_commands(_cmd)
-            self.log.info("[screen] deployed '%s'" % _cmd)
+            if _type == 'component':
+                self.log.info("[screen] deployed '%s'" % _cmd)
+            else:
+                self.log.info("\t[screen] deployed '%s'" % _cmd)
         else:
             self.log.error("[screen] %s does not exist" % uid)
             return None

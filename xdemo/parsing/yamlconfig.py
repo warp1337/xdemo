@@ -131,7 +131,7 @@ class SystemConfig:
 
     # Get all components and their values within a group
     def extract_component_config(self, _component, _host, _level):
-        current_config = self.base_path + ("/components/") + _component + ".yaml"
+        current_config = self.base_path + ("components/") + _component + ".yaml"
         if os.path.isfile(current_config):
             with open(current_config, 'r') as component_config:
                 try:
@@ -161,6 +161,9 @@ class SystemConfig:
                     tmp_group[0]['xdemogroup']["flat_execution_list"] = []
                     sublevel = 0
                     for item in tmp_group[0]['xdemogroup']['components']:
+                        if 'group_' in item.strip():
+                            self.log.error("[config] %s nested groups not allowed" % _group)
+                            sys.exit(1)
                         try:
                             item.strip()
                             tmp_item = item.split("@")

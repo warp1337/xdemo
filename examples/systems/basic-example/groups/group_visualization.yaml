@@ -6,3 +6,7 @@
     components:
       - "component_xeyes@fl-vb"
       - "component_xterm@fl-vb"
+      - "component_help@fl-vb"
+      - "component_gnome-calc@fl-vb"
+      - "component_gedit@fl-vb"
+      - "component_calendar@fl-vb"

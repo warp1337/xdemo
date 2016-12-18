@@ -4,9 +4,5 @@
     errorpolicy: "strict"
     description: "This group starts some great tools"
     components:
-      - "component_lsla@fl-vb"
-      - "component_xterm@fl-vb"
-      - "component_xeyes@fl-vb"
-      - "component_lsla@fl-vb"
-      - "component_xterm@fl-vb"
+      - "component_uname@fl-vb"
       - "component_top@fl-vb"

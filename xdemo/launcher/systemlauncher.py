@@ -66,7 +66,7 @@ class SystemLauncherClient:
 
         self.deploy_commands()
 
-    def inner_deploy(self, _component, executed_list):
+    def inner_deploy(self, _component, executed_list, _type):
         # Name is actually derived from the path: component_something.yaml
         component_name = _component.name
         cmd = _component.command
@@ -78,21 +78,24 @@ class SystemLauncherClient:
         else:
             screen_name = self.mk_id("xdemo", component_name, self.local_hostname)
             if screen_name not in executed_list.keys():
-                self.screen_pool.send_cmd(screen_name, final_cmd)
+                self.screen_pool.send_cmd(screen_name, final_cmd, _type)
                 executed_list[screen_name] = final_cmd
             else:
-                self.log.warning("[launcher] '%s' already deployed on %s --> duplicate in components/groups?" %
+                self.log.warning("[launcher] skipping '%s' already deployed on %s --> duplicate in components/groups?" %
                                  (final_cmd, self.local_hostname))
 
     def deploy_commands(self):
         executed_list = {}
         for item in self.system_instance.flat_execution_list:
             if 'component' in item.keys():
+                _type = 'component'
                 component = item['component']
-                self.inner_deploy(component, executed_list)
+                self.inner_deploy(component, executed_list, _type)
             if 'group' in item.keys():
+                _type = 'group'
+                self.log.info("[launcher] '%s' detected decending now" % item['group'].name)
                 for component in item['group'].flat_execution_list:
-                    self.inner_deploy(component, executed_list)
+                    self.inner_deploy(component, executed_list, _type)
 
     def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
         if _host == self.local_hostname and _platform == self.local_platform:

@@ -5,13 +5,9 @@
       darwin: "environment-darwin.sh"
       windows: "environment-win.bat"
     executionorder:
-      - "group_tools"
-      - "group_visualization"
-      - "component_xeyes@fl-vb"
-      - "component_xterm@fl-vb"
       - "component_lsla@fl-vb"
-      - "component_xterm@fl-vb"
-      - "component_xterm@fl-vb"
-      - "component_xterm@fl-vb"
-      - "component_gedit@localhost"
+      - "group_tools"
+      - "component_ifconfig@fl-vb"
+      - "component_cat@fl-vb"
+      - "group_visualization"
     executionduration: 10
