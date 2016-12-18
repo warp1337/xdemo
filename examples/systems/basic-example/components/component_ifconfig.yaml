@@ -2,10 +2,11 @@
     platform: "posix"
     command: "/sbin/ifconfig"
     autostart: true
-    blockexecution: true
     observer:
       stdout:
         maxwaittime: 2
         criteria: "This must be found in the STDOUT"
+      stdoutexclude:
+        criteria: "This must be NOT found in the STDOUT"
     errorpolicy: "strict"
     description: "ifconfig configures a network interface"

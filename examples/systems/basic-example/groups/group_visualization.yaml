@@ -1,6 +1,5 @@
 -  xdemogroup:
     autostart: true
-    blockexecution: true
     errorpolicy: "strict"
     description: "This group starts applications that need X11"
     components:

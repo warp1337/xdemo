@@ -88,7 +88,6 @@ class Component:
         self.errorpolicy = None
         self.description = None
         self.executionhost = None
-        self.blockexecution = None
         self.uuid = str(uuid.uuid4())
 
     def initialize(self, _component_data):
@@ -106,7 +105,6 @@ class Component:
             self.errorpolicy = _component_data[0]['xdemocomponent']['errorpolicy']
             self.description = _component_data[0]['xdemocomponent']['description']
             self.executionhost = _component_data[0]['xdemocomponent']['executionhost']
-            self.blockexecution = _component_data[0]['xdemocomponent']['blockexecution']
         except Exception, e:
             self.log.error("key error in component %s " % e)
             sys.exit(1)
@@ -120,7 +118,6 @@ class Group:
         self.autostart = None
         self.errorpolicy = None
         self.description = None
-        self.blockexecution = None
         self.flat_execution_list = []
         self.uuid = str(uuid.uuid4())
 
@@ -131,7 +128,6 @@ class Group:
             self.autostart = _group_data[0]['xdemogroup']['autostart']
             self.errorpolicy = _group_data[0]['xdemogroup']['errorpolicy']
             self.description = _group_data[0]['xdemogroup']['description']
-            self.blockexecution = _group_data[0]['xdemogroup']['blockexecution']
             for item in _group_data[0]['xdemogroup']['flat_execution_list']:
                 c = Component(self.log)
                 c.initialize(item)

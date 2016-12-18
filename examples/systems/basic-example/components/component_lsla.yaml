@@ -2,7 +2,6 @@
     platform: "posix"
     command: "ls -la $XDEMOROOT; ls -la $XDEMOPREFIX"
     autostart: true
-    blockexecution: true
     observer:
       stdout:
         maxwaittime: 2

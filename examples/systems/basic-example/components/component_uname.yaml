@@ -2,7 +2,6 @@
     platform: "posix"
     command: "/bin/uname"
     autostart: true
-    blockexecution: true
     observer:
       stdout:
         maxwaittime: 2

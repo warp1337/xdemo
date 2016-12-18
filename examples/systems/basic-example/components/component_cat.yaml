@@ -2,7 +2,6 @@
     platform: "posix"
     command: "cat /tmp/xdemo_client/$USER/logs/xdemo_component_*"
     autostart: true
-    blockexecution: true
     observer:
       stdout:
         maxwaittime: 2

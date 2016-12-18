@@ -2,7 +2,6 @@
     platform: "posix"
     command: "/usr/bin/gedit"
     autostart: true
-    blockexecution: true
     observer:
       stdout:
         maxwaittime: 2

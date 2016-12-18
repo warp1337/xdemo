@@ -2,7 +2,6 @@
     platform: "posix"
     command: "/usr/bin/calendar"
     autostart: true
-    blockexecution: true
     observer:
       stdout:
         maxwaittime: 2
