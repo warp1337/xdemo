@@ -5,6 +5,6 @@
     observer:
       - stdout:
           maxwaittime: 5
-          criteria: "root"
+          criteria: "fl"
     errorpolicy: "strict"
     description: "show file content using cat"

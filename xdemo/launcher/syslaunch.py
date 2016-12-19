@@ -88,8 +88,10 @@ class SystemLauncherClient:
         else:
             screen_name = _component.screen_id
             if screen_name not in _executed_list_components.keys():
+                # Logfile has been created, we can safely start observer
                 for observer in _component.observer:
                     observer.start()
+                # Now deploy the command in the screen session
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
                 informed_item = {screen_name: _component}
                 self.hierarchical_component_list.append(informed_item)
