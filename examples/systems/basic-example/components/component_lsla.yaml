@@ -4,7 +4,7 @@
     autostart: true
     observer:
       - stdout:
-          maxwaittime: 5
-          criteria: "environment-linux.sh"
+          maxwaittime: 0.5
+          criteria: "environment-posix.sh"
     errorpolicy: "strict"
     description: "In computing, ls is a command to list files in Unix and Unix-like operating systems."

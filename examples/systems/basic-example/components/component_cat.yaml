@@ -4,7 +4,22 @@
     autostart: true
     observer:
       - stdout:
-          maxwaittime: 2
-          criteria: "sdfsfsfdsdf"
+          maxwaittime: 0.2
+          criteria: "wrwrsdfsfsfdsdf"
+      - stdout:
+          maxwaittime: 0.2
+          criteria: "wrewrsdfsfsfdsdf"
+      - stdout:
+          maxwaittime: 0.2
+          criteria: "werwerwrsdfsfsfdsdf"
+      - stdout:
+          maxwaittime: 0.2
+          criteria: "werwerwrsdfsfsfdsdf"
+      - stdout:
+          maxwaittime: 0.2
+          criteria: "sdfswerwerfsfdsdf"
+      - stdout:
+          maxwaittime: 0.2
+          criteria: "sdfewr"
     errorpolicy: "strict"
     description: "show file content using cat"

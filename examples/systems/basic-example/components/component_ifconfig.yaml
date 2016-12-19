@@ -4,7 +4,7 @@
     autostart: true
     observer:
       - stdout:
-          maxwaittime: 5
+          maxwaittime: 1
           criteria: "eth0"
     errorpolicy: "strict"
     description: "ifconfig configures a network interface"

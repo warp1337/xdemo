@@ -89,30 +89,42 @@ class SystemLauncherClient:
             screen_name = _component.screen_id
             if screen_name not in _executed_list_components.keys():
                 # Logfile has been created, we can safely start observer
-                for observer in _component.observer:
-                    observer.start()
                 # Now deploy the command in the screen session
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
+
+                for observer in _component.observer:
+                    observer.start()
+
                 informed_item = {screen_name: _component}
                 self.hierarchical_component_list.append(informed_item)
                 _executed_list_components[screen_name] = "started"
-                for observer in _component.observer:
-                    now = time.time()
-                    observer_result = False
-                    if observer.type == 'stdoutobserver':
-                        while time.time() - now <= observer.maxwaittime and observer_result is False:
-                            observer_result = observer.ok
-                        observer.stop()
-                    if observer_result is True:
-                        if _type == 'component':
-                            self.log.obsok("    o---[observer] found '%s'" % observer.criteria)
-                        else:
-                            self.log.obsok("        o---[observer] found '%s'" % observer.criteria)
+                blocking_observers = len(_component.observer)
+
+                if blocking_observers > 0:
+                    if _type == 'component':
+                        self.log.info("    o---[observer] %d pending" % blocking_observers)
                     else:
-                        if _type == 'component':
-                            self.log.obswar("    o---[observer] missing '%s'" % observer.criteria)
+                        self.log.info("\t\to---[observer] %d observer pending" % blocking_observers)
+
+                while blocking_observers > 0:
+                    for observer in _component.observer:
+                        if observer.is_alive():
+                            time.sleep(0.001)
+                            continue
                         else:
-                            self.log.obswar("        o---[observer] missing '%s'" % observer.criteria)
+                            if observer.ok is True:
+                                if _type == 'component':
+                                    self.log.obsok("    o---[observer] found '%s'" % observer.criteria)
+                                else:
+                                    self.log.obsok("\t\to---[observer] found '%s'" % observer.criteria)
+                            else:
+                                if _type == 'component':
+                                    self.log.obswar("    o---[observer] missing '%s'" % observer.criteria)
+                                else:
+                                    self.log.obswar("\t\to---[observer] missing '%s'" % observer.criteria)
+                            blocking_observers -= 1
+                            _component.observer.remove(observer)
+                            self.log.debug("[observer] waiting for %d observers" % blocking_observers)
             else:
                 self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
                                  (component_name, self.local_hostname))

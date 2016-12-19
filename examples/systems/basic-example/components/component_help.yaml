@@ -3,4 +3,8 @@
     command: "/usr/bin/gnome-help"
     autostart: true
     errorpolicy: "strict"
+    observer:
+      - stdout:
+          maxwaittime: 10
+          criteria: "eth0"
     description: "Ubuntu Desktop Guide"

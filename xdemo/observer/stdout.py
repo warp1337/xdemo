@@ -52,9 +52,9 @@ class StdoutObserver(Thread):
         self.keep_running = False
 
     def run(self):
-        self.log.debug("[observer] STDOUT of '%s'" % self.component_name)
-        last_size = getsize(self.file)
-        while self.keep_running:
+        last_size = 0
+        now = time.time()
+        while time.time() - now <= self.maxwaittime and self.ok is False and self.keep_running is True:
             cur_size = getsize(self.file)
             if cur_size != last_size:
                 f = open(self.file, 'r')
@@ -68,7 +68,6 @@ class StdoutObserver(Thread):
                 pass
             # Save CPU cycles 1ms
             time.sleep(0.001)
-        self.log.debug("[observer] STDOUT stop '%s'" % self.component_name)
 
 
 class StdoutExcludeObserver(Thread):
@@ -86,9 +85,9 @@ class StdoutExcludeObserver(Thread):
         self.keep_running = False
 
     def run(self):
-        self.log.debug("[observer] STDOUTEXCLUDE of '%s'" % self.component_name)
-        last_size = getsize(self.file)
-        while self.keep_running:
+        last_size = 0
+        now = time.time()
+        while time.time() - now <= self.maxwaittime and self.ok is False and self.keep_running is True:
             cur_size = getsize(self.file)
             if cur_size != last_size:
                 f = open(self.file, 'r')
@@ -100,9 +99,8 @@ class StdoutExcludeObserver(Thread):
                     self.ok = True
                 else:
                     self.ok = False
+                    break
             else:
                 pass
             # Save CPU cycles 1ms
             time.sleep(0.001)
-        self.log.debug("[observer] STDOUTEXCLUDE stop '%s'" % self.component_name)
-
