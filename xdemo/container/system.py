@@ -84,7 +84,7 @@ class Component:
         self.log = _log
         self.name = None
         self.level = None
-        self.observer = []
+        self.initcriteria = []
         self.command = None
         self.log_file = None
         self.platform = None
@@ -114,17 +114,17 @@ class Component:
             self.executionhost = _component_data[0]['xdemocomponent']['executionhost']
             self.screen_id = self.mk_screen_id("xdemo", self.name, self.local_hostname)
             self.log_file = self.log_folder + self.mk_screen_id("xdemo", self.name, self.local_hostname) + ".log"
-            if 'observer' in _component_data[0]['xdemocomponent'].keys():
-                for observer in _component_data[0]['xdemocomponent']['observer']:
-                    if 'stdout' in observer.keys():
+            if 'initcriteria' in _component_data[0]['xdemocomponent'].keys():
+                for initcriteria in _component_data[0]['xdemocomponent']['initcriteria']:
+                    if 'stdout' in initcriteria.keys():
                         obs = StdoutObserver(self.log_file, self.log, self.name,
-                                             observer['stdout']['criteria'],
-                                             observer['stdout']['maxwaittime'])
-                        self.observer.append(obs)
-                    if 'stdoutexclude' in observer.keys():
+                                             initcriteria['stdout']['criteria'],
+                                             initcriteria['stdout']['maxwaittime'])
+                        self.initcriteria.append(obs)
+                    if 'stdoutexclude' in initcriteria.keys():
                         obs = StdoutExcludeObserver(self.log_file, self.log, self.name,
-                                                    observer['stdoutexclude']['criteria'])
-                        self.observer.append(obs)
+                                                    initcriteria['stdoutexclude']['criteria'])
+                        self.initcriteria.append(obs)
         except Exception, e:
             self.log.error("key error in component '%s' %s " % (self.name, e))
             sys.exit(1)

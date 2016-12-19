@@ -46,11 +46,11 @@ class SystemLauncherClient:
         self.local_platform = _system_instance.local_platform
         self.runtimeenvironment = _system_instance.runtimeenvironment
 
-    def stop_all_observers(self):
+    def stop_all_initcriteria(self):
         for item in self.hierarchical_component_list:
             values = item.values()
             for component in values:
-                for obs in component.observer:
+                for obs in component.initcriteria:
                      obs.keep_running = False
 
     def inner_mk_session(self, _component):
@@ -88,43 +88,43 @@ class SystemLauncherClient:
         else:
             screen_name = _component.screen_id
             if screen_name not in _executed_list_components.keys():
-                # Logfile has been created, we can safely start observer
+                # Logfile has been created, we can safely start initcriteria
                 # Now deploy the command in the screen session
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
 
-                for observer in _component.observer:
-                    observer.start()
+                for initcriteria in _component.initcriteria:
+                    initcriteria.start()
 
                 informed_item = {screen_name: _component}
                 self.hierarchical_component_list.append(informed_item)
                 _executed_list_components[screen_name] = "started"
-                blocking_observers = len(_component.observer)
+                blocking_initcriterias = len(_component.initcriteria)
 
-                if blocking_observers > 0:
+                if blocking_initcriterias > 0:
                     if _type == 'component':
-                        self.log.info("    o---[observer] %d pending" % blocking_observers)
+                        self.log.info("    o---[criteria] %d pending" % blocking_initcriterias)
                     else:
-                        self.log.info("\t\to---[observer] %d observer pending" % blocking_observers)
+                        self.log.info("\t\to---[criteria] %d pending" % blocking_initcriterias)
 
-                while blocking_observers > 0:
-                    for observer in _component.observer:
-                        if observer.is_alive():
+                while blocking_initcriterias > 0:
+                    for initcriteria in _component.initcriteria:
+                        if initcriteria.is_alive():
                             time.sleep(0.001)
                             continue
                         else:
-                            if observer.ok is True:
+                            if initcriteria.ok is True:
                                 if _type == 'component':
-                                    self.log.obsok("    o---[observer] found '%s'" % observer.criteria)
+                                    self.log.obsok("    o---[criteria] found '%s'" % initcriteria.criteria)
                                 else:
-                                    self.log.obsok("\t\to---[observer] found '%s'" % observer.criteria)
+                                    self.log.obsok("\t\to---[criteria] found '%s'" % initcriteria.criteria)
                             else:
                                 if _type == 'component':
-                                    self.log.obswar("    o---[observer] missing '%s'" % observer.criteria)
+                                    self.log.obswar("    o---[criteria] missing '%s'" % initcriteria.criteria)
                                 else:
-                                    self.log.obswar("\t\to---[observer] missing '%s'" % observer.criteria)
-                            blocking_observers -= 1
-                            _component.observer.remove(observer)
-                            self.log.debug("[observer] waiting for %d observers" % blocking_observers)
+                                    self.log.obswar("\t\to---[criteria] missing '%s'" % initcriteria.criteria)
+                            blocking_initcriterias -= 1
+                            _component.initcriteria.remove(initcriteria)
+                            self.log.debug("[criteria] waiting for %d criteria" % blocking_initcriterias)
             else:
                 self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
                                  (component_name, self.local_hostname))

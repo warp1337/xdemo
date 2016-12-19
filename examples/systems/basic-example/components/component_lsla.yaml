@@ -2,7 +2,7 @@
     platform: "posix"
     command: "ls -la $XDEMOROOT; ls -la $XDEMOPREFIX"
     autostart: true
-    observer:
+    initcriteria:
       - stdout:
           maxwaittime: 0.5
           criteria: "environment-posix.sh"

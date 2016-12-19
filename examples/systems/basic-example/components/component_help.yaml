@@ -3,7 +3,7 @@
     command: "/usr/bin/gnome-help"
     autostart: true
     errorpolicy: "strict"
-    observer:
+    initcriteria:
       - stdout:
           maxwaittime: 10
           criteria: "eth0"

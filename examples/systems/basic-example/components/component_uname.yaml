@@ -2,7 +2,7 @@
     platform: "posix"
     command: "/bin/uname"
     autostart: true
-    observer:
+    initcriteria:
       - stdout:
           maxwaittime: 0.5
           criteria: "Linux"

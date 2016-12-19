@@ -2,7 +2,7 @@
     platform: "posix"
     command: "cat /tmp/xdemo_client/$USER/logs/xdemo_component_*"
     autostart: true
-    observer:
+    initcriteria:
       - stdout:
           maxwaittime: 0.2
           criteria: "wrwrsdfsfsfdsdf"

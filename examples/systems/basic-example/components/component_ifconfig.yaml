@@ -2,7 +2,7 @@
     platform: "posix"
     command: "/sbin/ifconfig"
     autostart: true
-    observer:
+    initcriteria:
       - stdout:
           maxwaittime: 1
           criteria: "eth0"
