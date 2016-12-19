@@ -105,16 +105,16 @@ class SystemLauncherClient:
                         observer.stop()
                     if observer_result is True:
                         if _type == 'component':
-                            self.log.info("    o---[observer] found '%s'" % observer.criteria)
+                            self.log.obsok("    o---[observer] found '%s'" % observer.criteria)
                         else:
-                            self.log.info("        o---[observer] found '%s'" % observer.criteria)
+                            self.log.obsok("        o---[observer] found '%s'" % observer.criteria)
                     else:
                         if _type == 'component':
                             self.log.warning("    o---[observer] missed '%s'" % observer.criteria)
                         else:
                             self.log.warning("        o---[observer] missed '%s'" % observer.criteria)
             else:
-                self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups?" %
+                self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
                                  (component_name, self.local_hostname))
 
     def deploy_commands(self):
@@ -135,7 +135,7 @@ class SystemLauncherClient:
                         self.inner_deploy(component, executed_list_components, _type)
                 else:
                     self.log.warning(
-                        "[launcher] skipping '%s' on %s --> duplicate in components/groups?" %
+                        "[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
                         (item['group'].name, self.local_hostname))
 
     def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
