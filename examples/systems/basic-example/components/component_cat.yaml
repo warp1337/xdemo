@@ -4,7 +4,7 @@
     autostart: true
     observer:
       - stdout:
-          maxwaittime: 5
-          criteria: "fl"
+          maxwaittime: 2
+          criteria: "sdfsfsfdsdf"
     errorpolicy: "strict"
     description: "show file content using cat"

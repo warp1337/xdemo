@@ -63,13 +63,13 @@ if __name__ == "__main__":
             if logger.level >= debug_level:
                 return
             logger._log(debug_level, msg, args, kwargs)
-
         return custom_log
 
     logger = logging.Logger("xdemo_client")
     logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
+
     # "%(asctime)s|%(log_color)s%(levelname).4s %(reset)s%(white)s%(message)s",
     formatter = ColoredFormatter(
         "%(asctime)s|%(log_color)s%(levelname).4s %(reset)s%(white)s%(message)s",
@@ -81,14 +81,23 @@ if __name__ == "__main__":
             'WARNING': 'yellow',
             'ERROR': 'red',
             'CRITICAL': 'red',
-            'OBOK': 'green'
+            'OKAY': 'green',
+            'OERR': 'red',
+            'OWRN': 'yellow',
+
         }
     )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    logging.addLevelName(logging.INFO + 1, 'OBOK')
+    logging.addLevelName(logging.INFO + 1, 'OKAY')
     setattr(logger, 'obsok', level_factory(logger, logging.INFO + 1))
+
+    logging.addLevelName(logging.INFO + 2, 'OERR')
+    setattr(logger, 'obserr', level_factory(logger, logging.INFO + 2))
+
+    logging.addLevelName(logging.INFO + 3, 'OWRN')
+    setattr(logger, 'obswar', level_factory(logger, logging.INFO + 3))
 
     ### FOLDERS AND PLATFORM ####
 

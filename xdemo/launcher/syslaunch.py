@@ -110,9 +110,9 @@ class SystemLauncherClient:
                             self.log.obsok("        o---[observer] found '%s'" % observer.criteria)
                     else:
                         if _type == 'component':
-                            self.log.warning("    o---[observer] missed '%s'" % observer.criteria)
+                            self.log.obswar("    o---[observer] missing '%s'" % observer.criteria)
                         else:
-                            self.log.warning("        o---[observer] missed '%s'" % observer.criteria)
+                            self.log.obswar("        o---[observer] missing '%s'" % observer.criteria)
             else:
                 self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
                                  (component_name, self.local_hostname))
@@ -130,7 +130,7 @@ class SystemLauncherClient:
                 group_name = item['group'].name
                 if group_name not in executed_list_groups.keys():
                     executed_list_groups[group_name] = "started"
-                    self.log.info("[launcher] descending into '%s'" % item['group'].name)
+                    self.log.info("[group] descending into '%s'" % item['group'].name)
                     for component in item['group'].flat_execution_list:
                         self.inner_deploy(component, executed_list_components, _type)
                 else:
