@@ -37,19 +37,22 @@ from threading import Thread
 
 
 class StdoutObserver(Thread):
-    def __init__(self, _file, _log, _component_name, _criteria):
+    def __init__(self, _file, _log, _component_name, _criteria, _max_wait_time):
         Thread.__init__(self)
         self.ok = False
         self.log = _log
         self.file = _file
         self.keep_running = True
         self.criteria = _criteria
-        self.log.debug("[observer] STDOUT of '%s'" % _component_name)
+        self.type = "stdoutobserver"
+        self.maxwaittime = _max_wait_time
+        self.component_name = _component_name
 
     def stop(self):
         self.keep_running = False
 
     def run(self):
+        self.log.debug("[observer] STDOUT of '%s'" % self.component_name)
         last_size = getsize(self.file)
         while self.keep_running:
             cur_size = getsize(self.file)
@@ -65,6 +68,7 @@ class StdoutObserver(Thread):
                 pass
             # Save CPU cycles 1ms
             time.sleep(0.001)
+        self.log.debug("[observer] STDOUT stop '%s'" % self.component_name)
 
 
 class StdoutExcludeObserver(Thread):
@@ -75,12 +79,14 @@ class StdoutExcludeObserver(Thread):
         self.file = _file
         self.keep_running = True
         self.criteria = _criteria
-        self.log.debug("[observer] STDOUTEXCLUDE of '%s'" % _component_name)
+        self.type = "stdoutexcludeobserver"
+        self.component_name = _component_name
 
     def stop(self):
         self.keep_running = False
 
     def run(self):
+        self.log.debug("[observer] STDOUTEXCLUDE of '%s'" % self.component_name)
         last_size = getsize(self.file)
         while self.keep_running:
             cur_size = getsize(self.file)
@@ -98,3 +104,5 @@ class StdoutExcludeObserver(Thread):
                 pass
             # Save CPU cycles 1ms
             time.sleep(0.001)
+        self.log.debug("[observer] STDOUTEXCLUDE stop '%s'" % self.component_name)
+

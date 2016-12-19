@@ -2,9 +2,5 @@
     platform: "posix"
     command: "/usr/bin/xeyes"
     autostart: true
-    observer:
-      stdout:
-        maxwaittime: 2
-        criteria: "This must be found in the STDOUT"
     errorpolicy: "strict"
     description: "Xeyes watches what you do and reports to the Boss."

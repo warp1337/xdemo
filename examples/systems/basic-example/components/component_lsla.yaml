@@ -3,8 +3,8 @@
     command: "ls -la $XDEMOROOT; ls -la $XDEMOPREFIX"
     autostart: true
     observer:
-      stdout:
-        maxwaittime: 2
-        criteria: "This must be found in the STDOUT"
+      - stdout:
+          maxwaittime: 5
+          criteria: "environment-linux.sh"
     errorpolicy: "strict"
     description: "In computing, ls is a command to list files in Unix and Unix-like operating systems."

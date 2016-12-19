@@ -34,16 +34,20 @@ Authors: Florian Lier
 import sys
 import uuid
 
+# SELF
+from xdemo.observer.stdout import StdoutObserver, StdoutExcludeObserver
+
 
 class SystemInstance:
-    def __init__(self, _systemconfig, _log):
+    def __init__(self, _systemconfig, _log, _log_folder):
         self.log = _log
         self.groups = []
         self.components = []
         self.uuid = str(uuid.uuid4())
         self.flat_execution_list = []
-        self.base_path = _systemconfig.base_path
+        self.log_folder = _log_folder
         self.name = str(_systemconfig.name)
+        self.base_path = _systemconfig.base_path
         self.finishtrigger = _systemconfig.finishtrigger
         self.local_platform = _systemconfig.local_platform
         self.local_hostname = _systemconfig.local_hostname
@@ -61,14 +65,14 @@ class SystemInstance:
                 self.add_group(item)
 
     def add_component(self, _component_data):
-        c = Component(self.log)
+        c = Component(self.log, self.log_folder, self.local_hostname)
         c.initialize(_component_data)
         self.components.append(c)
         tmp_component = {"component": c}
         self.flat_execution_list.append(tmp_component)
 
     def add_group(self, _group_data):
-        g = Group(self.log)
+        g = Group(self.log, self.log_folder, self.local_hostname)
         g.initialize(_group_data)
         self.groups.append(g)
         tmp_group = {"group": g}
@@ -76,19 +80,23 @@ class SystemInstance:
 
 
 class Component:
-    def __init__(self, _log):
+    def __init__(self, _log, _log_folder, _local_hostname):
         self.log = _log
         self.name = None
         self.level = None
-        self.command = None
         self.observer = []
+        self.command = None
+        self.log_file = None
         self.platform = None
+        self.screen_id = None
         self.autostart = None
         self.retrycount = None
         self.errorpolicy = None
         self.description = None
         self.executionhost = None
         self.uuid = str(uuid.uuid4())
+        self.log_folder = _log_folder
+        self.local_hostname = _local_hostname
 
     def initialize(self, _component_data):
         try:
@@ -99,27 +107,45 @@ class Component:
                 self.level = _component_data[0]['sublevel']
             self.name = _component_data[0]['xdemocomponent']['name']
             self.command = _component_data[0]['xdemocomponent']['command']
-            self.observer = []
             self.platform = _component_data[0]['xdemocomponent']['platform']
             self.autostart = _component_data[0]['xdemocomponent']['autostart']
             self.errorpolicy = _component_data[0]['xdemocomponent']['errorpolicy']
             self.description = _component_data[0]['xdemocomponent']['description']
             self.executionhost = _component_data[0]['xdemocomponent']['executionhost']
+            self.screen_id = self.mk_screen_id("xdemo", self.name, self.local_hostname)
+            self.log_file = self.log_folder + self.mk_screen_id("xdemo", self.name, self.local_hostname) + ".log"
+            if 'observer' in _component_data[0]['xdemocomponent'].keys():
+                for observer in _component_data[0]['xdemocomponent']['observer']:
+                    if 'stdout' in observer.keys():
+                        obs = StdoutObserver(self.log_file, self.log, self.name,
+                                             observer['stdout']['criteria'],
+                                             observer['stdout']['maxwaittime'])
+                        self.observer.append(obs)
+                    if 'stdoutexclude' in observer.keys():
+                        obs = StdoutExcludeObserver(self.log_file, self.log, self.name,
+                                                    observer['stdoutexclude']['criteria'])
+                        self.observer.append(obs)
         except Exception, e:
-            self.log.error("key error in component %s " % e)
+            self.log.error("key error in component '%s' %s " % (self.name, e))
             sys.exit(1)
+
+    @staticmethod
+    def mk_screen_id(_xdemo, _component_name, _host):
+        return _xdemo + "_" + _component_name + "_" + _host
 
 
 class Group:
-    def __init__(self, _log):
+    def __init__(self, _log, _log_folder, _local_hostname):
         self.log = _log
         self.name = None
         self.level = None
         self.autostart = None
         self.errorpolicy = None
         self.description = None
+        self.log_folder = _log_folder
         self.flat_execution_list = []
         self.uuid = str(uuid.uuid4())
+        self.local_hostname = _local_hostname
 
     def initialize(self, _group_data):
         try:
@@ -129,17 +155,9 @@ class Group:
             self.errorpolicy = _group_data[0]['xdemogroup']['errorpolicy']
             self.description = _group_data[0]['xdemogroup']['description']
             for item in _group_data[0]['xdemogroup']['flat_execution_list']:
-                c = Component(self.log)
+                c = Component(self.log, self.log_folder, self.local_hostname)
                 c.initialize(item)
                 self.flat_execution_list.append(c)
         except Exception, e:
-            self.log.error("key error in group %s " % e)
+            self.log.error("key error in group '%s' %s " % (self.name, e))
             sys.exit(1)
-
-
-class Observer:
-    def __init__(self):
-        self.type = None
-        self.maxwaittime = None
-        self.criteria = None
-        self.retrycount = None

@@ -116,9 +116,9 @@ class ScreenPool(object):
         if result is not None:
             result.send_commands(_cmd)
             if _type == 'component':
-                self.log.info("[screen] deployed '%s'" % _component_name)
+                self.log.info("[cmd] started '%s'" % _component_name)
             else:
-                self.log.info(" \---[screen] deployed '%s'" % _component_name)
+                self.log.info("o---[cmd] started '%s'" % _component_name)
         else:
             self.log.error("[screen] %s does not exist" % uid)
             return None

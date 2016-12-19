@@ -40,7 +40,7 @@ from xdemo.utilities.operatingsystem import is_file
 
 
 class SystemConfig:
-    def __init__(self, _configfile, _logger, _hostname, _platform):
+    def __init__(self, _configfile, _logger, _hostname, _platform, _localmode):
         # Basic definitions
         self.name = None
         self.groups = []
@@ -49,6 +49,7 @@ class SystemConfig:
         self.base_path = None
         self.cfg_instance = None
         self.finishtrigger = None
+        self.local_mode = _localmode
         self.executionduration = None
         self.flat_execution_list = []
         self.runtimeenvironment = None
@@ -119,7 +120,12 @@ class SystemConfig:
                     tmp_component[0]["level"] = _level
                     # Insert executionhost and name, already stripped
                     tmp_component[0]['xdemocomponent']["name"] = _component
-                    tmp_component[0]['xdemocomponent']["executionhost"] = _host
+
+                    if self.local_mode is False:
+                        tmp_component[0]['xdemocomponent']["executionhost"] = _host
+                    else:
+                        tmp_component[0]['xdemocomponent']["executionhost"] = self.local_hostname
+
                     self.components.append(tmp_component)
                     self.flat_execution_list.append(tmp_component)
                 except yaml.YAMLError as e:
@@ -139,7 +145,12 @@ class SystemConfig:
                     actual_component_config[0]["sublevel"] = _level
                     # Insert executionhost and name, already stripped
                     actual_component_config[0]['xdemocomponent']["name"] = _component
-                    actual_component_config[0]['xdemocomponent']["executionhost"] = _host
+
+                    if self.local_mode is False:
+                        actual_component_config[0]['xdemocomponent']["executionhost"] = _host
+                    else:
+                        actual_component_config[0]['xdemocomponent']["executionhost"] = self.local_hostname
+
                     return actual_component_config
                 except yaml.YAMLError as e:
                     self.log.error(e)

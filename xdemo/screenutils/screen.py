@@ -162,7 +162,7 @@ class Screen(object):
             # attach to a new/existing named screen (-R).
             source_cmd = ". %s &&" % _environment
             self.log.info("[screen] new session using env %s" % os.path.basename(_environment))
-            system(source_cmd + ' screen -UR ' + self.name)
+            system(source_cmd + " stdbuf -oL " + ' screen -UR ' + self.name)
 
     def interrupt(self):
         """Insert CTRL+C in the screen session"""
@@ -194,7 +194,7 @@ class Screen(object):
         self._check_exists()
         for command in commands:
             source_cmd = ". %s && " % self.runtimeenvironment
-            system(source_cmd + 'screen -x ' + self.id + ' -X ' + command)
+            system(source_cmd + " stdbuf -oL " + 'screen -x ' + self.id + ' -X ' + command)
             sleep(0.02)
 
     def _check_exists(self, message="Error code: 404."):

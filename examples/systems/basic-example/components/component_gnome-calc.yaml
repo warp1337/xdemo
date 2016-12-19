@@ -2,9 +2,5 @@
     platform: "posix"
     command: "/usr/bin/gnome-calculator"
     autostart: true
-    observer:
-      stdout:
-        maxwaittime: 2
-        criteria: "This must be found in the STDOUT"
     errorpolicy: "strict"
     description: "Calculator with financial and scientific modes"

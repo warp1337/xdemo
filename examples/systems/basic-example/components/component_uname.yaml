@@ -3,8 +3,8 @@
     command: "/bin/uname"
     autostart: true
     observer:
-      stdout:
-        maxwaittime: 2
-        criteria: "This must be found in the STDOUT"
+      - stdout:
+          maxwaittime: 5
+          criteria: "Linux"
     errorpolicy: "strict"
     description: "Print certain system information."

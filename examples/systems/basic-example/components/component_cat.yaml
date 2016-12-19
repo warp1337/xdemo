@@ -3,8 +3,8 @@
     command: "cat /tmp/xdemo_client/$USER/logs/xdemo_component_*"
     autostart: true
     observer:
-      stdout:
-        maxwaittime: 2
-        criteria: "This must be found in the STDOUT"
+      - stdout:
+          maxwaittime: 5
+          criteria: "root"
     errorpolicy: "strict"
     description: "show file content using cat"
