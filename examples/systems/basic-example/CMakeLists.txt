@@ -17,17 +17,9 @@ FOREACH(file ${files})
 	INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/etc/${environment}.sh" DESTINATION "etc/xdemo/systems/${PROJECT_NAME}")
 ENDFOREACH()
 
-FILE(GLOB components "components/*")
-
-LIST(REMOVE_ITEM components "*~")
-INSTALL(
-    FILES ${components}
-	DESTINATION "etc/xdemo/systems/${PROJECT_NAME}/components"
-	PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE
-)
+INSTALL(DIRECTORY "components" DESTINATION "etc/xdemo/systems/${PROJECT_NAME}")
 
 FILE(GLOB groups "groups/*")
-
 LIST(REMOVE_ITEM groups "*~")
 INSTALL(
     FILES ${groups}

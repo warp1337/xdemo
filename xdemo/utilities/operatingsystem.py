@@ -44,3 +44,11 @@ def get_localhost_name():
 
 def is_file(_file):
     return os.path.isfile(_file)
+
+
+def get_path_from_file(_file):
+    return os.path.dirname(os.path.abspath(_file)).strip()
+
+
+def get_file_from_path(_path):
+    return os.path.basename(_path).strip()

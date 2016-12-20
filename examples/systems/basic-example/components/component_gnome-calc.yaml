@@ -1,6 +1,0 @@
--  xdemocomponent:
-    platform: "posix"
-    command: "/usr/bin/gnome-calculator"
-    autostart: true
-    errorpolicy: "strict"
-    description: "Calculator with financial and scientific modes"

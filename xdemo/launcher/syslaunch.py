@@ -58,8 +58,11 @@ class SystemLauncherClient:
         if component_host == self.local_hostname:
             # Name is actually derived from the path: component_something.yaml
             screen_name = _component.screen_id
+            exec_script = _component.execscript
             new_screen_session = self.screen_pool.new_screen_session(screen_name, self.runtimeenvironment)
             if new_screen_session is not None:
+                source_exec_script_cmd = ". " + exec_script
+                new_screen_session.send_commands(source_exec_script_cmd)
                 informed_item = {screen_name: new_screen_session}
                 self.hierarchical_session_list.append(informed_item)
 
@@ -79,10 +82,10 @@ class SystemLauncherClient:
     def inner_deploy(self, _component, _executed_list_components, _type):
         # Name is actually derived from the path: component_something.yaml
         component_name = _component.name
-        cmd = _component.command
+        cmd = "start"
         platform = _component.platform
         host = _component.executionhost
-        final_cmd = self.construct_command(host, platform, cmd, True, True)
+        final_cmd = self.construct_command(host, platform, cmd, component_name, True, True)
         if final_cmd is None:
             return
         else:
@@ -150,9 +153,16 @@ class SystemLauncherClient:
                         "[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
                         (item['group'].name, self.local_hostname))
 
-    def construct_command(self, _host, _platform, _cmd, _requires_x=None, _requires_remote_x=None):
-        if _host == self.local_hostname and _platform == self.local_platform:
+    def construct_command(self, _host, _platform, _cmd, _component, _requires_x=None, _requires_remote_x=None):
+        if _platform != self.local_platform:
+            self.log.warning("[launcher] skipping '%s'?! what, running %s component on %s?" % (_component,
+                                                                                              _platform,
+                                                                                              self.local_platform))
+            return None
+        if _host == self.local_hostname:
             return _cmd.strip()
         else:
-            self.log.debug("[launcher] skipping %s | host %s | platform %s" % (_cmd, _host, _platform))
+            self.log.debug("[launcher] skipping %s | host %s | platform %s" % (_component,
+                                                                               _host,
+                                                                               _platform))
             return None

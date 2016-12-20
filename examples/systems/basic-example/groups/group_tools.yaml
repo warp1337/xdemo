@@ -3,5 +3,5 @@
     errorpolicy: "strict"
     description: "This group starts some great tools"
     components:
-      - "component_uname@fl-vb"
-      - "component_top@fl-vb"
+      - "uname/component_uname@fl-vb"
+      - "top/component_top@fl-vb"

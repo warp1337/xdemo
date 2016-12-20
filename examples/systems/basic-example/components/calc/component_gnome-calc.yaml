@@ -1,6 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
-    command: "/usr/bin/calendar"
     autostart: true
     errorpolicy: "strict"
-    description: "Ubuntu Calendar application"
+    description: "Calculator with financial and scientific modes"

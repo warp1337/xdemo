@@ -1,6 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
-    command: "/usr/bin/gnome-help"
     autostart: true
     errorpolicy: "strict"
     initcriteria:

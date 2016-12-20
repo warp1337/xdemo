@@ -1,6 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
-    command: "cat /tmp/xdemo_client/$USER/logs/xdemo_component_*"
     autostart: true
     initcriteria:
       - stdout:
@@ -14,10 +13,10 @@
           criteria: "werwerwrsdfsfsfdsdf"
       - stdout:
           maxwaittime: 0.2
-          criteria: "werwerwrsdfsfsfdsdf"
+          criteria: "bin"
       - stdout:
           maxwaittime: 0.2
-          criteria: "sdfswerwerfsfdsdf"
+          criteria: "posix-example.yaml"
       - stdout:
           maxwaittime: 0.2
           criteria: "sdfewr"

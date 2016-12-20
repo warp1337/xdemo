@@ -1,6 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
-    command: "/usr/bin/xeyes"
     autostart: true
     errorpolicy: "strict"
     description: "Xeyes watches what you do and reports to the Boss."

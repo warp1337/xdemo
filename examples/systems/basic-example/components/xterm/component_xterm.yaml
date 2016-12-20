@@ -1,6 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
-    command: "/usr/bin/xterm"
     autostart: true
     errorpolicy: "strict"
     description: "In computing, xterm is the standard terminal emulator for the X Window System."

@@ -83,13 +83,14 @@ class Component:
     def __init__(self, _log, _log_folder, _local_hostname):
         self.log = _log
         self.name = None
+        self.path = None
         self.level = None
         self.initcriteria = []
-        self.command = None
         self.log_file = None
         self.platform = None
         self.screen_id = None
         self.autostart = None
+        self.execscript = None
         self.retrycount = None
         self.errorpolicy = None
         self.description = None
@@ -106,7 +107,8 @@ class Component:
             elif 'sublevel' in _component_data[0]:
                 self.level = _component_data[0]['sublevel']
             self.name = _component_data[0]['xdemocomponent']['name']
-            self.command = _component_data[0]['xdemocomponent']['command']
+            self.path = _component_data[0]['xdemocomponent']['path']
+            self.execscript = _component_data[0]['xdemocomponent']['execscript']
             self.platform = _component_data[0]['xdemocomponent']['platform']
             self.autostart = _component_data[0]['xdemocomponent']['autostart']
             self.errorpolicy = _component_data[0]['xdemocomponent']['errorpolicy']

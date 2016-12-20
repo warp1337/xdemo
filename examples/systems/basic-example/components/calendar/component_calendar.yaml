@@ -1,0 +1,5 @@
+-  xdemocomponent:
+    platform: "posix"
+    autostart: true
+    errorpolicy: "strict"
+    description: "Ubuntu Calendar application"

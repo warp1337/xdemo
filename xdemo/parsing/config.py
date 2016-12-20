@@ -37,6 +37,8 @@ import yaml
 
 # SELF
 from xdemo.utilities.operatingsystem import is_file
+from xdemo.utilities.operatingsystem import get_path_from_file
+from xdemo.utilities.operatingsystem import get_file_from_path
 
 
 class SystemConfig:
@@ -70,7 +72,7 @@ class SystemConfig:
 
     # Extract the base path from given config file
     def get_system_base_path(self):
-        tmp_path = os.path.dirname(os.path.abspath(self.cfg_file))
+        tmp_path = get_path_from_file(self.cfg_file)
         if os.path.exists(tmp_path):
             self.base_path = tmp_path + "/"
         else:
@@ -87,7 +89,7 @@ class SystemConfig:
 
     # Check for convention of environment files
     def test_environment_files(self):
-        if self.local_platform == 'posix':
+        if self.local_platform == 'posix' or self.local_platform == 'darwin':
             env_file = self.runtimeenvironment[self.local_platform].strip()
             target = self.base_path + env_file
             if is_file(target):
@@ -95,6 +97,16 @@ class SystemConfig:
                 self.runtimeenvironment = target
             else:
                 self.log.error("[config] env file %s not found" % target)
+                sys.exit(1)
+
+    # Check for convention of environment files
+    def test_exec_file(self, _exec_file):
+        if self.local_platform == 'posix' or self.local_platform == 'darwin':
+            if is_file(_exec_file):
+                pass
+            else:
+                self.log.error("[config] file %s not found" % _exec_file)
+                self.log.error("[config] convention $[posix|darwin|win].$[sh|bat]")
                 sys.exit(1)
 
     # Load and serialize the global system config yaml file
@@ -116,7 +128,8 @@ class SystemConfig:
         if 'xdemosystem' in self.cfg_instance[0].keys():
             if 'executionorder' in self.cfg_instance[0]['xdemosystem'].keys():
                 for item in self.cfg_instance[0]['xdemosystem']['executionorder']:
-                    if item.startswith('component_'):
+                    no_folder_item = get_file_from_path(item)
+                    if no_folder_item.startswith('component_'):
                         try:
                             tmp_item = item.split("@")
                             name = tmp_item[0].strip()
@@ -151,7 +164,19 @@ class SystemConfig:
                     # Insert exec level
                     tmp_component[0]["level"] = _level
                     # Insert execution host and name, already stripped
-                    tmp_component[0]['xdemocomponent']["name"] = _component
+                    tmp_component[0]['xdemocomponent']["name"] = get_file_from_path(_component)
+                    tmp_component[0]['xdemocomponent']["path"] = get_path_from_file(current_config)
+                    path = tmp_component[0]['xdemocomponent']["path"]
+                    platform = tmp_component[0]['xdemocomponent']["platform"].strip()
+
+                    if platform == 'posix' or platform == 'darwin':
+                        suffix = ".sh"
+                        tmp_component[0]['xdemocomponent']["execscript"] = path + "/" + platform + suffix
+                    else:
+                        suffix = ".bat"
+                        tmp_component[0]['xdemocomponent']["execscript"] = path + "/" + platform + suffix
+
+                    self.test_exec_file(tmp_component[0]['xdemocomponent']["execscript"])
 
                     if self.local_mode is False:
                         tmp_component[0]['xdemocomponent']["executionhost"] = _host

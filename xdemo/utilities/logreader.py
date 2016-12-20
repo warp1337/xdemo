@@ -49,7 +49,7 @@ class LogReader(Thread):
         self.keep_running = False
 
     def run(self):
-        last_size = getsize(self.file)
+        last_size = 0
         while self.keep_running:
             cur_size = getsize(self.file)
             if cur_size != last_size:

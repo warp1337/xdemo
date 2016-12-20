@@ -3,13 +3,13 @@
     runtimeenvironment:
       posix: "environment-posix.sh"
       darwin: "environment-darwin.sh"
-      windows: "environment-win.bat"
+      win: "environment-win.bat"
     executionorder:
-      - "component_lsla@fl-vb"
+      - "lsla/component_lsla@fl-vb"
       - "group_tools"
-      - "component_ifconfig@fl-vb"
-      - "component_cat@fl-vb"
+      - "ifconfig/component_ifconfig@fl-vb"
+      - "cat/component_cat@fl-vb"
       - "group_visualization"
-      - "component_cat@fl-vb"
+      - "cat/component_cat@fl-vb"
       - "group_visualization"
     executionduration: 10

@@ -1,6 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
-    command: "/sbin/ifconfig"
     autostart: true
     initcriteria:
       - stdout:
