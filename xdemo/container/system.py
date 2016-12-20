@@ -123,7 +123,8 @@ class Component:
                         self.initcriteria.append(obs)
                     if 'stdoutexclude' in initcriteria.keys():
                         obs = StdoutExcludeObserver(self.log_file, self.log, self.name,
-                                                    initcriteria['stdoutexclude']['criteria'])
+                                                    initcriteria['stdoutexclude']['criteria'],
+                                                    initcriteria['stdoutexclude']['maxwaittime'])
                         self.initcriteria.append(obs)
         except Exception, e:
             self.log.error("key error in component '%s' %s " % (self.name, e))

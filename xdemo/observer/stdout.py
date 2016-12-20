@@ -71,13 +71,14 @@ class StdoutObserver(Thread):
 
 
 class StdoutExcludeObserver(Thread):
-    def __init__(self, _file, _log, _component_name, _criteria):
+    def __init__(self, _file, _log, _component_name, _criteria, _max_wait_time):
         Thread.__init__(self)
         self.ok = False
         self.log = _log
         self.file = _file
         self.keep_running = True
         self.criteria = _criteria
+        self.maxwaittime = _max_wait_time
         self.type = "stdoutexcludeobserver"
         self.component_name = _component_name
 
