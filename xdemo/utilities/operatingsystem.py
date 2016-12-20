@@ -69,8 +69,14 @@ def get_all_screen_session_pids(_log, _list_of_screen_sessions):
                     raw_children = ps.Process.children(p, recursive=True)
                     children = []
                     for child in raw_children:
-                        children.append({child.name(): child.pid})
-                    session_and_pids[item] = {"pid": session_pid, "children": children}
+                        # Don't collect the 1st child of screen which is the
+                        # executing bash/sh in this case. If we would kill this
+                        # shell, the screen session would exit
+                        if child.pid == session_pid+1:
+                            continue
+                        else:
+                            children.append({child.name(): child.pid})
+                    session_and_pids[item] = {"name": item, "pid": session_pid, "children": children}
     if len(_list_of_screen_sessions) != len(session_and_pids.keys()):
         _log.error("[ps] could find PIDS of all screen sessions")
     else:

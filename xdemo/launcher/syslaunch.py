@@ -86,7 +86,8 @@ class SystemLauncherClient:
         for item in self.hierarchical_session_list:
             screen_name_list.append(item.keys()[0])
         self.all_screen_session_pids = get_all_screen_session_pids(self.log, screen_name_list)
-        print self.all_screen_session_pids
+        for item in self.all_screen_session_pids.keys():
+            print self.all_screen_session_pids[item]
 
     def inner_deploy(self, _component, _executed_list_components, _type):
         # Name is actually derived from the path: component_something.yaml
