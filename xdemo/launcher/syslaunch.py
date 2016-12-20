@@ -73,7 +73,7 @@ class SystemLauncherClient:
                                  "component_name": _component.name,
                                  "exec_script": exec_script,
                                  "screen_session_name": new_screen_session.name}
-                # New_screen_session.name MUST equal component.screen_id or something is horribly wrong
+                # WARNING new_screen_session.name MUST be equal to component.screen_id or something is horribly wrong
                 if _component.screen_id != new_screen_session.name:
                     self.log.error("[launcher] something went horribly wrong with screen session %s" % new_screen_session.name)
                     self.stop_all_initcriteria()
