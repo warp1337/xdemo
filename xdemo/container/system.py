@@ -106,7 +106,9 @@ class Component:
                 self.level = _component_data[0]['level']
             elif 'sublevel' in _component_data[0]:
                 self.level = _component_data[0]['sublevel']
+            # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
             self.name = _component_data[0]['xdemocomponent']['name']
+            # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
             self.path = _component_data[0]['xdemocomponent']['path']
             self.execscript = _component_data[0]['xdemocomponent']['execscript']
             self.platform = _component_data[0]['xdemocomponent']['platform']
@@ -114,7 +116,9 @@ class Component:
             self.errorpolicy = _component_data[0]['xdemocomponent']['errorpolicy']
             self.description = _component_data[0]['xdemocomponent']['description']
             self.executionhost = _component_data[0]['xdemocomponent']['executionhost']
+            # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
             self.screen_id = self.mk_screen_id("xdemo", self.name, self.local_hostname)
+            # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
             self.log_file = self.log_folder + self.mk_screen_id("xdemo", self.name, self.local_hostname) + ".log"
             if 'initcriteria' in _component_data[0]['xdemocomponent'].keys():
                 for initcriteria in _component_data[0]['xdemocomponent']['initcriteria']:
@@ -133,6 +137,7 @@ class Component:
             sys.exit(1)
 
     @staticmethod
+    # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
     def mk_screen_id(_xdemo, _component_name, _host):
         return _xdemo + "_" + _component_name + "_" + _host
 

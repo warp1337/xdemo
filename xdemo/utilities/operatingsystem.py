@@ -64,7 +64,7 @@ def get_all_screen_session_pids(_log, _list_of_screen_sessions):
         if 'screen' in p.name():
             screen_command = p.cmdline()[2]
             for item in _list_of_screen_sessions:
-                if item == screen_command:
+                if item[0] == screen_command:
                     session_pid = p.pid
                     raw_children = ps.Process.children(p, recursive=True)
                     children = []
@@ -76,7 +76,10 @@ def get_all_screen_session_pids(_log, _list_of_screen_sessions):
                             continue
                         else:
                             children.append({child.name(): child.pid})
-                    session_and_pids[item] = {"name": item, "pid": session_pid, "children": children}
+                    session_and_pids[item[0]] = {"screen_name": item[0],
+                                                 "pid": session_pid,
+                                                 "children": children,
+                                                 "component_name": item[1]}
     if len(_list_of_screen_sessions) != len(session_and_pids.keys()):
         _log.error("[ps] could find PIDS of all screen sessions")
     else:

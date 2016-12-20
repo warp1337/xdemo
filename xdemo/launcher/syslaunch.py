@@ -31,6 +31,7 @@ Authors: Florian Lier
 """
 
 # STD
+import sys
 import time
 
 # SELF
@@ -60,15 +61,26 @@ class SystemLauncherClient:
     def inner_mk_session(self, _component):
         component_host = _component.executionhost
         if component_host == self.local_hostname:
-            # Name is actually derived from the path: component_something.yaml
+            # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
+            # SEE: screen.id and how it is constructed in the system class
             screen_name = _component.screen_id
             exec_script = _component.execscript
             new_screen_session = self.screen_pool.new_screen_session(screen_name, self.runtimeenvironment)
             if new_screen_session is not None:
                 source_exec_script_cmd = ". " + exec_script
                 new_screen_session.send_commands(source_exec_script_cmd)
-                informed_item = {screen_name: new_screen_session}
-                self.hierarchical_session_list.append(informed_item)
+                informed_item = {"screen_session_instance": new_screen_session,
+                                 "component_name": _component.name,
+                                 "exec_script": exec_script,
+                                 "screen_session_name": new_screen_session.name}
+                # New_screen_session.name MUST equal component.screen_id or something is horribly wrong
+                if _component.screen_id != new_screen_session.name:
+                    self.log.error("[launcher] something went horribly wrong with screen session %s" % new_screen_session.name)
+                    self.stop_all_initcriteria()
+                    self.screen_pool.kill_all_screen_sessions()
+                    sys.exit(1)
+                else:
+                    self.hierarchical_session_list.append(informed_item)
 
     def mk_screen_sessions(self):
         # Empty row before detach, simply looks good.
@@ -83,8 +95,8 @@ class SystemLauncherClient:
 
         self.deploy_commands()
         screen_name_list = []
-        for item in self.hierarchical_session_list:
-            screen_name_list.append(item.keys()[0])
+        for informed_item in self.hierarchical_session_list:
+            screen_name_list.append([informed_item['screen_session_name'], informed_item['component_name']])
         self.all_screen_session_pids = get_all_screen_session_pids(self.log, screen_name_list)
         for item in self.all_screen_session_pids.keys():
             print self.all_screen_session_pids[item]
@@ -111,15 +123,15 @@ class SystemLauncherClient:
                 informed_item = {screen_name: _component}
                 self.hierarchical_component_list.append(informed_item)
                 _executed_list_components[screen_name] = "started"
-                blocking_initcriterias = len(_component.initcriteria)
+                blocking_initcriteria = len(_component.initcriteria)
 
-                if blocking_initcriterias > 0:
+                if blocking_initcriteria > 0:
                     if _type == 'component':
-                        self.log.info("    o---[criteria] %d pending" % blocking_initcriterias)
+                        self.log.info("    o---[criteria] %d pending" % blocking_initcriteria)
                     else:
-                        self.log.info("\t\to---[criteria] %d pending" % blocking_initcriterias)
+                        self.log.info("\t\to---[criteria] %d pending" % blocking_initcriteria)
 
-                while blocking_initcriterias > 0:
+                while blocking_initcriteria > 0:
                     for initcriteria in _component.initcriteria:
                         if initcriteria.is_alive():
                             time.sleep(0.001)
@@ -135,9 +147,9 @@ class SystemLauncherClient:
                                     self.log.obswar("    o---[criteria] missing '%s'" % initcriteria.criteria)
                                 else:
                                     self.log.obswar("\t\to---[criteria] missing '%s'" % initcriteria.criteria)
-                            blocking_initcriterias -= 1
+                            blocking_initcriteria -= 1
                             _component.initcriteria.remove(initcriteria)
-                            self.log.debug("[criteria] waiting for %d criteria" % blocking_initcriterias)
+                            self.log.debug("[criteria] waiting for %d criteria" % blocking_initcriteria)
             else:
                 self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
                                  (component_name, self.local_hostname))

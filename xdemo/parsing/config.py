@@ -163,9 +163,12 @@ class SystemConfig:
                     tmp_component = yaml.load(component_config)
                     # Insert exec level
                     tmp_component[0]["level"] = _level
-                    # Insert execution host and name, already stripped
+
+                    # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
                     tmp_component[0]['xdemocomponent']["name"] = get_file_from_path(_component)
                     tmp_component[0]['xdemocomponent']["path"] = get_path_from_file(current_config)
+                    # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
+
                     path = tmp_component[0]['xdemocomponent']["path"]
                     platform = tmp_component[0]['xdemocomponent']["platform"].strip()
 
