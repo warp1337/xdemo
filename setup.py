@@ -57,8 +57,6 @@ setup(name="xdemo_client",
 
       scripts=['bin/xdemo_client'],
 
-      package_data={'xdemo': ['examples/*']},
-
       include_package_data=True,
 
       keywords=['Test',
@@ -81,7 +79,7 @@ setup(name="xdemo_client",
                    'Programming Language :: Python',
                    'Topic :: Text Processing :: Markup :: XML'],
 
-      install_requires=['fabric==1.13.1', 'pyyaml==3.12', 'colorlog', 'screenutils'],
+      install_requires=['pyyaml==3.12', 'colorlog', 'psutil==5.0.0'],
 
       # Workaround for: http://bugs.python.org/issue856103
       zip_safe=False

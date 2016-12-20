@@ -30,8 +30,12 @@ Authors: Florian Lier
 
 """
 
+# STD
 import os
 from socket import gethostname
+
+# PSUTIL
+import psutil as ps
 
 
 def get_operating_system():
@@ -52,3 +56,22 @@ def get_path_from_file(_file):
 
 def get_file_from_path(_path):
     return os.path.basename(_path).strip()
+
+
+def get_all_screen_session_pids(_log, _list_of_screen_sessions):
+    session_and_pids = {}
+    for p in ps.process_iter():
+        if 'screen' in p.name():
+            screen_command = p.cmdline()[2]
+            for item in _list_of_screen_sessions:
+                if item == screen_command:
+                    session_pid = p.pid
+                    raw_children = ps.Process.children(p, recursive=True)
+                    children = []
+                    for child in raw_children:
+                        children.append({child.name(): child.pid})
+                    session_and_pids[item] = {"pid": session_pid, "children": children}
+    if len(_list_of_screen_sessions) != len(session_and_pids.keys()):
+        _log.error("[ps] could find PIDS of all screen sessions")
+    else:
+        return session_and_pids

@@ -4,6 +4,6 @@
     errorpolicy: "strict"
     initcriteria:
       - stdout:
-          maxwaittime: 10
+          maxwaittime: 2
           criteria: "eth0"
     description: "Ubuntu Desktop Guide"

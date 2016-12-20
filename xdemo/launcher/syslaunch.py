@@ -33,11 +33,15 @@ Authors: Florian Lier
 # STD
 import time
 
+# SELF
+from xdemo.utilities.operatingsystem import get_all_screen_session_pids
+
 
 class SystemLauncherClient:
     def __init__(self, _system_instance, _screen_pool, _log):
         self.log = _log
         self.screen_pool = _screen_pool
+        self.all_screen_session_pids = None
         self.hierarchical_session_list = []
         self.hierarchical_component_list = []
         self.system_instance = _system_instance
@@ -78,6 +82,11 @@ class SystemLauncherClient:
                     self.inner_mk_session(component)
 
         self.deploy_commands()
+        screen_name_list = []
+        for item in self.hierarchical_session_list:
+            screen_name_list.append(item.keys()[0])
+        self.all_screen_session_pids = get_all_screen_session_pids(self.log, screen_name_list)
+        print self.all_screen_session_pids
 
     def inner_deploy(self, _component, _executed_list_components, _type):
         # Name is actually derived from the path: component_something.yaml
