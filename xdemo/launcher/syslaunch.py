@@ -115,6 +115,29 @@ class SystemLauncherClient:
                 informed_item = {screen_name: _component}
                 self.hierarchical_component_list.append(informed_item)
                 _executed_list_components[screen_name] = "started"
+
+                status = self.screen_pool.get_session_status(screen_name)
+
+                if status is None:
+                    if _type == 'component':
+                        self.log.error(
+                            "    o---[launcher] '%s' screen session disappeared" % component_name)
+                    else:
+                        self.log.error(
+                            "\t\to---[launcher] '%s' screen session disappeared" % component_name)
+
+                if status == 0:
+                    if _type == 'component':
+                        self.log.obswar("    o---[launcher] '%s' already exited" % component_name)
+                    else:
+                        self.log.obswar("\t\to---[launcher] '%s' already exited" % component_name)
+
+                if status > 0:
+                    if _type == 'component':
+                        self.log.obsok("    o---[launcher] '%s' pid found" % component_name)
+                    else:
+                        self.log.obsok("\t\to---[launcher] '%s' pid found" % component_name)
+
                 blocking_initcriteria = len(_component.initcriteria)
 
                 if blocking_initcriteria > 0:
@@ -142,28 +165,6 @@ class SystemLauncherClient:
                             blocking_initcriteria -= 1
                             _component.initcriteria.remove(initcriteria)
                             self.log.debug("[criteria] waiting for %d criteria" % blocking_initcriteria)
-
-                status = self.screen_pool.get_session_status(screen_name)
-
-                if status is None:
-                    if _type == 'component':
-                        self.log.error(
-                            "    o---[launcher] '%s' screen session disappeared" % component_name)
-                    else:
-                        self.log.error(
-                            "\t\to---[launcher] '%s' screen session disappeared" % component_name)
-
-                if status == 0:
-                    if _type == 'component':
-                        self.log.obswar("    o---[launcher] '%s' already exited" % component_name)
-                    else:
-                        self.log.obswar("\t\to---[launcher] '%s' already exited" % component_name)
-
-                if status > 0:
-                    if _type == 'component':
-                        self.log.obsok("    o---[launcher] '%s' pid found" % component_name)
-                    else:
-                        self.log.obsok("\t\to---[launcher] '%s' pid found" % component_name)
 
             else:
                 self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %

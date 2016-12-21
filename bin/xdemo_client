@@ -175,8 +175,13 @@ if __name__ == "__main__":
 
     ### LOOP ####
 
-    while not exit_grace:
-        time.sleep(0.1)
+    init = time.time()
+    if si.executionduration > 0:
+        while not exit_grace and time.time() - init <= si.executionduration:
+            time.sleep(0.1)
+    else:
+        while not exit_grace:
+            time.sleep(0.1)
 
     ### DE-BOOTSTRAPPING ####
 
