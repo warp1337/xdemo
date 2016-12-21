@@ -168,7 +168,6 @@ if __name__ == "__main__":
     sc = SystemConfig(cfg, logger, local_hostname, target_platform, local_mode)
     si = SystemInstance(sc, logger, log_folder)
     sp = ScreenPool(logger, log_folder)
-    sp.start()
     sl = SystemLauncherClient(si, sp, logger)
     sl.mk_screen_sessions()
 

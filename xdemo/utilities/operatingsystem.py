@@ -58,7 +58,7 @@ def get_file_from_path(_path):
     return os.path.basename(_path).strip()
 
 
-def update_session_os_info(_log, _sessions):
+def update_all_session_os_info(_sessions):
     for proc in ps.process_iter():
         if proc.name() == 'screen':
             screen_name = proc.cmdline()[2]
@@ -72,3 +72,23 @@ def update_session_os_info(_log, _sessions):
                     else:
                         children.append({child.name(): child.pid})
                 _sessions[screen_name].info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
+
+
+def get_session_os_status(session):
+    for proc in ps.process_iter():
+        if proc.name() == 'screen':
+            screen_name = proc.cmdline()[2]
+            if screen_name in session.name:
+                raw_children = ps.Process.children(proc, recursive=True)
+                children = []
+                screen_pid = proc.pid
+                for child in raw_children:
+                    if child.pid == proc.pid + 1:
+                        init_bash = child.pid
+                    else:
+                        children.append({child.name(): child.pid})
+                session.info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
+                if len(children) < 1:
+                    return 0
+                else:
+                    return len(children)
