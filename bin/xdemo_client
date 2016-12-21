@@ -168,6 +168,7 @@ if __name__ == "__main__":
     sc = SystemConfig(cfg, logger, local_hostname, target_platform, local_mode)
     si = SystemInstance(sc, logger, log_folder)
     sp = ScreenPool(logger, log_folder)
+    sp.start()
     sl = SystemLauncherClient(si, sp, logger)
     sl.mk_screen_sessions()
 
@@ -181,6 +182,7 @@ if __name__ == "__main__":
     ### DE-BOOTSTRAPPING ####
 
     sl.stop_all_initcriteria()
+    sp.stop()
     sp.kill_all_screen_sessions()
 
     logger.info("[ XDEMO CLIENT STOP | %s | %s | PID %s ]" % (local_hostname, target_platform, this_client_pid))

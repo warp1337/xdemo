@@ -30,26 +30,40 @@ Authors: Florian Lier
 
 """
 
+# STD
+import time
+from threading import Lock
+from threading import Thread
+
 # SCREEN UTILS
 from xdemo.screenutils.screen import Screen, list_screens
+from xdemo.utilities.operatingsystem import update_session_os_info
 
 
-class ScreenPool(object):
+class ScreenPool(Thread):
     def __init__(self, _log, _log_folder):
+        Thread.__init__(self)
         self.log = _log
+        self.lock = Lock()
         self.s_sessions = {}
+        self.check_interval = 3
+        self.keep_running = True
         self.log_folder = _log_folder
+        self.hierarchical_session_list = []
 
-    def new_screen_session(self, _screen_name, _runtimeenvironment):
-        uid = _screen_name
-        s_session = Screen(uid, self.log)
+    def new_screen_session(self, _screen_name, _runtimeenvironment, _info_dict):
+        self.lock.acquire()
+        s_session = Screen(_screen_name, _info_dict, self.log)
         s_session.initialize(_runtimeenvironment)
-        s_session.enable_logs(self.log_folder + uid + ".log")
+        s_session.enable_logs(self.log_folder + _screen_name + ".log")
         if _screen_name in self.s_sessions.keys():
+            self.lock.release()
             self.log.debug("[screen] %s exists --> duplicate in components/groups?" % _screen_name)
             return None
         else:
-            self.s_sessions[uid] = s_session
+            self.s_sessions[_screen_name] = s_session
+            self.hierarchical_session_list.append(_screen_name)
+            self.lock.release()
             return s_session
 
     def check_exists_in_pool(self, _screen_name):
@@ -60,67 +74,79 @@ class ScreenPool(object):
             return None
 
     def get_screen_id(self, _screen_name):
-        uid = _screen_name.strip()
-        result = self.check_exists_in_pool(uid)
+        result = self.check_exists_in_pool(_screen_name.strip())
         if result is not None:
             return result.id
         else:
-            self.log.error("[screen] %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % _screen_name.strip())
             return None
 
+    def get_all_screen_ids(self):
+        ids = []
+        for key, value in self.s_sessions.iteritems():
+            result = self.check_exists_in_pool(key.strip())
+            if result is not None:
+                ids.append(result.id)
+            else:
+                self.lock.release()
+                self.log.error("[screen] %s does not exist" % key)
+                return None
+        return ids
+
     def get_screen_status(self, _screen_name):
-        uid = _screen_name.strip()
-        result = self.check_exists_in_pool(uid)
+        result = self.check_exists_in_pool(_screen_name.strip())
         if result is not None:
             return result.status
         else:
-            self.log.error("[screen] %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % _screen_name.strip())
             return None
 
     def get_screen_is_initialized(self, _screen_name):
-        uid = _screen_name.strip()
-        result = self.check_exists_in_pool(uid)
+        result = self.check_exists_in_pool(_screen_name.strip())
         if result is not None:
             return result.exists
         else:
-            self.log.error("[screen] %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % _screen_name.strip())
             return None
 
     def get_screen_logfile(self, _screen_name):
-        uid = _screen_name.strip()
-        result = self.check_exists_in_pool(uid)
+        result = self.check_exists_in_pool(_screen_name.strip())
         if result is not None:
             return result._logfilename
         else:
-            self.log.error("[screen] %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % _screen_name.strip())
             return None
 
     def kill_screen(self, _screen_name):
-        uid = _screen_name.strip()
-        result = self.check_exists_in_pool(uid)
+        result = self.check_exists_in_pool(_screen_name.strip())
         if result is not None:
+            self.lock.acquire()
             result.kill()
-            self.log.info("[screen] terminated %s" % uid)
+            self.lock.release()
+            self.log.info("[screen] terminated %s" % _screen_name.strip())
         else:
-            self.log.error("[screen] %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % _screen_name.strip())
             return None
 
     def kill_all_screen_sessions(self):
         for name in self.s_sessions.keys():
+            self.lock.acquire()
             self.s_sessions[name].kill()
+            self.lock.release()
             self.log.info("[screen] %s terminated" % name)
 
     def send_cmd(self, _screen_name, _cmd, _type, _component_name):
-        uid = _screen_name.strip()
-        result = self.check_exists_in_pool(uid)
+        result = self.check_exists_in_pool(_screen_name.strip())
         if result is not None:
+            self.lock.acquire()
             result.send_commands(_cmd)
             if _type == 'component':
                 self.log.info("[cmd] started '%s'" % _component_name)
             else:
                 self.log.info("      [cmd] started '%s'" % _component_name)
+            self.lock.release()
         else:
-            self.log.error("[screen] %s does not exist" % uid)
+            self.log.error("[screen] %s does not exist" % _screen_name.strip())
             return None
 
     def list_all_screens(self):
@@ -132,3 +158,19 @@ class ScreenPool(object):
     @staticmethod
     def list_all_screens_native():
         return list_screens()
+
+    def update_session_os_info(self):
+        self.lock.acquire()
+        update_session_os_info(self.log, self.s_sessions)
+        self.lock.release()
+
+    def stop(self):
+        self.keep_running = False
+
+    def run(self):
+        last_checked = time.time()
+        while self.keep_running:
+            if time.time() - last_checked >= self.check_interval:
+                last_checked = time.time()
+                self.update_session_os_info()
+            time.sleep(0.1)

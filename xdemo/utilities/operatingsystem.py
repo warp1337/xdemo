@@ -58,29 +58,17 @@ def get_file_from_path(_path):
     return os.path.basename(_path).strip()
 
 
-def get_all_screen_session_pids(_log, _list_of_screen_sessions):
-    session_and_pids = {}
-    for p in ps.process_iter():
-        if 'screen' in p.name():
-            screen_command = p.cmdline()[2]
-            for item in _list_of_screen_sessions:
-                if item[0] == screen_command:
-                    session_pid = p.pid
-                    raw_children = ps.Process.children(p, recursive=True)
-                    children = []
-                    for child in raw_children:
-                        # Don't collect the 1st child of screen which is the
-                        # executing bash/sh in this case. If we would kill this
-                        # shell, the screen session would exit
-                        if child.pid == session_pid+1:
-                            continue
-                        else:
-                            children.append({child.name(): child.pid})
-                    session_and_pids[item[0]] = {"screen_name": item[0],
-                                                 "pid": session_pid,
-                                                 "children": children,
-                                                 "component_name": item[1]}
-    if len(_list_of_screen_sessions) != len(session_and_pids.keys()):
-        _log.error("[ps] could find PIDS of all screen sessions")
-    else:
-        return session_and_pids
+def update_session_os_info(_log, _sessions):
+    for proc in ps.process_iter():
+        if proc.name() == 'screen':
+            screen_name = proc.cmdline()[2]
+            if screen_name in _sessions.keys():
+                raw_children = ps.Process.children(proc, recursive=True)
+                children = []
+                screen_pid = proc.pid
+                for child in raw_children:
+                    if child.pid == proc.pid + 1:
+                        init_bash = child.pid
+                    else:
+                        children.append({child.name(): child.pid})
+                _sessions[screen_name].info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}

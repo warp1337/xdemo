@@ -33,14 +33,14 @@ Authors: Florian Lier
 # STD
 import sys
 import time
-
-# SELF
-from xdemo.utilities.operatingsystem import get_all_screen_session_pids
+from pprint import pprint
+from threading import RLock
 
 
 class SystemLauncherClient:
     def __init__(self, _system_instance, _screen_pool, _log):
         self.log = _log
+        self.rlock = RLock()
         self.screen_pool = _screen_pool
         self.all_screen_session_pids = None
         self.hierarchical_session_list = []
@@ -50,6 +50,9 @@ class SystemLauncherClient:
         self.local_hostname = _system_instance.local_hostname
         self.local_platform = _system_instance.local_platform
         self.runtimeenvironment = _system_instance.runtimeenvironment
+
+    def dict_print(self, _dict):
+        pprint(_dict)
 
     def stop_all_initcriteria(self):
         for item in self.hierarchical_component_list:
@@ -63,24 +66,21 @@ class SystemLauncherClient:
         if component_host == self.local_hostname:
             # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
             # SEE: screen.id and how it is constructed in the system class
+            component_name = _component.name
             screen_name = _component.screen_id
             exec_script = _component.execscript
-            new_screen_session = self.screen_pool.new_screen_session(screen_name, self.runtimeenvironment)
+            info_dict = {"component_name": component_name,
+                         "exec_script": exec_script,
+                         "screen_session_name": screen_name,
+                         "osinfo": {"children": [],
+                                    "init_bash": None,
+                                    "pid": None
+                                    }
+                         }
+            new_screen_session = self.screen_pool.new_screen_session(screen_name, self.runtimeenvironment, info_dict)
             if new_screen_session is not None:
                 source_exec_script_cmd = ". " + exec_script
                 new_screen_session.send_commands(source_exec_script_cmd)
-                informed_item = {"screen_session_instance": new_screen_session,
-                                 "component_name": _component.name,
-                                 "exec_script": exec_script,
-                                 "screen_session_name": new_screen_session.name}
-                # WARNING new_screen_session.name MUST be equal to component.screen_id or something is horribly wrong
-                if _component.screen_id != new_screen_session.name:
-                    self.log.error("[launcher] something went horribly wrong with screen session %s" % new_screen_session.name)
-                    self.stop_all_initcriteria()
-                    self.screen_pool.kill_all_screen_sessions()
-                    sys.exit(1)
-                else:
-                    self.hierarchical_session_list.append(informed_item)
 
     def mk_screen_sessions(self):
         # Empty row before detach, simply looks good.
@@ -94,17 +94,11 @@ class SystemLauncherClient:
                     self.inner_mk_session(component)
 
         self.deploy_commands()
-        screen_name_list = []
-        for informed_item in self.hierarchical_session_list:
-            screen_name_list.append([informed_item['screen_session_name'], informed_item['component_name']])
-        self.all_screen_session_pids = get_all_screen_session_pids(self.log, screen_name_list)
-        for item in self.all_screen_session_pids.keys():
-            print self.all_screen_session_pids[item]
 
     def inner_deploy(self, _component, _executed_list_components, _type):
         # Name is actually derived from the path: component_something.yaml
         component_name = _component.name
-        cmd = "start"
+        cmd = "start &"
         platform = _component.platform
         host = _component.executionhost
         final_cmd = self.construct_command(host, platform, cmd, component_name, True, True)

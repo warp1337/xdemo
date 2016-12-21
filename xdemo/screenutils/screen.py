@@ -92,16 +92,15 @@ class Screen(object):
         False
     """
 
-    def __init__(self, name, log, initialize=False):
+    def __init__(self, name, _info_dict, log):
         self.name = name
         self.log = log
         self._id = None
         self._status = None
         self.logs = None
         self._logfilename = None
+        self.info_dict = _info_dict
         self.runtimeenvironment = None
-        if initialize:
-            self.initialize()
 
     @property
     def id(self):
@@ -195,7 +194,8 @@ class Screen(object):
         self._check_exists()
         for command in commands:
             source_cmd = ". %s && " % self.runtimeenvironment
-            system(source_cmd + " stdbuf -oL " + 'screen -x ' + self.id + ' -X ' + command)
+            final_cmd = source_cmd + "stdbuf -oL " + 'screen -x ' + self.id + ' -X ' + command
+            system(final_cmd)
             sleep(0.02)
 
     def _check_exists(self, message="Error code: 404."):
