@@ -193,11 +193,14 @@ class Screen(object):
         a glossary of the existing screen command in `man screen`"""
         self._check_exists()
         for command in commands:
-            clean_log = "echo '' > %s && " % self._logfilename
             source_cmd = ". %s && " % self.runtimeenvironment
-            final_cmd = clean_log + source_cmd + "stdbuf -oL " + 'screen -x ' + self.id + ' -X ' + command
+            final_cmd = source_cmd + "stdbuf -oL " + 'screen -x ' + self.id + ' -X ' + command
             system(final_cmd)
             sleep(0.02)
+
+    def clean_log(self):
+        clean_log = "echo '' > %s" % self._logfilename.strip()
+        system(clean_log)
 
     def _check_exists(self, message="Error code: 404."):
         """check whereas the screen exist. if not, raise an exception"""

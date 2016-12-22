@@ -166,6 +166,15 @@ class ScreenPool(Thread):
             self.log.error("[screen] %s does not exist" % _screen_name.strip())
             return None
 
+    def clean_log(self, _screen_name):
+        result = self.check_exists_in_pool(_screen_name.strip())
+        if result is not None:
+            self.lock.acquire()
+            result.clean_log()
+            self.lock.release()
+        else:
+            self.log.error("[screen] %s does not exist" % _screen_name.strip())
+
     def list_all_screens(self):
         screen_list = []
         self.lock.acquire()

@@ -12,4 +12,4 @@
       - "group_visualization"
       - "cat/component_cat@fl-vb"
       - "group_visualization"
-    executionduration: 10
+    executionduration: 1

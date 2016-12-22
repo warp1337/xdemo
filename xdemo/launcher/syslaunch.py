@@ -96,7 +96,7 @@ class SystemLauncherClient:
     def inner_deploy(self, _component, _executed_list_components, _type):
         # Name is actually derived from the path: component_something.yaml
         component_name = _component.name
-        cmd = "start &"
+        cmd = "start"
         platform = _component.platform
         host = _component.executionhost
         final_cmd = self.construct_command(host, platform, cmd, component_name, True, True)
@@ -108,6 +108,7 @@ class SystemLauncherClient:
             if screen_name not in _executed_list_components.keys():
                 # Logfile has been created, we can safely start initcriteria
                 # Now deploy the command in the screen session
+                self.screen_pool.clean_log(screen_name)
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
 
                 # Give the process some time to spawn: 50ms
