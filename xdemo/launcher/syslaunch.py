@@ -210,8 +210,8 @@ class SystemLauncherClient:
     def construct_command(self, _host, _platform, _cmd, _component, _requires_x=None, _requires_remote_x=None):
         if _platform != self.local_platform:
             self.log.warning("[launcher] skipping '%s'?! what, running %s component on %s?" % (_component,
-                                                                                              _platform,
-                                                                                              self.local_platform))
+                                                                                               _platform,
+                                                                                               self.local_platform))
             return None
         if _host == self.local_hostname:
             return _cmd.strip()
