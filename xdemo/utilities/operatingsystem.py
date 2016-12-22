@@ -70,6 +70,8 @@ def get_all_session_os_info(_log, _sessions):
                 for child in raw_children:
                         children.append({child.name(): child.pid})
                 _sessions[screen_name].info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
+                if len(children) <= 1:
+                    _log.warning("[os] '%s' exited" % _sessions[screen_name].info_dict['component_name'])
 
 
 def get_session_os_info(_log, _session):
