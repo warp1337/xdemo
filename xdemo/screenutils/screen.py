@@ -160,9 +160,9 @@ class Screen(object):
             Thread(target=self._delayed_detach).start()
             # support Unicode (-U),
             # attach to a new/existing named screen (-R).
-            self.log.info("[screen] new session using env %s" % os.path.basename(_environment))
-            source_cmd = ". %s && " % _environment
-            system(source_cmd + "stdbuf -oL " + ' screen -UR ' + self.name)
+            self.log.info("[screen] new session using env %s" % os.path.basename(self.runtimeenvironment))
+            source_cmd = ". %s && " % self.runtimeenvironment
+            system(source_cmd + 'stdbuf -oL' + ' screen -UR ' + self.name)
 
     def interrupt(self):
         """Insert CTRL+C in the screen session"""
@@ -193,10 +193,10 @@ class Screen(object):
         a glossary of the existing screen command in `man screen`"""
         self._check_exists()
         for command in commands:
-            source_cmd = ". %s && " % self.runtimeenvironment
-            final_cmd = source_cmd + "stdbuf -oL " + 'screen -x ' + self.id + ' -X ' + command
+            # Runtime Environment has been set in the initialize step
+            final_cmd = 'screen -x ' + self.id + ' -X ' + command
             system(final_cmd)
-            sleep(0.02)
+            sleep(0.05)
 
     def clean_log(self):
         clean_log = "echo '' > %s" % self._logfilename.strip()
@@ -228,7 +228,7 @@ class Screen(object):
                 self._status = infos[1][1:-1]
 
     def _delayed_detach(self):
-        sleep(0.5)
+        sleep(0.1)
         self.detach()
 
     def __repr__(self):

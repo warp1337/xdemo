@@ -106,7 +106,7 @@ class SystemLauncherClient:
             screen_name = _component.screen_id
             # Check if it has already been started on this host
             if screen_name not in _executed_list_components.keys():
-                # Logfile has been created, we can safely start initcriteria
+                # Logfile has been created, we can safely start init criteria
                 # Now deploy the command in the screen session
                 self.screen_pool.clean_log(screen_name)
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
@@ -120,13 +120,11 @@ class SystemLauncherClient:
                 # status -1 = screen session disappeared
                 status = self.screen_pool.get_session_os_info(screen_name)
 
-                if status is None:
+                if status > 0:
                     if _type == 'component':
-                        self.log.error(
-                            "    o---[launcher] '%s' screen session's it bash is gone" % component_name)
+                        self.log.debug("    o---[launcher] '%s' pid found" % component_name)
                     else:
-                        self.log.error(
-                            "\t\to---[launcher] '%s' screen session's it bash is gone" % component_name)
+                        self.log.debug("\t\to---[launcher] '%s' pid found" % component_name)
 
                 if status == 0:
                     if _type == 'component':
@@ -134,17 +132,19 @@ class SystemLauncherClient:
                     else:
                         self.log.obswar("\t\to---[launcher] '%s' exited" % component_name)
 
-                if status > 0:
-                    if _type == 'component':
-                        self.log.debug("    o---[launcher] '%s' pid found" % component_name)
-                    else:
-                        self.log.debug("\t\to---[launcher] '%s' pid found" % component_name)
-
                 if status < 0:
                     if _type == 'component':
                         self.log.debug("    o---[launcher] '%s' screen session gone. DEAR LORD!" % component_name)
                     else:
                         self.log.debug("\t\to---[launcher] '%s' screen session gone. DEAR LORD!" % component_name)
+
+                if status is None:
+                    if _type == 'component':
+                        self.log.error(
+                            "    o---[launcher] '%s' screen session's init bash is gone. DEAR LORD!" % component_name)
+                    else:
+                        self.log.error(
+                            "\t\to---[launcher] '%s' screen session's init bash is gone. DEAR LORD!" % component_name)
 
                 # Start the init criteria threads
                 for initcriteria in _component.initcriteria:

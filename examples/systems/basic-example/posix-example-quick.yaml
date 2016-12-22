@@ -1,0 +1,12 @@
+-  xdemosystem:
+    name: "linux-example"
+    runtimeenvironment:
+      posix: "environment-posix.sh"
+      darwin: "environment-darwin.sh"
+      win: "environment-win.bat"
+    executionorder:
+      - "lsla/component_lsla@fl-vb"
+      - "cat/component_cat@fl-vb"
+      - "echo/component_echo@fl-vb"
+      - "group_tools"
+    executionduration: 1
