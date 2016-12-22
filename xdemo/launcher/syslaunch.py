@@ -104,39 +104,53 @@ class SystemLauncherClient:
             return
         else:
             screen_name = _component.screen_id
+            # Check if it has already been started on this host
             if screen_name not in _executed_list_components.keys():
                 # Logfile has been created, we can safely start initcriteria
                 # Now deploy the command in the screen session
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
 
+                # Start the init criteria threads
                 for initcriteria in _component.initcriteria:
                     initcriteria.start()
 
+                # Add this item to the hierachical list of started components
                 informed_item = {screen_name: _component}
                 self.hierarchical_component_list.append(informed_item)
                 _executed_list_components[screen_name] = "started"
 
-                status = self.screen_pool.get_session_status(screen_name)
+                # Get the status of the command.
+                # status None = init bash, which is the first process in the screen session is gone
+                # status > 1 = everything is okay
+                # status 0 = command exited
+                # status -1 = screen session disappeared
+                status = self.screen_pool.get_session_os_info(screen_name)
 
                 if status is None:
                     if _type == 'component':
                         self.log.error(
-                            "    o---[launcher] '%s' screen session disappeared" % component_name)
+                            "    o---[launcher] '%s' screen session's it bash is gone" % component_name)
                     else:
                         self.log.error(
-                            "\t\to---[launcher] '%s' screen session disappeared" % component_name)
+                            "\t\to---[launcher] '%s' screen session's it bash is gone" % component_name)
 
                 if status == 0:
                     if _type == 'component':
-                        self.log.obswar("    o---[launcher] '%s' already exited" % component_name)
+                        self.log.obswar("    o---[launcher] '%s' exited" % component_name)
                     else:
-                        self.log.obswar("\t\to---[launcher] '%s' already exited" % component_name)
+                        self.log.obswar("\t\to---[launcher] '%s' exited" % component_name)
 
                 if status > 0:
                     if _type == 'component':
-                        self.log.obsok("    o---[launcher] '%s' pid found" % component_name)
+                        self.log.debug("    o---[launcher] '%s' pid found" % component_name)
                     else:
-                        self.log.obsok("\t\to---[launcher] '%s' pid found" % component_name)
+                        self.log.debug("\t\to---[launcher] '%s' pid found" % component_name)
+
+                if status < 0:
+                    if _type == 'component':
+                        self.log.debug("    o---[launcher] '%s' screen session gone. DEAR LORD!" % component_name)
+                    else:
+                        self.log.debug("\t\to---[launcher] '%s' screen session gone. DEAR LORD!" % component_name)
 
                 blocking_initcriteria = len(_component.initcriteria)
 

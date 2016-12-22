@@ -58,37 +58,47 @@ def get_file_from_path(_path):
     return os.path.basename(_path).strip()
 
 
-def update_all_session_os_info(_sessions):
+def get_all_session_os_info(_log, _sessions):
     for proc in ps.process_iter():
         if proc.name() == 'screen':
             screen_name = proc.cmdline()[2]
             if screen_name in _sessions.keys():
                 raw_children = ps.Process.children(proc, recursive=True)
-                children = []
                 screen_pid = proc.pid
+                init_bash = None
+                children = []
                 for child in raw_children:
                     if child.pid == proc.pid + 1:
                         init_bash = child.pid
                     else:
                         children.append({child.name(): child.pid})
+                if init_bash is None:
+                    _log.error("[screen] '%s' init bash exited" % _sessions[screen_name].info_dict["component_name"])
                 _sessions[screen_name].info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
 
 
-def get_session_os_status(session):
+def get_session_os_info(_log, _session):
     for proc in ps.process_iter():
         if proc.name() == 'screen':
             screen_name = proc.cmdline()[2]
-            if screen_name in session.name:
+            if screen_name in _session.name:
                 raw_children = ps.Process.children(proc, recursive=True)
-                children = []
                 screen_pid = proc.pid
+                init_bash = None
+                children = []
                 for child in raw_children:
                     if child.pid == proc.pid + 1:
                         init_bash = child.pid
                     else:
                         children.append({child.name(): child.pid})
-                session.info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
+                if init_bash is None:
+                    # report this in the launcher
+                    # _log.error("[screen] '%s' init bash exited" % _session.info_dict["component_name"])
+                    pass
+                _session.info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
                 if len(children) < 1:
                     return 0
+                elif init_bash is None:
+                    return None
                 else:
                     return len(children)

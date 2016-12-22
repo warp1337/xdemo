@@ -37,7 +37,7 @@ from threading import Thread
 
 # SCREEN UTILS
 from xdemo.screenutils.screen import Screen, list_screens
-from xdemo.utilities.operatingsystem import update_all_session_os_info, get_session_os_status
+from xdemo.utilities.operatingsystem import get_all_session_os_info, get_session_os_info
 
 
 class ScreenPool(Thread):
@@ -159,20 +159,20 @@ class ScreenPool(Thread):
     def list_all_screens_native():
         return list_screens()
 
-    def get_session_status(self, _screen_name):
+    def get_session_os_info(self, _screen_name):
         self.lock.acquire()
         session = self.check_exists_in_pool(_screen_name)
         if session is None:
             self.lock.release()
-            return None
+            return -1
         else:
-            status = get_session_os_status(session)
+            status = get_session_os_info(self.log, session)
             self.lock.release()
             return status
 
     def update_session_os_info(self):
         self.lock.acquire()
-        update_all_session_os_info(self.s_sessions)
+        get_all_session_os_info(self.log, self.s_sessions)
         self.lock.release()
 
     def stop(self):
