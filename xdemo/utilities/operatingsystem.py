@@ -85,13 +85,6 @@ def get_session_os_info(_log, _session):
                 children = []
                 for child in raw_children:
                         children.append({child.name(): child.pid})
-                if init_bash is None:
-                    # In this case it seems that the programm exited abnormally and the first
-                    # bash vanished. There is however, another bash in that screen which does
-                    # not have the PID+1. In this case kill and restart the screen session.
-                    # Report in the launcher
-                    # _log.error("[screen] '%s' init bash exited" % _session.info_dict["component_name"])
-                    pass
                 _session.info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
                 if len(children) <= 1:
                     return 0
