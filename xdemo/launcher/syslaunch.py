@@ -110,16 +110,9 @@ class SystemLauncherClient:
                 # Now deploy the command in the screen session
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
 
-                # Start the init criteria threads
-                for initcriteria in _component.initcriteria:
-                    initcriteria.start()
-
-                # Add this item to the hierachical list of started components
-                informed_item = {screen_name: _component}
-                self.hierarchical_component_list.append(informed_item)
-                _executed_list_components[screen_name] = "started"
-
-                # Get the status of the command.
+                # Give the process some time to spawn: 50ms
+                time.sleep(0.05)
+                # Get the status of the send_cmd()
                 # status None = init bash, which is the first process in the screen session is gone
                 # status > 1 = everything is okay
                 # status 0 = command exited
@@ -151,6 +144,15 @@ class SystemLauncherClient:
                         self.log.debug("    o---[launcher] '%s' screen session gone. DEAR LORD!" % component_name)
                     else:
                         self.log.debug("\t\to---[launcher] '%s' screen session gone. DEAR LORD!" % component_name)
+
+                # Start the init criteria threads
+                for initcriteria in _component.initcriteria:
+                    initcriteria.start()
+
+                # Add this item to the hierachical list of started components
+                informed_item = {screen_name: _component}
+                self.hierarchical_component_list.append(informed_item)
+                _executed_list_components[screen_name] = "started"
 
                 blocking_initcriteria = len(_component.initcriteria)
 
