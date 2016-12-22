@@ -159,9 +159,9 @@ class ScreenPool(Thread):
             result.send_commands(_cmd)
             self.lock.release()
             if _type == 'component':
-                self.log.info("[cmd] started '%s'" % _component_name)
+                self.log.info("[cmd] '%s' started" % _component_name)
             else:
-                self.log.info("      [cmd] started '%s'" % _component_name)
+                self.log.info("      [cmd] '%s' started" % _component_name)
         else:
             self.log.error("[screen] %s does not exist" % _screen_name.strip())
             return None

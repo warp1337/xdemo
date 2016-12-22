@@ -65,18 +65,10 @@ def get_all_session_os_info(_log, _sessions):
             if screen_name in _sessions.keys():
                 raw_children = ps.Process.children(proc, recursive=True)
                 screen_pid = proc.pid
-                init_bash = None
+                init_bash = "deprecated"
                 children = []
                 for child in raw_children:
-                    if child.pid == proc.pid + 1:
-                        init_bash = child.pid
-                    else:
                         children.append({child.name(): child.pid})
-                if init_bash is None:
-                    # In this case it seems that the programm exited abnormally and the first
-                    # bash vanished. There is however, another bash in that screen which does
-                    # not have the PID+1. In this case kill and restart the screen session.
-                    _log.error("[screen] '%s' init bash exited" % _sessions[screen_name].info_dict["component_name"])
                 _sessions[screen_name].info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
 
 
@@ -87,12 +79,9 @@ def get_session_os_info(_log, _session):
             if screen_name in _session.name:
                 raw_children = ps.Process.children(proc, recursive=True)
                 screen_pid = proc.pid
-                init_bash = None
+                init_bash = "deprecated"
                 children = []
                 for child in raw_children:
-                    if child.pid == proc.pid + 1:
-                        init_bash = child.pid
-                    else:
                         children.append({child.name(): child.pid})
                 if init_bash is None:
                     # In this case it seems that the programm exited abnormally and the first
@@ -102,9 +91,9 @@ def get_session_os_info(_log, _session):
                     # _log.error("[screen] '%s' init bash exited" % _session.info_dict["component_name"])
                     pass
                 _session.info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
-                if len(children) < 1:
+                if len(children) <= 1:
                     return 0
-                elif init_bash is None:
-                    return None
                 else:
                     return len(children)
+    # In case no proc found for the screen session it must be gone.
+    return -2

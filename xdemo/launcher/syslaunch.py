@@ -38,9 +38,10 @@ from threading import RLock
 
 
 class SystemLauncherClient:
-    def __init__(self, _system_instance, _screen_pool, _log):
+    def __init__(self, _system_instance, _screen_pool, _log, _debug_mode):
         self.log = _log
         self.rlock = RLock()
+        self.debug_mode = _debug_mode
         self.screen_pool = _screen_pool
         self.all_screen_session_pids = None
         self.hierarchical_session_list = []
@@ -78,6 +79,7 @@ class SystemLauncherClient:
             if new_screen_session is not None:
                 source_exec_script_cmd = ". " + exec_script
                 new_screen_session.send_commands(source_exec_script_cmd)
+                pass
 
     def mk_screen_sessions(self):
         # Empty row before detach, simply looks good.
@@ -118,37 +120,61 @@ class SystemLauncherClient:
                 # Give the process some time to spawn: 50ms
                 time.sleep(0.05)
                 # Get the status of the send_cmd()
-                # status None = init bash, which is the first process in the screen session is gone
-                # status > 1 = everything is okay
-                # status 0 = command exited
-                # status -1 = screen session disappeared
+                # status > 0   : everything is okay, session has 2 or more children [#1 is always a init bash]
+                # status == 0  : command exited, only the init bash is present
+                # status == -1 : screen session not found in session list, this is bad
+                # status == -2 : no process found for screen session, this is the worst case
+
+                if _type == 'component':
+                    self.log.debug("    o---[os] '%s' gatering pids" % component_name)
+                else:
+                    self.log.debug("\t\to---[os] '%s' gatering pids" % component_name)
+
                 status = self.screen_pool.get_session_os_info(screen_name)
 
                 if status > 0:
                     if _type == 'component':
-                        self.log.debug("    o---[launcher] '%s' pid found" % component_name)
+                        self.log.debug("    o---[os] '%s' is running" % component_name)
                     else:
-                        self.log.debug("\t\to---[launcher] '%s' pid found" % component_name)
+                        self.log.debug("\t\to---[os] '%s' is running" % component_name)
 
                 if status == 0:
                     if _type == 'component':
-                        self.log.obswar("    o---[launcher] '%s' exited" % component_name)
+                        self.log.obswar("    o---[os] '%s' exited" % component_name)
                     else:
-                        self.log.obswar("\t\to---[launcher] '%s' exited" % component_name)
+                        self.log.obswar("\t\to---[os] '%s' exited" % component_name)
 
-                if status < 0:
+                if status == -1:
                     if _type == 'component':
-                        self.log.debug("    o---[launcher] '%s' screen session gone. DEAR LORD!" % component_name)
+                        self.log.debug("    o---[os] '%s' screen not in session list THIS IS REALLY BAD!" % component_name)
                     else:
-                        self.log.debug("\t\to---[launcher] '%s' screen session gone. DEAR LORD!" % component_name)
+                        self.log.debug("\t\to---[os] '%s' screen not in session list THIS IS REALLY BAD!" % component_name)
 
-                if status is None:
+                    if self.debug_mode:
+                        self.log.debug("[debugger] press RETURN to go on...")
+                        raw_input('')
+
+                if status == -2:
                     if _type == 'component':
-                        self.log.error(
-                            "    o---[launcher] '%s' screen session's init bash is gone. DEAR LORD!" % component_name)
+                        self.log.debug("    o---[os] '%s' no process for screen session found THIS IS REALLY BAD!" % component_name)
                     else:
-                        self.log.error(
-                            "\t\to---[launcher] '%s' screen session's init bash is gone. DEAR LORD!" % component_name)
+                        self.log.debug("\t\to---[os] '%s' no process for screen session found THIS IS REALLY BAD!" % component_name)
+
+                    if self.debug_mode:
+                        self.log.debug("[debugger] press RETURN to go on...")
+                        raw_input('')
+
+                #### Deprecated, remove in final version ###
+
+                # if status is None:
+                #     if _type == 'component':
+                #         self.log.error("    o---[launcher] '%s' screen session's init bash is gone. DEAR LORD!" % component_name)
+                #     else:
+                #         self.log.error("\t\to---[launcher] '%s' screen session's init bash is gone. DEAR LORD!" % component_name)
+                #
+                #     if self.debug_mode:
+                #         self.log.debug("[debugger] press RETURN to continue")
+                #         raw_input('')
 
                 # Logfile has been created, we can safely start init criteria threads
                 for initcriteria in _component.initcriteria:
@@ -180,7 +206,10 @@ class SystemLauncherClient:
                                     self.log.obswar("\t\to---[criteria] missing '%s'" % initcriteria.criteria)
                             blocking_initcriteria -= 1
                             _component.initcriteria.remove(initcriteria)
-                            self.log.debug("[criteria] waiting for %d criteria" % blocking_initcriteria)
+                            if _type == 'component':
+                                self.log.debug("    o---[criteria] waiting for %d criteria" % blocking_initcriteria)
+                            else:
+                                self.log.debug("\t\to---[criteria] waiting for %d criteria" % blocking_initcriteria)
 
             else:
                 self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %

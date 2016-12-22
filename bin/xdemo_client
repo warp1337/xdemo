@@ -66,7 +66,6 @@ if __name__ == "__main__":
         return custom_log
 
     logger = logging.Logger("xdemo_client")
-    logger.setLevel(logging.INFO)
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(logging.INFO)
 
@@ -132,6 +131,12 @@ if __name__ == "__main__":
                       default=False,
                       help="force overwrite host settings and execute locally")
 
+    parser.add_option("-d", "--debugmode",
+                      action="store_true",
+                      dest="debug_mode",
+                      default=False,
+                      help="debug mode WARNING is interactive")
+
     (options, args) = parser.parse_args()
 
     if not options.configfile:
@@ -146,6 +151,14 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logger.info("[ XDEMO CLIENT START | %s | %s | PID %s ]" % (local_hostname, target_platform, this_client_pid))
+
+    ### LEVEL ####
+
+    if options.debug_mode is True:
+        ch.setLevel(logging.DEBUG)
+        logger.debug("[debugger] enabled")
+    else:
+        logger.setLevel(logging.INFO)
 
     ### SIGTRAP ###
 
@@ -168,7 +181,7 @@ if __name__ == "__main__":
     sc = SystemConfig(cfg, logger, local_hostname, target_platform, local_mode)
     si = SystemInstance(sc, logger, log_folder)
     sp = ScreenPool(logger, log_folder)
-    sl = SystemLauncherClient(si, sp, logger)
+    sl = SystemLauncherClient(si, sp, logger, options.debug_mode)
     sl.mk_screen_sessions()
 
     logger.info("[ XDEMO CLIENT RUNNING | %s | %s | PID %s ]" % (local_hostname, target_platform, this_client_pid))
