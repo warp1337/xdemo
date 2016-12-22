@@ -106,10 +106,14 @@ class SystemLauncherClient:
             screen_name = _component.screen_id
             # Check if it has already been started on this host
             if screen_name not in _executed_list_components.keys():
-                # Logfile has been created, we can safely start init criteria
-                # Now deploy the command in the screen session
+                # Now clean the log and deploy the command in the screen session
                 self.screen_pool.clean_log(screen_name)
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
+
+                # Add this component to the hierarchical list of started components
+                informed_item = {screen_name: _component}
+                self.hierarchical_component_list.append(informed_item)
+                _executed_list_components[screen_name] = "started"
 
                 # Give the process some time to spawn: 50ms
                 time.sleep(0.05)
@@ -146,14 +150,9 @@ class SystemLauncherClient:
                         self.log.error(
                             "\t\to---[launcher] '%s' screen session's init bash is gone. DEAR LORD!" % component_name)
 
-                # Start the init criteria threads
+                # Logfile has been created, we can safely start init criteria threads
                 for initcriteria in _component.initcriteria:
                     initcriteria.start()
-
-                # Add this item to the hierachical list of started components
-                informed_item = {screen_name: _component}
-                self.hierarchical_component_list.append(informed_item)
-                _executed_list_components[screen_name] = "started"
 
                 blocking_initcriteria = len(_component.initcriteria)
 
