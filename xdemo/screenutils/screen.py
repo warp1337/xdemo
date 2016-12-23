@@ -48,6 +48,7 @@ from threading import Thread
 # SELF
 from xdemo.utilities.operatingsystem import is_file
 from xdemo.screenutils.errors import ScreenNotFoundError
+from xdemo.utilities.operatingsystem import get_operating_system
 
 
 def tailf(file_):
@@ -100,6 +101,7 @@ class Screen(object):
         self.logs = None
         self._logfilename = None
         self.info_dict = _info_dict
+        self.os_system = get_operating_system()
         self.runtimeenvironment = None
 
     @property
@@ -162,7 +164,10 @@ class Screen(object):
             # attach to a new/existing named screen (-R).
             self.log.info("[screen] new session using env %s" % os.path.basename(self.runtimeenvironment))
             source_cmd = ". %s && " % self.runtimeenvironment
-            system(source_cmd + 'stdbuf -oL' + ' screen -UR ' + self.name)
+            if self.os_system == 'posix':
+                system(source_cmd + 'stdbuf -oL' + ' screen -UR ' + self.name)
+            else:
+                system(source_cmd + 'stdbuf -oL' + ' screen -dmS ' + self.name)
 
     def interrupt(self):
         """Insert CTRL+C in the screen session"""
@@ -229,7 +234,8 @@ class Screen(object):
 
     def _delayed_detach(self):
         sleep(0.1)
-        self.detach()
+        if self.os_system == 'posix':
+            self.detach()
 
     def __repr__(self):
         return "<%s '%s'>" % (self.__class__.__name__, self.name)
