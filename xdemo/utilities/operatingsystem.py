@@ -95,5 +95,5 @@ def get_session_os_info(_log, _session):
                     return 0
                 else:
                     return len(children)
-    # In case no proc found for the screen session it must be gone.
+    # In case no process found for the screen session it must be gone, which is bad.
     return -2
