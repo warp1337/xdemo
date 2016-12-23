@@ -32,6 +32,7 @@ Authors: Florian Lier
 
 # STD
 import os
+from sys import platform
 from socket import gethostname
 
 # PSUTIL
@@ -39,7 +40,11 @@ import psutil as ps
 
 
 def get_operating_system():
-    return os.name.strip()
+    os_system = platform.strip()
+    if os_system == 'linux2':
+        return 'posix'
+    else:
+        return os_system
 
 
 def get_localhost_name():
