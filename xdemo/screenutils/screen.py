@@ -159,15 +159,13 @@ class Screen(object):
         if not self.exists:
             self._id = None
             # Detach the screen once attached, on a new tread.
-            Thread(target=self._delayed_detach).start()
+            # Thread(target=self._delayed_detach).start()
+            # Detach immediately
             # support Unicode (-U),
             # attach to a new/existing named screen (-R).
             self.log.info("[screen] new session using env %s" % os.path.basename(self.runtimeenvironment))
             source_cmd = ". %s && " % self.runtimeenvironment
-            if self.os_system == 'posix':
-                system(source_cmd + 'stdbuf -oL' + ' screen -UR ' + self.name)
-            else:
-                system(source_cmd + 'stdbuf -oL' + ' screen -dmS ' + self.name)
+            system(source_cmd + 'stdbuf -oL' + ' screen -U  -dmS ' + self.name)
 
     def interrupt(self):
         """Insert CTRL+C in the screen session"""
@@ -234,8 +232,7 @@ class Screen(object):
 
     def _delayed_detach(self):
         sleep(0.1)
-        if self.os_system == 'posix':
-            self.detach()
+        self.detach()
 
     def __repr__(self):
         return "<%s '%s'>" % (self.__class__.__name__, self.name)
