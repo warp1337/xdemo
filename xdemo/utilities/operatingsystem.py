@@ -71,13 +71,16 @@ def stop_all_components(_log, _sessions):
                 raw_children = ps.Process.children(proc, recursive=True)
                 # Skip the first entry, that's the initial bash
                 # TODO: Wrap this is try catch
-                for child in raw_children[1:]:
-                        child.terminate()
-                gone, still_alive = ps.wait_procs(raw_children[1:], timeout=1, callback=None)
-                if len(still_alive) > 0:
-                    _log.debug("[os] proc for '%s' still alive killing it now" % _sessions[screen_name].info_dict['component_name'])
-                for child in still_alive:
-                    child.kill()
+                try:
+                    for child in raw_children[1:]:
+                            child.terminate()
+                    gone, still_alive = ps.wait_procs(raw_children[1:], timeout=2.0, callback=None)
+                    if len(still_alive) > 0:
+                        _log.debug("[os] proc for '%s' still alive killing it now" % _sessions[screen_name].info_dict['component_name'])
+                    for child in still_alive:
+                        child.kill()
+                except Exception, e:
+                    _log.warning("[os] %s" % e)
 
 
 def get_all_session_os_info(_log, _sessions):

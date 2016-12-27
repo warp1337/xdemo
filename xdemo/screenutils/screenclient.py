@@ -208,7 +208,7 @@ class ScreenPool(Thread):
         stop_all_components(self.log, self.s_sessions)
         self.lock.release()
 
-    def stop(self):
+    def stop_continuous_check(self):
         self.keep_running = False
 
     def run(self):

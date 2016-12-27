@@ -149,9 +149,9 @@ class SystemLauncherClient:
 
                 if status == -1:
                     if _type == 'component':
-                        self.log.debug("    o---[os] '%s' screen not in session list THIS IS REALLY BAD!" % component_name)
+                        self.log.debug("    o---[os] '%s' screen not in session list THIS IS BAD!" % component_name)
                     else:
-                        self.log.debug("\t\to---[os] '%s' screen not in session list THIS IS REALLY BAD!" % component_name)
+                        self.log.debug("\t\to---[os] '%s' screen not in session list THIS IS BAD!" % component_name)
 
                     if self.debug_mode:
                         self.log.debug("[debugger] press RETURN to go on...")
@@ -232,7 +232,7 @@ class SystemLauncherClient:
 
     def construct_command(self, _host, _platform, _cmd, _component, _requires_x=None, _requires_remote_x=None):
         if _platform != self.local_platform:
-            self.log.warning("[launcher] skipping '%s'?! what, running %s component on %s?" % (_component,
+            self.log.warning("[launcher] skipping '%s' what, running %s component on %s?!?" % (_component,
                                                                                                _platform,
                                                                                                self.local_platform))
             return None

@@ -123,8 +123,10 @@ class Screen(object):
         # Parse the screen -ls call, to find if the screen exists or not.
         #  "	28062.G.Terminal	(Detached)"
         lines = getoutput("screen -ls").split('\n')
-        return self.name in [".".join(l.split(".")[1:]).split("\t")[0]
-                             for l in lines if self.name in l]
+        if self.name in [".".join(l.split(".")[1:]).split("\t")[0] for l in lines if self.name in l]:
+            return self.name
+        else:
+            return None
 
     def enable_logs(self, filename=None):
         if filename is None:
@@ -163,7 +165,7 @@ class Screen(object):
             # Detach immediately
             # support Unicode (-U),
             # attach to a new/existing named screen (-R).
-            self.log.info("[screen] new session using env %s" % os.path.basename(self.runtimeenvironment))
+            self.log.info("[screen] session in env %s" % os.path.basename(self.runtimeenvironment))
             source_cmd = ". %s && " % self.runtimeenvironment
             system(source_cmd + 'stdbuf -oL' + ' screen -U  -dmS ' + self.name)
 
@@ -207,8 +209,12 @@ class Screen(object):
 
     def _check_exists(self, message="Error code: 404."):
         """check whereas the screen exist. if not, raise an exception"""
-        if not self.exists:
-            raise ScreenNotFoundError(message, self.name)
+        session = self.exists
+        if session is not None:
+            pass
+            # raise ScreenNotFoundError(message, self.name)
+        else:
+            self.log.error("[screen] '%s' does not exists" % session)
 
     def _set_screen_infos(self):
         """set the screen information related parameters"""
@@ -221,7 +227,8 @@ class Screen(object):
                             l.split('\t')[1].split('.')[1:]) in l):
                     line = l
             if not line:
-                raise ScreenNotFoundError("While getting info.", self.name)
+                # raise ScreenNotFoundError("While getting info.", self.name)
+                self.log.error("[screen] '%s' could not get info", self.name)
             infos = line.split('\t')[1:]
             self._id = infos[0].split('.')[0]
             if len(infos) == 3:

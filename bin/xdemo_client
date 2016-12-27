@@ -200,7 +200,7 @@ if __name__ == "__main__":
 
     sl.stop_all_initcriteria()
     sp.stop_all_components()
-    sp.stop()
+    sp.stop_continuous_check()
     sp.kill_all_screen_sessions()
 
     logger.info("[ XDEMO CLIENT STOP | %s | %s | PID %s ]" % (local_hostname, target_platform, this_client_pid))
