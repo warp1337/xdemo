@@ -34,13 +34,13 @@ Authors: Florian Lier
 import sys
 import time
 from pprint import pprint
-from threading import RLock
+from threading import Lock
 
 
 class SystemLauncherClient:
     def __init__(self, _system_instance, _screen_pool, _log, _debug_mode):
         self.log = _log
-        self.rlock = RLock()
+        self.lock = Lock()
         self.debug_mode = _debug_mode
         self.screen_pool = _screen_pool
         self.all_screen_session_pids = None
@@ -60,11 +60,12 @@ class SystemLauncherClient:
             values = item.values()
             for component in values:
                 for obs in component.initcriteria:
-                     obs.keep_running = False
+                    obs.keep_running = False
 
     def inner_mk_session(self, _component):
         component_host = _component.executionhost
         if component_host == self.local_hostname:
+            self.lock.acquire()
             # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
             # SEE: screen.id and how it is constructed in the system class
             component_name = _component.name
@@ -79,11 +80,9 @@ class SystemLauncherClient:
             if new_screen_session is not None:
                 source_exec_script_cmd = ". " + exec_script
                 new_screen_session.send_commands(source_exec_script_cmd)
-                pass
+            self.lock.release()
 
     def mk_screen_sessions(self):
-        # Empty row before detach, simply looks good.
-        print ""
         for item in self.system_instance.flat_execution_list:
             if 'component' in item.keys():
                 component = item['component']
@@ -92,7 +91,9 @@ class SystemLauncherClient:
                 for component in item['group'].flat_execution_list:
                     self.inner_mk_session(component)
 
+        # Start components
         self.deploy_commands()
+        # Activate continuous monitoring
         self.screen_pool.start()
 
     def inner_deploy(self, _component, _executed_list_components, _type):
@@ -108,6 +109,8 @@ class SystemLauncherClient:
             screen_name = _component.screen_id
             # Check if it has already been started on this host
             if screen_name not in _executed_list_components.keys():
+                # Get the global lock
+                self.lock.acquire()
                 # Now clean the log and deploy the command in the screen session
                 self.screen_pool.clean_log(screen_name)
                 self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
@@ -164,21 +167,9 @@ class SystemLauncherClient:
                         self.log.debug("[debugger] press RETURN to go on...")
                         raw_input('')
 
-                #### Deprecated, remove in final version ###
-
-                # if status is None:
-                #     if _type == 'component':
-                #         self.log.error("    o---[launcher] '%s' screen session's init bash is gone. DEAR LORD!" % component_name)
-                #     else:
-                #         self.log.error("\t\to---[launcher] '%s' screen session's init bash is gone. DEAR LORD!" % component_name)
-                #
-                #     if self.debug_mode:
-                #         self.log.debug("[debugger] press RETURN to continue")
-                #         raw_input('')
-
                 # Logfile has been created, we can safely start init criteria threads
-                for initcriteria in _component.initcriteria:
-                    initcriteria.start()
+                for init_criteria in _component.initcriteria:
+                    init_criteria.start()
 
                 blocking_initcriteria = len(_component.initcriteria)
 
@@ -191,7 +182,7 @@ class SystemLauncherClient:
                 while blocking_initcriteria > 0:
                     for initcriteria in _component.initcriteria:
                         if initcriteria.is_alive():
-                            time.sleep(0.001)
+                            time.sleep(0.005)
                             continue
                         else:
                             if initcriteria.ok is True:
@@ -210,6 +201,9 @@ class SystemLauncherClient:
                                 self.log.debug("    o---[criteria] waiting for %d criteria" % blocking_initcriteria)
                             else:
                                 self.log.debug("\t\to---[criteria] waiting for %d criteria" % blocking_initcriteria)
+
+                # Release the global lock
+                self.lock.release()
 
             else:
                 self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %

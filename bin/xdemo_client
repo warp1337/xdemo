@@ -199,6 +199,7 @@ if __name__ == "__main__":
     ### DE-BOOTSTRAPPING ####
 
     sl.stop_all_initcriteria()
+    sp.stop_all_components()
     sp.stop()
     sp.kill_all_screen_sessions()
 

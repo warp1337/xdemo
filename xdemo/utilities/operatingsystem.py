@@ -63,10 +63,22 @@ def get_file_from_path(_path):
     return os.path.basename(_path).strip()
 
 
+def stop_all_components(_log, _sessions):
+    for proc in ps.process_iter():
+        if proc.name() == 'screen':
+            screen_name = proc.cmdline()[3]
+            if screen_name in _sessions.keys():
+                raw_children = ps.Process.children(proc, recursive=True)
+                # Skip the first entry, that's the initial bash
+                for child in raw_children[1:]:
+                        child.terminate()
+                # gone, still_alive = ps.wait_procs(raw_children, timeout=3, callback=on_terminate)
+
+
 def get_all_session_os_info(_log, _sessions):
     for proc in ps.process_iter():
         if proc.name() == 'screen':
-            screen_name = proc.cmdline()[2]
+            screen_name = proc.cmdline()[3]
             if screen_name in _sessions.keys():
                 raw_children = ps.Process.children(proc, recursive=True)
                 screen_pid = proc.pid
@@ -82,7 +94,7 @@ def get_all_session_os_info(_log, _sessions):
 def get_session_os_info(_log, _session):
     for proc in ps.process_iter():
         if proc.name() == 'screen':
-            screen_name = proc.cmdline()[2]
+            screen_name = proc.cmdline()[3]
             if screen_name in _session.name:
                 raw_children = ps.Process.children(proc, recursive=True)
                 screen_pid = proc.pid

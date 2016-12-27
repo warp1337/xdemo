@@ -37,7 +37,7 @@ from threading import Thread
 
 # SCREEN UTILS
 from xdemo.screenutils.screen import Screen, list_screens
-from xdemo.utilities.operatingsystem import get_all_session_os_info, get_session_os_info
+from xdemo.utilities.operatingsystem import get_all_session_os_info, get_session_os_info, stop_all_components
 
 
 class ScreenPool(Thread):
@@ -201,6 +201,11 @@ class ScreenPool(Thread):
     def update_all_session_os_info(self):
         self.lock.acquire()
         get_all_session_os_info(self.log, self.s_sessions)
+        self.lock.release()
+
+    def stop_all_components(self):
+        self.lock.acquire()
+        stop_all_components(self.log, self.s_sessions)
         self.lock.release()
 
     def stop(self):
