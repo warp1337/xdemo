@@ -13,4 +13,4 @@
       - "cat/component_cat@fl-vb"
       - "group_visualization"
       - "sleep/component_sleep@fl-vb"
-    executionduration: 0
+    executionduration: 1
