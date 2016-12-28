@@ -69,11 +69,16 @@ class ScreenPool(Thread):
     def check_exists_in_pool(self, _screen_name):
         self.lock.acquire()
         if _screen_name in self.s_sessions.keys():
-            self.lock.release()
-            return self.s_sessions[_screen_name]
+            if self.__get_screen_status(_screen_name, self.s_sessions[_screen_name]) is not None:
+                self.lock.release()
+                return self.s_sessions[_screen_name]
+            else:
+                self.lock.release()
+                self.log.error("[screen] %s does not exist" % _screen_name)
+                return None
         else:
             self.lock.release()
-            self.log.error("[screen] %s does not exist" % _screen_name)
+            self.log.error("[screen] %s not in session list" % _screen_name)
             return None
 
     def get_screen_id(self, _screen_name):
@@ -84,7 +89,7 @@ class ScreenPool(Thread):
             return result.id
         else:
             self.lock.release()
-            self.log.error("[screen] %s does not exist" % _screen_name.strip())
+            self.log.error("[screen] %s could not get screen id" % _screen_name.strip())
             return None
 
     def get_all_screen_ids(self):
@@ -101,14 +106,10 @@ class ScreenPool(Thread):
             self.lock.release()
         return ids
 
-    def get_screen_status(self, _screen_name):
-        result = self.check_exists_in_pool(_screen_name.strip())
-        self.lock.acquire()
-        if result is not None:
-            self.lock.release()
-            return result.status
+    def __get_screen_status(self, _screen_name, _session):
+        if _session is not None:
+            return _session.status
         else:
-            self.lock.release()
             self.log.error("[screen] %s does not exist" % _screen_name.strip())
             return None
 

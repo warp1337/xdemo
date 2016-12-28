@@ -229,6 +229,8 @@ class Screen(object):
             if not line:
                 # raise ScreenNotFoundError("While getting info.", self.name)
                 self.log.error("[screen] '%s' could not get info", self.name)
+                self._status = None
+                return self._status
             infos = line.split('\t')[1:]
             self._id = infos[0].split('.')[0]
             if len(infos) == 3:
@@ -236,6 +238,10 @@ class Screen(object):
                 self._status = infos[2][1:-1]
             else:
                 self._status = infos[1][1:-1]
+        else:
+            self.log.error("[screen] '%s' does not exist", self.name)
+            self._status = None
+            return self._status
 
     def _delayed_detach(self):
         sleep(0.1)
