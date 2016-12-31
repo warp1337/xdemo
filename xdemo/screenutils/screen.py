@@ -239,7 +239,7 @@ class Screen(object):
             else:
                 self._status = infos[1][1:-1]
         else:
-            self.log.error("[screen] '%s' does not exist", self.name)
+            self.log.error("[screen] '%s' info does not exist", self.name)
             self._status = None
             return self._status
 
