@@ -74,12 +74,17 @@ class SystemLauncherClient:
             info_dict = {"component_name": component_name,
                          "exec_script": exec_script,
                          "screen_session_name": screen_name,
-                         "osinfo": {"children": [], "init_bash": None, "pid": None}
+                         "osinfo": {"children": [], "screenpid": None}
                          }
             new_screen_session = self.screen_pool.new_screen_session(screen_name, self.runtimeenvironment, info_dict)
-            if new_screen_session is not None:
+            result = self.screen_pool.check_exists_in_pool(screen_name)
+            if result is not None:
                 source_exec_script_cmd = ". " + exec_script
                 new_screen_session.send_commands(source_exec_script_cmd)
+            else:
+                self.log.error("[screen] session could not be initialized THIS IS FATAL!")
+                self.screen_pool.kill_all_screen_sessions()
+                sys.exit(1)
             self.lock.release()
 
     def mk_screen_sessions(self):
@@ -87,10 +92,13 @@ class SystemLauncherClient:
             if 'component' in item.keys():
                 component = item['component']
                 self.inner_mk_session(component)
+                # Add some time to spawn the session
+                time.sleep(0.1)
             if 'group' in item.keys():
                 for component in item['group'].flat_execution_list:
                     self.inner_mk_session(component)
-
+                    # Add some time to spawn the session
+                    time.sleep(0.1)
         # Start components
         self.deploy_commands()
         # Activate continuous monitoring

@@ -58,8 +58,8 @@ class ScreenPool(Thread):
         s_session.enable_logs(self.log_folder + _screen_name + ".log")
         if _screen_name in self.s_sessions.keys():
             self.lock.release()
-            self.log.debug("[screen] %s exists --> duplicate in components/groups?" % _screen_name)
-            return None
+            self.log.debug("[screen] %s already exists --> duplicate in components/groups?" % _screen_name)
+            return s_session
         else:
             self.s_sessions[_screen_name] = s_session
             self.hierarchical_session_list.append(_screen_name)

@@ -93,15 +93,14 @@ def get_all_session_os_info(_log, _sessions):
                 screen_pid = proc.pid
                 init_bash = "deprecated"
                 children = []
-                try:
-                    for child in raw_children:
+                for child in raw_children:
+                    try:
                         children.append({child.name(): child.pid})
-                    _sessions[screen_name].info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash,
-                                                                  "children": children}
-                    if len(children) <= 1:
-                        _log.warning("[os] '%s' exited" % _sessions[screen_name].info_dict['component_name'])
-                except Exception, e:
-                    _log.error("[os] proc for '%s' %s" % _sessions[screen_name].info_dict['component_name'], e)
+                    except Exception, e:
+                        _log.error("[os] process for '%s' %s" % _sessions[screen_name].info_dict['component_name'], e)
+                _sessions[screen_name].info_dict['osinfo'] = {"screepid": screen_pid, "children": children}
+                if len(children) <= 1:
+                    _log.warning("[os] '%s' exited" % _sessions[screen_name].info_dict['component_name'])
 
 
 def get_session_os_info(_log, _session):
@@ -113,16 +112,16 @@ def get_session_os_info(_log, _session):
                 screen_pid = proc.pid
                 init_bash = "deprecated"
                 children = []
-                try:
-                    for child in raw_children:
+                for child in raw_children:
+                    try:
                         children.append({child.name(): child.pid})
-                    _session.info_dict['osinfo'] = {"pid": screen_pid, "init_bash": init_bash, "children": children}
-                    if len(children) <= 1:
-                        return 0
-                    else:
-                        return len(children)
-                except Exception, e:
-                    _log.error("[os] proc for '%s' %s" % _session[screen_name].info_dict['component_name'], e)
+                    except Exception, e:
+                        _log.error("[os] process for '%s' %s" % _session.info_dict['component_name'], e)
+                _session.info_dict['osinfo'] = {"screenpid": screen_pid, "children": children}
+                if len(children) <= 1:
+                    _log.warning("[os] '%s' exited" % _session.info_dict['component_name'])
                     return 0
+                else:
+                    return len(children)
     # In case no process found for the screen session it must be gone, which is bad.
     return -2
