@@ -153,7 +153,7 @@ class Screen(object):
         if is_file(_environment):
             pass
         else:
-            self.log.error("[screen] file not found %s" % _environment)
+            self.log.error("[screen] '%s' not found" % _environment)
             sys.exit(1)
 
         self.runtimeenvironment = _environment
@@ -165,7 +165,7 @@ class Screen(object):
             # Detach immediately
             # support Unicode (-U),
             # attach to a new/existing named screen (-R).
-            self.log.info("[screen] session in env %s" % os.path.basename(self.runtimeenvironment))
+            self.log.info("[screen] '%s' in env %s" % (self.name, os.path.basename(self.runtimeenvironment)))
             source_cmd = ". %s && " % self.runtimeenvironment
             system(source_cmd + 'stdbuf -oL' + ' screen -U  -dmS ' + self.name)
 
@@ -214,7 +214,7 @@ class Screen(object):
             pass
             # raise ScreenNotFoundError(message, self.name)
         else:
-            self.log.error("[screen] '%s' does not exists" % session)
+            self.log.error("[screen] '%s' could not be found" % session)
 
     def _set_screen_infos(self):
         """set the screen information related parameters"""
@@ -228,7 +228,7 @@ class Screen(object):
                     line = l
             if not line:
                 # raise ScreenNotFoundError("While getting info.", self.name)
-                self.log.error("[screen] '%s' could not get info", self.name)
+                self.log.error("[screen] '%s' could not be found", self.name)
                 self._status = None
                 return self._status
             infos = line.split('\t')[1:]
@@ -239,7 +239,7 @@ class Screen(object):
             else:
                 self._status = infos[1][1:-1]
         else:
-            self.log.error("[screen] '%s' info does not exist", self.name)
+            self.log.error("[screen] '%s' does not exist", self.name)
             self._status = None
             return self._status
 

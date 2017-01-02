@@ -70,28 +70,28 @@ def stop_all_components(_log, _sessions):
             if screen_name in _sessions.keys():
                 raw_children = ps.Process.children(proc, recursive=True)
                 # Skip the first entry, that's the initial bash
-                # TODO: Wrap this is try catch
-                try:
-                    for child in raw_children[1:]:
+                for child in raw_children[1:]:
+                    try:
                         child.terminate()
-                    gone, still_alive = ps.wait_procs(raw_children[1:], timeout=2.0, callback=None)
-                    if len(still_alive) > 0:
-                        _log.debug("[os] proc for '%s' still alive killing it now" % _sessions[screen_name].info_dict[
-                            'component_name'])
-                    for child in still_alive:
+                    except Exception, e:
+                        _log.warning("[os] %s" % e)
+                gone, still_alive = ps.wait_procs(raw_children[1:], timeout=2.0, callback=None)
+                if len(still_alive) > 0:
+                    _log.debug("[os] proc for '%s' still alive killing it now" % _sessions[screen_name].info_dict['component_name'])
+                for child in still_alive:
+                    try:
                         child.kill()
-                except Exception, e:
-                    _log.warning("[os] %s" % e)
+                    except Exception, e:
+                        _log.warning("[os] %s" % e)
 
 
-def get_all_session_os_info(_log, _sessions):
+def get_all_component_os_info(_log, _sessions):
     for proc in ps.process_iter():
         if proc.name() == 'screen':
             screen_name = proc.cmdline()[3]
             if screen_name in _sessions.keys():
                 raw_children = ps.Process.children(proc, recursive=True)
                 screen_pid = proc.pid
-                init_bash = "deprecated"
                 children = []
                 for child in raw_children:
                     try:
@@ -101,16 +101,18 @@ def get_all_session_os_info(_log, _sessions):
                 _sessions[screen_name].info_dict['osinfo'] = {"screepid": screen_pid, "children": children}
                 if len(children) <= 1:
                     _log.warning("[os] '%s' exited" % _sessions[screen_name].info_dict['component_name'])
+                    _sessions[screen_name].info_dict['component_status'] = "stopped"
+                else:
+                    _sessions[screen_name].info_dict['component_status'] = "running"
 
 
-def get_session_os_info(_log, _session):
+def get_component_os_info(_log, _session):
     for proc in ps.process_iter():
         if proc.name() == 'screen':
             screen_name = proc.cmdline()[3]
             if screen_name in _session.name:
                 raw_children = ps.Process.children(proc, recursive=True)
                 screen_pid = proc.pid
-                init_bash = "deprecated"
                 children = []
                 for child in raw_children:
                     try:
@@ -120,8 +122,11 @@ def get_session_os_info(_log, _session):
                 _session.info_dict['osinfo'] = {"screenpid": screen_pid, "children": children}
                 if len(children) <= 1:
                     _log.warning("[os] '%s' exited" % _session.info_dict['component_name'])
+                    _session.info_dict['component_status'] = "stopped"
                     return 0
                 else:
+                    _session.info_dict['component_status'] = "running"
                     return len(children)
     # In case no process found for the screen session it must be gone, which is bad.
+    _session.info_dict['screen_status'] = "gone"
     return -2

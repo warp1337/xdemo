@@ -71,18 +71,20 @@ class SystemLauncherClient:
             component_name = _component.name
             screen_name = _component.screen_id
             exec_script = _component.execscript
-            info_dict = {"component_name": component_name,
-                         "exec_script": exec_script,
-                         "screen_session_name": screen_name,
-                         "osinfo": {"children": [], "screenpid": None}
-                         }
+            info_dict = { "component_name": component_name,
+                          "exec_script": exec_script,
+                          "screen_session_name": screen_name,
+                          "osinfo": {"children": [], "screenpid": None},
+                          "component_status": "stopped",
+                          "screen_status": "init"
+            }
             new_screen_session = self.screen_pool.new_screen_session(screen_name, self.runtimeenvironment, info_dict)
             result = self.screen_pool.check_exists_in_pool(screen_name)
             if result is not None:
                 source_exec_script_cmd = ". " + exec_script
                 new_screen_session.send_commands(source_exec_script_cmd)
             else:
-                self.log.error("[screen] session could not be initialized THIS IS FATAL!")
+                self.log.error("[launcher] '%s' could not be initialized THIS IS FATAL!" % screen_name)
                 self.screen_pool.kill_all_screen_sessions()
                 sys.exit(1)
             self.lock.release()
@@ -92,13 +94,13 @@ class SystemLauncherClient:
             if 'component' in item.keys():
                 component = item['component']
                 self.inner_mk_session(component)
-                # Add some time to spawn the session
-                time.sleep(0.1)
+                # Add some time to spawn the session, 50ms
+                time.sleep(0.05)
             if 'group' in item.keys():
                 for component in item['group'].flat_execution_list:
                     self.inner_mk_session(component)
-                    # Add some time to spawn the session
-                    time.sleep(0.1)
+                    # Add some time to spawn the session, 50ms
+                    time.sleep(0.05)
         # Start components
         self.deploy_commands()
         # Activate continuous monitoring
@@ -121,7 +123,12 @@ class SystemLauncherClient:
                 self.lock.acquire()
                 # Now clean the log and deploy the command in the screen session
                 self.screen_pool.clean_log(screen_name)
-                self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
+                result = self.screen_pool.send_cmd(screen_name, final_cmd, _type, component_name)
+
+                if result is None:
+                    self.log.error("[launcher] '%s' command could not be sent" % component_name)
+                    self.lock.release()
+                    return
 
                 # Add this component to the hierarchical list of started components
                 informed_item = {screen_name: _component}
@@ -130,17 +137,17 @@ class SystemLauncherClient:
 
                 # Give the process some time to spawn: 50ms
                 time.sleep(0.05)
-                # Get the status of the send_cmd()
-                # status > 0   : everything is okay, session has 2 or more children [#1 is always a init bash]
-                # status == 0  : command exited, only the init bash is present
-                # status == -1 : screen session not found in session list, this is bad
-                # status == -2 : no process found for screen session, this is the worst case
 
                 if _type == 'component':
                     self.log.debug("    o---[os] '%s' gatering pids" % component_name)
                 else:
                     self.log.debug("\t\to---[os] '%s' gatering pids" % component_name)
 
+                # Get the status of the send_cmd()
+                # status > 0   : everything is okay, session has 2 or more children [#1 is always an init bash/sh]
+                # status == 0  : command exited, only the init bash/sh is present
+                # status == -1 : screen session not found in session list, this is bad
+                # status == -2 : no process found for screen session, this is the worst case
                 status = self.screen_pool.get_session_os_info(screen_name)
 
                 if status > 0:
