@@ -1,12 +1,16 @@
 -  xdemosystem:
     name: "linux-example-infinite"
     runtimeenvironment:
-      posix: "environment-linux.sh"
-      macos: "environment-darwin.sh"
-      windows: "environment-win.bat.in"
+      posix: "environment-posix.sh"
+      darwin: "environment-darwin.sh"
+      win: "environment-win.bat"
     executionorder:
-      - "component_xeyes"
+      - "lsla/component_lsla@fl-vb"
       - "group_tools"
+      - "ifconfig/component_ifconfig@fl-vb"
+      - "cat/component_cat@fl-vb"
       - "group_visualization"
-      - "component_lsla"
+      - "cat/component_cat@fl-vb"
+      - "group_visualization"
+      - "sleep/component_sleep@fl-vb"
     executionduration: 0
