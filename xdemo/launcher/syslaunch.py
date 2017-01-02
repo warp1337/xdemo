@@ -221,7 +221,7 @@ class SystemLauncherClient:
                 self.lock.release()
 
             else:
-                self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups?" %
+                self.log.debug("[launcher] skipping '%s' on %s --> duplicate in components/groups?" %
                                  (component_name, self.local_hostname))
 
     def deploy_commands(self):
@@ -241,13 +241,13 @@ class SystemLauncherClient:
                     for component in item['group'].flat_execution_list:
                         self.inner_deploy(component, executed_list_components, _type)
                 else:
-                    self.log.warning(
+                    self.log.debug(
                         "[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
                         (item['group'].name, self.local_hostname))
 
     def construct_command(self, _host, _platform, _cmd, _component, _requires_x=None, _requires_remote_x=None):
         if _platform != self.local_platform:
-            self.log.warning("[launcher] skipping '%s' what, running %s component on %s?!?" % (_component,
+            self.log.debug("[launcher] skipping '%s' what, running %s component on %s?!?" % (_component,
                                                                                                _platform,
                                                                                                self.local_platform))
             return None

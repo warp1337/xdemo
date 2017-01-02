@@ -72,6 +72,7 @@ def stop_all_components(_log, _sessions):
                 # Skip the first entry, that's the initial bash
                 for child in raw_children[1:]:
                     try:
+                        _log.debug("[os] stopping '%s'" % child.name())
                         child.terminate()
                     except Exception, e:
                         _log.warning("[os] '%s'" % e)
@@ -80,6 +81,7 @@ def stop_all_components(_log, _sessions):
                     _log.debug("[os] proc for '%s' still alive killing it now" % _sessions[screen_name].info_dict['component_name'])
                 for child in still_alive:
                     try:
+                        _log.debug("[os] killing '%s'" % child.name())
                         child.kill()
                     except Exception, e:
                         _log.warning("[os] '%s'" % e)
@@ -123,7 +125,7 @@ def get_component_os_info(_log, _session):
                 _session.info_dict['osinfo'] = {"screenpid": screen_pid, "children": children}
                 if len(children) <= 1:
                     if _session.info_dict['component_status'] == "running" or _session.info_dict['component_status'] == "unknown":
-                        _log.warning("[os] '%s' exited" % _session.info_dict['component_name'])
+                        _log.debug("[os] '%s' exited" % _session.info_dict['component_name'])
                     _session.info_dict['component_status'] = "stopped"
                     return 0
                 else:
