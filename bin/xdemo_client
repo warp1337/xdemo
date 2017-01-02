@@ -46,7 +46,7 @@ from colorlog import ColoredFormatter
 # SELF
 from xdemo.parsing.config import SystemConfig
 from xdemo.container.system import SystemInstance
-from xdemo.screenutils.screenclient import ScreenPool
+from xdemo.screenutils.screenpool import ScreenPool
 from xdemo.launcher.syslaunch import SystemLauncherClient
 from xdemo.utilities.operatingsystem import get_operating_system, get_localhost_name, get_process_resource
 
