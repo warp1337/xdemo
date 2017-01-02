@@ -134,3 +134,13 @@ def get_component_os_info(_log, _session):
     # In case no process found for the screen session it must be gone, which is bad.
     _session.info_dict['screen_status'] = "gone"
     return -2
+
+
+def get_process_resource(_pid):
+    p = ps.Process(_pid)
+    if p.is_running:
+        cpu_percent = p.cpu_percent(interval=1)
+    else:
+        cpu_percent = 0.0
+
+    return cpu_percent

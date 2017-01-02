@@ -48,7 +48,7 @@ from xdemo.parsing.config import SystemConfig
 from xdemo.container.system import SystemInstance
 from xdemo.screenutils.screenclient import ScreenPool
 from xdemo.launcher.syslaunch import SystemLauncherClient
-from xdemo.utilities.operatingsystem import get_operating_system, get_localhost_name
+from xdemo.utilities.operatingsystem import get_operating_system, get_localhost_name, get_process_resource
 
 if __name__ == "__main__":
 
@@ -192,9 +192,13 @@ if __name__ == "__main__":
     if si.executionduration > 0:
         while not exit_grace and time.time() - init <= si.executionduration:
             time.sleep(0.1)
+            cpu = get_process_resource(this_client_pid)
+            logger.debug("[os] cpu usage %.f" % cpu)
     else:
         while not exit_grace:
             time.sleep(0.1)
+            cpu = get_process_resource(this_client_pid)
+            logger.debug("[os] cpu usage %.f" % cpu)
 
     ### DE-BOOTSTRAPPING ####
 
