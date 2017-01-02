@@ -203,8 +203,8 @@ if __name__ == "__main__":
     ### DE-BOOTSTRAPPING ####
 
     sl.stop_all_initcriteria()
-    sp.stop_all_components()
     sp.stop_continuous_check()
+    sp.stop_all_components()
     sp.kill_all_screen_sessions()
 
     logger.info("[ XDEMO CLIENT STOP | %s | %s | PID %s ]" % (local_hostname, target_platform, this_client_pid))

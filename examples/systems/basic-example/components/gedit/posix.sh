@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function start {
-    /usr/bin/gedit
+    /usr/bin/gedit &
 }
 
 function hook_check {
