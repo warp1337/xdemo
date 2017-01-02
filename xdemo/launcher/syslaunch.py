@@ -221,7 +221,7 @@ class SystemLauncherClient:
                 self.lock.release()
 
             else:
-                self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
+                self.log.warning("[launcher] skipping '%s' on %s --> duplicate in components/groups?" %
                                  (component_name, self.local_hostname))
 
     def deploy_commands(self):
