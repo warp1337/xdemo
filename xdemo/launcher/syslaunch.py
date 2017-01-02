@@ -95,12 +95,12 @@ class SystemLauncherClient:
                 component = item['component']
                 self.inner_mk_session(component)
                 # Add some time to spawn the session, 50ms
-                time.sleep(0.05)
+                # time.sleep(0.05)
             if 'group' in item.keys():
                 for component in item['group'].flat_execution_list:
                     self.inner_mk_session(component)
                     # Add some time to spawn the session, 50ms
-                    time.sleep(0.05)
+                    # time.sleep(0.05)
         # Start components
         self.deploy_commands()
         # Activate continuous monitoring
