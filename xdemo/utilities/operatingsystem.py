@@ -74,7 +74,7 @@ def stop_all_components(_log, _sessions):
                     try:
                         child.terminate()
                     except Exception, e:
-                        _log.warning("[os] %s" % e)
+                        _log.warning("[os] '%s'" % e)
                 gone, still_alive = ps.wait_procs(raw_children[1:], timeout=2.0, callback=None)
                 if len(still_alive) > 0:
                     _log.debug("[os] proc for '%s' still alive killing it now" % _sessions[screen_name].info_dict['component_name'])
@@ -82,7 +82,7 @@ def stop_all_components(_log, _sessions):
                     try:
                         child.kill()
                     except Exception, e:
-                        _log.warning("[os] %s" % e)
+                        _log.warning("[os] '%s'" % e)
 
 
 def get_all_component_os_info(_log, _sessions):
@@ -100,7 +100,8 @@ def get_all_component_os_info(_log, _sessions):
                         _log.error("[os] process for '%s' %s" % _sessions[screen_name].info_dict['component_name'], e)
                 _sessions[screen_name].info_dict['osinfo'] = {"screepid": screen_pid, "children": children}
                 if len(children) <= 1:
-                    _log.warning("[os] '%s' exited" % _sessions[screen_name].info_dict['component_name'])
+                    if _sessions[screen_name].info_dict['component_status'] == "running" or _sessions[screen_name].info_dict['component_status'] == "unknown":
+                        _log.warning("[os] '%s' exited" % _sessions[screen_name].info_dict['component_name'])
                     _sessions[screen_name].info_dict['component_status'] = "stopped"
                 else:
                     _sessions[screen_name].info_dict['component_status'] = "running"
@@ -121,7 +122,8 @@ def get_component_os_info(_log, _session):
                         _log.error("[os] process for '%s' %s" % _session.info_dict['component_name'], e)
                 _session.info_dict['osinfo'] = {"screenpid": screen_pid, "children": children}
                 if len(children) <= 1:
-                    _log.warning("[os] '%s' exited" % _session.info_dict['component_name'])
+                    if _session.info_dict['component_status'] == "running" or _session.info_dict['component_status'] == "unknown":
+                        _log.warning("[os] '%s' exited" % _session.info_dict['component_name'])
                     _session.info_dict['component_status'] = "stopped"
                     return 0
                 else:

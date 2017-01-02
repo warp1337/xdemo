@@ -75,7 +75,7 @@ class SystemLauncherClient:
                           "exec_script": exec_script,
                           "screen_session_name": screen_name,
                           "osinfo": {"children": [], "screenpid": None},
-                          "component_status": "stopped",
+                          "component_status": "unknown",
                           "screen_status": "init"
             }
             new_screen_session = self.screen_pool.new_screen_session(screen_name, self.runtimeenvironment, info_dict)
