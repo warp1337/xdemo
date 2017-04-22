@@ -200,13 +200,14 @@ if __name__ == "__main__":
         while not exit_grace and time.time() - init <= si.executionduration:
             time.sleep(0.1)
             if target_platform == 'posix' or target_platform == 'darwin':
-                sys.stdout.write('\033[1;42mRUNTIME [%.2f/%.2f] \033[0;0m\r' % (time.time() - init, si.executionduration))
+                sys.stdout.write('\033[1;42mRUNTIME [%.2f/%.2f]\033[0;0m\r' % (time.time() - init, si.executionduration))
                 sys.stdout.flush()
             # cpu = get_process_resource(this_client_pid)
             # logger.debug("[os] cpu usage %.f" % cpu)
     else:
         while not exit_grace:
             time.sleep(0.1)
+            sys.stdout.write('\033[1;42mRUNTIME [Infinite]\033[0;0m\r')
             # cpu = get_process_resource(this_client_pid)
             # logger.debug("[os] cpu usage %.f" % cpu)
 
