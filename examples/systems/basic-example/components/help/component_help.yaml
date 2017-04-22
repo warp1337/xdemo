@@ -2,7 +2,7 @@
     platform: "posix"
     autostart: true
     exitallowed: false
-    initpolicy: "strict"
+    initpolicy: "slack"
     initcriteria:
       - stdout:
           maxwaittime: 2

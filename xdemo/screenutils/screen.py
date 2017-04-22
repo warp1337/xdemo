@@ -214,7 +214,7 @@ class Screen(object):
             pass
             # raise ScreenNotFoundError(message, self.name)
         else:
-            self.log.error("[screen] '%s' could not be found" % session)
+            self.log.error("[screen] '%s' could not be found" % self.name)
 
     def _set_screen_infos(self):
         """set the screen information related parameters"""

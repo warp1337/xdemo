@@ -1,5 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
     autostart: true
-    exitallowed: false
+    exitallowed: true
     description: "Ubuntu Calendar application"

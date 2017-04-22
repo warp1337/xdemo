@@ -90,47 +90,56 @@ def stop_all_components(_log, _sessions):
 def get_all_component_os_info(_log, _sessions):
     for proc in ps.process_iter():
         if proc.name() == 'screen':
-            screen_name = proc.cmdline()[3]
-            if screen_name in _sessions.keys():
-                raw_children = ps.Process.children(proc, recursive=True)
-                screen_pid = proc.pid
-                children = []
-                for child in raw_children:
-                    try:
-                        children.append({child.name(): child.pid})
-                    except Exception, e:
-                        _log.error("[os] process for '%s' %s" % _sessions[screen_name].info_dict['component_name'], e)
-                _sessions[screen_name].info_dict['osinfo'] = {"screepid": screen_pid, "children": children}
-                if len(children) <= 1:
-                    if _sessions[screen_name].info_dict['component_status'] == "running" or _sessions[screen_name].info_dict['component_status'] == "unknown":
-                        _log.warning("[os] '%s' exited" % _sessions[screen_name].info_dict['component_name'])
-                    _sessions[screen_name].info_dict['component_status'] = "stopped"
-                else:
-                    _sessions[screen_name].info_dict['component_status'] = "running"
+            try:
+                screen_name = proc.cmdline()[3]
+                if screen_name in _sessions.keys():
+                    raw_children = ps.Process.children(proc, recursive=True)
+                    screen_pid = proc.pid
+                    children = []
+                    for child in raw_children:
+                        try:
+                            children.append({child.name(): child.pid})
+                        except Exception, e:
+                            _log.error("[os] process for '%s' %s" % (_sessions[screen_name].info_dict['component_name'], e))
+                    _sessions[screen_name].info_dict['osinfo'] = {"screepid": screen_pid, "children": children}
+                    if len(children) <= 1:
+                        if _sessions[screen_name].info_dict['component_status'] == "running" or _sessions[screen_name].info_dict['component_status'] == "unknown":
+                            _log.warning("[os] '%s' exited" % _sessions[screen_name].info_dict['component_name'])
+                        _sessions[screen_name].info_dict['component_status'] = "stopped"
+                    else:
+                        _sessions[screen_name].info_dict['component_status'] = "running"
+            except Exception, e:
+                _log.warn("[os] could not check process for '%s'" % _sessions[screen_name].info_dict['component_name'])
+                _sessions[screen_name].info_dict['component_status'] == "unknown"
 
 
 def get_component_os_info(_log, _session):
     for proc in ps.process_iter():
         if proc.name() == 'screen':
-            screen_name = proc.cmdline()[3]
-            if screen_name in _session.name:
-                raw_children = ps.Process.children(proc, recursive=True)
-                screen_pid = proc.pid
-                children = []
-                for child in raw_children:
-                    try:
-                        children.append({child.name(): child.pid})
-                    except Exception, e:
-                        _log.error("[os] process for '%s' %s" % _session.info_dict['component_name'], e)
-                _session.info_dict['osinfo'] = {"screenpid": screen_pid, "children": children}
-                if len(children) <= 1:
-                    if _session.info_dict['component_status'] == "running" or _session.info_dict['component_status'] == "unknown":
-                        _log.debug("[os] '%s' exited" % _session.info_dict['component_name'])
-                    _session.info_dict['component_status'] = "stopped"
-                    return 0
-                else:
-                    _session.info_dict['component_status'] = "running"
-                    return len(children)
+            try:
+                screen_name = proc.cmdline()[3]
+                if screen_name in _session.name:
+                    raw_children = ps.Process.children(proc, recursive=True)
+                    screen_pid = proc.pid
+                    children = []
+                    for child in raw_children:
+                        try:
+                            children.append({child.name(): child.pid})
+                        except Exception, e:
+                            _log.error("[os] process for '%s' %s" % _session.info_dict['component_name'], e)
+                    _session.info_dict['osinfo'] = {"screenpid": screen_pid, "children": children}
+                    if len(children) <= 1:
+                        if _session.info_dict['component_status'] == "running" or _session.info_dict['component_status'] == "unknown":
+                            _log.debug("[os] '%s' exited" % _session.info_dict['component_name'])
+                        _session.info_dict['component_status'] = "stopped"
+                        return 0
+                    else:
+                        _session.info_dict['component_status'] = "running"
+                        return len(children)
+            except Exception, e:
+                _log.warn("[os] could not check process for '%s'" % _session.info_dict['component_name'])
+                _session.info_dict['component_status'] = "unknown"
+                return 0
     # In case no process found for the screen session it must be gone, which is bad.
     _session.info_dict['screen_status'] = "gone"
     return -2

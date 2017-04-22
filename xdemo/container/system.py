@@ -85,15 +85,16 @@ class Component:
         self.name = None
         self.path = None
         self.level = None
-        self.initcriteria = []
         self.log_file = None
         self.platform = None
         self.screen_id = None
         self.autostart = None
         self.execscript = None
         self.retrycount = None
+        self.initcriteria = []
         self.initpolicy = None
         self.description = None
+        self.exitallowed = None
         self.executionhost = None
         self.uuid = str(uuid.uuid4())
         self.log_folder = _log_folder
@@ -112,9 +113,10 @@ class Component:
             self.path = _component_data[0]['xdemocomponent']['path']
             self.execscript = _component_data[0]['xdemocomponent']['execscript']
             self.platform = _component_data[0]['xdemocomponent']['platform']
-            self.autostart = _component_data[0]['xdemocomponent']['autostart']
+            self.autostart = bool(_component_data[0]['xdemocomponent']['autostart'])
             self.description = _component_data[0]['xdemocomponent']['description']
             self.executionhost = _component_data[0]['xdemocomponent']['executionhost']
+            self.exitallowed = bool(_component_data[0]['xdemocomponent']['exitallowed'])
             # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
             self.screen_id = self.mk_screen_id("xdemo", self.name, self.local_hostname)
             # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE

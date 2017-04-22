@@ -44,6 +44,7 @@ class SystemLauncherClient:
         self.debug_mode = _debug_mode
         self.screen_pool = _screen_pool
         self.strict_policy_missed = False
+        self.exit_allowed_missed = False
         self.all_screen_session_pids = None
         self.hierarchical_session_list = []
         self.hierarchical_component_list = []
@@ -103,7 +104,7 @@ class SystemLauncherClient:
         # Start components
         self.deploy_commands()
         # Activate continuous monitoring
-        if self.strict_policy_missed is False:
+        if self.strict_policy_missed is False and self.exit_allowed_missed is False:
             self.screen_pool.start()
         else:
             pass
@@ -146,12 +147,16 @@ class SystemLauncherClient:
                     self.log.debug("\t\to---[os] '%s' gatering pids" % component_name)
 
                 # Get the status of the send_cmd()
-                # status > 0   : everything is okay, session has 2 or more children [#1 is always an init bash/sh]
+                # status > 0   : everything is okay, session has 1 or more children [#1 is always an init bash/sh]
                 # status == 0  : command exited, only the init bash/sh is present
                 # status == -1 : screen session not found in session list, this is bad
                 # status == -2 : no process found for screen session, this is the worst case
-                # status == -3 : criteria not met in strict mode
+
                 status = self.screen_pool.get_session_os_info(screen_name)
+                if _type == 'component':
+                    self.log.debug("    o---[os] '%s' children %d" % (component_name, status))
+                else:
+                    self.log.debug("\t\to---[os] '%s' children %d" % (component_name, status))
 
                 if status > 0:
                     if _type == 'component':
@@ -162,8 +167,18 @@ class SystemLauncherClient:
                 if status == 0:
                     if _type == 'component':
                         self.log.obswar("    o---[os] '%s' exited" % component_name)
+                        if _component.exitallowed is False:
+                            self.log.obserr("    o---[os] '%s' exit not allowed in config" % component_name)
+                            self.exit_allowed_missed = True
+                            self.lock.release()
+                            return
                     else:
                         self.log.obswar("\t\to---[os] '%s' exited" % component_name)
+                        if _component.exitallowed is False:
+                            self.log.obserr("\t\to---[os] '%s' exit not allowed in config" % component_name)
+                            self.exit_allowed_missed = True
+                            self.lock.release()
+                            return
 
                 if status == -1:
                     if _type == 'component':
@@ -218,6 +233,11 @@ class SystemLauncherClient:
                                         return
                                 else:
                                     self.log.obswar("\t\to---[criteria] missing '%s'" % initcriteria.criteria)
+                                    if _component.initpolicy == 'strict':
+                                        self.log.obserr("\t\to---[criteria] strict init policy enabled in config for '%s'" % component_name)
+                                        self.strict_policy_missed = True
+                                        self.lock.release()
+                                        return
                             blocking_initcriteria -= 1
                             _component.initcriteria.remove(initcriteria)
                             if _type == 'component':
@@ -236,7 +256,7 @@ class SystemLauncherClient:
         executed_list_components = {}
         executed_list_groups = {}
         for item in self.system_instance.flat_execution_list:
-            if self.strict_policy_missed is False:
+            if self.strict_policy_missed is False and self.exit_allowed_missed is False:
                 if 'component' in item.keys():
                     _type = 'component'
                     component = item['component']

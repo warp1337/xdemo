@@ -191,7 +191,7 @@ if __name__ == "__main__":
     sl = SystemLauncherClient(si, sp, logger, options.debug_mode)
     sl.mk_screen_sessions()
 
-    if sl.strict_policy_missed is False:
+    if sl.strict_policy_missed is False and sl.exit_allowed_missed is False:
         logger.info("[ XDEMO CLIENT RUNNING | %s | %s | PID %s ]" % (local_hostname, target_platform, this_client_pid))
 
         ### LOOP ####

@@ -21,5 +21,5 @@
           maxwaittime: 0.2
           criteria: "sdfewr"
     initpolicy: "slack"
-    exitallowed: false
+    exitallowed: true
     description: "show file content using cat"
