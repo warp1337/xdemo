@@ -1,9 +1,10 @@
 -  xdemocomponent:
     platform: "posix"
     autostart: true
+    exitallowed: true
     initcriteria:
       - stdout:
           maxwaittime: 0.5
           criteria: "Linux"
-    errorpolicy: "strict"
+    initpolicy: "strict"
     description: "Print certain system information."

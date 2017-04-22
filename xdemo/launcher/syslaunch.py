@@ -211,10 +211,11 @@ class SystemLauncherClient:
                             else:
                                 if _type == 'component':
                                     self.log.obswar("    o---[criteria] missing '%s'" % initcriteria.criteria)
-                                    if _component.errorpolicy == 'strict':
-                                        self.log.obserr("    o---[criteria] strict mode, aborting start-up. '%s'" % initcriteria.criteria)
+                                    if _component.initpolicy == 'strict':
+                                        self.log.obserr("    o---[criteria] strict init policy enabled in config for '%s'" % component_name)
                                         self.strict_policy_missed = True
-                                        break
+                                        self.lock.release()
+                                        return
                                 else:
                                     self.log.obswar("\t\to---[criteria] missing '%s'" % initcriteria.criteria)
                             blocking_initcriteria -= 1

@@ -1,9 +1,10 @@
 -  xdemocomponent:
     platform: "posix"
     autostart: true
+    exitallowed: true
     initcriteria:
       - stdout:
           maxwaittime: 1
           criteria: "eth0"
-    errorpolicy: "strict"
+    initpolicy: "strict"
     description: "ifconfig configures a network interface"

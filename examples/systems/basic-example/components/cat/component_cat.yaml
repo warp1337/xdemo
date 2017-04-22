@@ -20,5 +20,6 @@
       - stdout:
           maxwaittime: 0.2
           criteria: "sdfewr"
-    errorpolicy: "strict"
+    initpolicy: "strict"
+    exitallowed: false
     description: "show file content using cat"

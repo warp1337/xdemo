@@ -1,6 +1,5 @@
 -  xdemogroup:
     autostart: true
-    errorpolicy: "strict"
     description: "This group starts applications that need X11"
     components:
       - "xeyes/component_xeyes@fl-vb"

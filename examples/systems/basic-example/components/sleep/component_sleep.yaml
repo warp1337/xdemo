@@ -1,5 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
     autostart: true
-    errorpolicy: "strict"
+    exitallowed: true
     description: "sleep - delay for a specified amount of time"

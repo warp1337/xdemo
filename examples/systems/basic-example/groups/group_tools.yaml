@@ -1,6 +1,5 @@
 -  xdemogroup:
     autostart: true
-    errorpolicy: "strict"
     description: "This group starts some great tools"
     components:
       - "uname/component_uname@fl-vb"

@@ -1,5 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
     autostart: true
-    errorpolicy: "strict"
+    exitallowed: false
     description: "Calculator with financial and scientific modes"

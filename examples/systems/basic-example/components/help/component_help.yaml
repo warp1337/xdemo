@@ -1,7 +1,8 @@
 -  xdemocomponent:
     platform: "posix"
     autostart: true
-    errorpolicy: "strict"
+    exitallowed: false
+    initpolicy: "strict"
     initcriteria:
       - stdout:
           maxwaittime: 2

@@ -1,5 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
     autostart: true
-    errorpolicy: "strict"
+    exitallowed: true
     description: "echo - display a line of text"

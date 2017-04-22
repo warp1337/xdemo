@@ -92,7 +92,7 @@ class Component:
         self.autostart = None
         self.execscript = None
         self.retrycount = None
-        self.errorpolicy = None
+        self.initpolicy = None
         self.description = None
         self.executionhost = None
         self.uuid = str(uuid.uuid4())
@@ -113,7 +113,6 @@ class Component:
             self.execscript = _component_data[0]['xdemocomponent']['execscript']
             self.platform = _component_data[0]['xdemocomponent']['platform']
             self.autostart = _component_data[0]['xdemocomponent']['autostart']
-            self.errorpolicy = _component_data[0]['xdemocomponent']['errorpolicy']
             self.description = _component_data[0]['xdemocomponent']['description']
             self.executionhost = _component_data[0]['xdemocomponent']['executionhost']
             # DO NOT CHANGE THE NAMING PATTERN OR ALL HELL BREAKS LOSE
@@ -132,6 +131,8 @@ class Component:
                                                     initcriteria['stdoutexclude']['criteria'],
                                                     initcriteria['stdoutexclude']['maxwaittime'])
                         self.initcriteria.append(obs)
+                self.initpolicy = _component_data[0]['xdemocomponent']['initpolicy']
+
         except Exception, e:
             self.log.error("key error in component '%s' %s " % (self.name, e))
             sys.exit(1)
@@ -148,7 +149,6 @@ class Group:
         self.name = None
         self.level = None
         self.autostart = None
-        self.errorpolicy = None
         self.description = None
         self.log_folder = _log_folder
         self.flat_execution_list = []
@@ -160,7 +160,6 @@ class Group:
             self.level = _group_data[0]['level']
             self.name = _group_data[0]['xdemogroup']['name']
             self.autostart = _group_data[0]['xdemogroup']['autostart']
-            self.errorpolicy = _group_data[0]['xdemogroup']['errorpolicy']
             self.description = _group_data[0]['xdemogroup']['description']
             for item in _group_data[0]['xdemogroup']['flat_execution_list']:
                 c = Component(self.log, self.log_folder, self.local_hostname)

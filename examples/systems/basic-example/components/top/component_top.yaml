@@ -1,5 +1,5 @@
 -  xdemocomponent:
     platform: "posix"
     autostart: true
-    errorpolicy: "strict"
-    description: "In computing, xterm is the standard terminal emulator for the X Window System."
+    exitallowed: false
+    description: "Show system statistics"
