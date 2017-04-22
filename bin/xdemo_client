@@ -208,7 +208,7 @@ if __name__ == "__main__":
         else:
             while not exit_grace:
                 time.sleep(0.1)
-                sys.stdout.write('\033[1;42mRUNTIME [Infinite]\033[0;0m\r')
+                sys.stdout.write('\033[1;42mRUNTIME [infinite]\033[0;0m\r')
                 # cpu = get_process_resource(this_client_pid)
                 # logger.debug("[os] cpu usage %.f" % cpu)
     else:

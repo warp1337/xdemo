@@ -6,5 +6,5 @@
       - stdout:
           maxwaittime: 1
           criteria: "eth0"
-    initpolicy: "strict"
+    initpolicy: "slack"
     description: "ifconfig configures a network interface"
