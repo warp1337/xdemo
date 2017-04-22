@@ -43,6 +43,7 @@ class SystemLauncherClient:
         self.lock = Lock()
         self.debug_mode = _debug_mode
         self.screen_pool = _screen_pool
+        self.strict_policy_missed = False
         self.all_screen_session_pids = None
         self.hierarchical_session_list = []
         self.hierarchical_component_list = []
@@ -102,7 +103,10 @@ class SystemLauncherClient:
         # Start components
         self.deploy_commands()
         # Activate continuous monitoring
-        self.screen_pool.start()
+        if self.strict_policy_missed is False:
+            self.screen_pool.start()
+        else:
+            pass
 
     def inner_deploy(self, _component, _executed_list_components, _type):
         # Name is actually derived from the path: component_something.yaml
@@ -146,6 +150,7 @@ class SystemLauncherClient:
                 # status == 0  : command exited, only the init bash/sh is present
                 # status == -1 : screen session not found in session list, this is bad
                 # status == -2 : no process found for screen session, this is the worst case
+                # status == -3 : criteria not met in strict mode
                 status = self.screen_pool.get_session_os_info(screen_name)
 
                 if status > 0:
@@ -206,6 +211,10 @@ class SystemLauncherClient:
                             else:
                                 if _type == 'component':
                                     self.log.obswar("    o---[criteria] missing '%s'" % initcriteria.criteria)
+                                    if _component.errorpolicy == 'strict':
+                                        self.log.obserr("    o---[criteria] strict mode, aborting start-up. '%s'" % initcriteria.criteria)
+                                        self.strict_policy_missed = True
+                                        break
                                 else:
                                     self.log.obswar("\t\to---[criteria] missing '%s'" % initcriteria.criteria)
                             blocking_initcriteria -= 1
@@ -226,22 +235,25 @@ class SystemLauncherClient:
         executed_list_components = {}
         executed_list_groups = {}
         for item in self.system_instance.flat_execution_list:
-            if 'component' in item.keys():
-                _type = 'component'
-                component = item['component']
-                self.inner_deploy(component, executed_list_components, _type)
-            if 'group' in item.keys():
-                _type = 'group'
-                group_name = item['group'].name
-                if group_name not in executed_list_groups.keys():
-                    executed_list_groups[group_name] = "started"
-                    self.log.info("[group] descending into '%s'" % item['group'].name)
-                    for component in item['group'].flat_execution_list:
-                        self.inner_deploy(component, executed_list_components, _type)
-                else:
-                    self.log.debug(
-                        "[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
-                        (item['group'].name, self.local_hostname))
+            if self.strict_policy_missed is False:
+                if 'component' in item.keys():
+                    _type = 'component'
+                    component = item['component']
+                    self.inner_deploy(component, executed_list_components, _type)
+                if 'group' in item.keys():
+                    _type = 'group'
+                    group_name = item['group'].name
+                    if group_name not in executed_list_groups.keys():
+                        executed_list_groups[group_name] = "started"
+                        self.log.info("[group] descending into '%s'" % item['group'].name)
+                        for component in item['group'].flat_execution_list:
+                            self.inner_deploy(component, executed_list_components, _type)
+                    else:
+                        self.log.debug(
+                            "[launcher] skipping '%s' on %s --> duplicate in components/groups ?" %
+                            (item['group'].name, self.local_hostname))
+            else:
+                pass
 
     def construct_command(self, _host, _platform, _cmd, _component, _requires_x=None, _requires_remote_x=None):
         if _platform != self.local_platform:
