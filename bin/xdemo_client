@@ -46,6 +46,7 @@ from colorlog import ColoredFormatter
 # SELF
 from xdemo.parsing.config import SystemConfig
 from xdemo.container.system import SystemInstance
+from xdemo.utilities.generics import clear_console
 from xdemo.screenutils.screenpool import ScreenPool
 from xdemo.launcher.syslaunch import SystemLauncherClient
 from xdemo.utilities.operatingsystem import get_operating_system, get_localhost_name, get_process_resource
@@ -67,6 +68,8 @@ if __name__ == "__main__":
 
     logger = logging.Logger("xdemo_client")
     ch = logging.StreamHandler(sys.stdout)
+    # handler = logging.StreamHandler
+    # handler.terminator = "\r"
     ch.setLevel(logging.INFO)
 
     # "%(asctime)s|%(log_color)s%(levelname).4s %(reset)s%(white)s%(message)s",
@@ -83,6 +86,7 @@ if __name__ == "__main__":
             'OKAY': 'green',
             'OERR': 'red',
             'OWRN': 'yellow',
+            'TIME': 'blue',
 
         }
     )
@@ -97,6 +101,9 @@ if __name__ == "__main__":
 
     logging.addLevelName(logging.INFO + 3, 'OWRN')
     setattr(logger, 'obswar', level_factory(logger, logging.INFO + 3))
+
+    logging.addLevelName(logging.INFO + 4, 'TIME')
+    setattr(logger, 'time', level_factory(logger, logging.INFO + 4))
 
     ### FOLDERS AND PLATFORM ####
 
@@ -192,6 +199,9 @@ if __name__ == "__main__":
     if si.executionduration > 0:
         while not exit_grace and time.time() - init <= si.executionduration:
             time.sleep(0.1)
+            if target_platform == 'posix' or target_platform == 'darwin':
+                sys.stdout.write('\033[1;42mRUNTIME [%.2f/%.2f] \033[0;0m\r' % (time.time() - init, si.executionduration))
+                sys.stdout.flush()
             # cpu = get_process_resource(this_client_pid)
             # logger.debug("[os] cpu usage %.f" % cpu)
     else:

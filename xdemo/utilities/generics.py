@@ -30,6 +30,9 @@ Authors: Florian Lier
 
 """
 
+# STD
+import os
+
 
 def represents_int(_input):
     try:
@@ -37,3 +40,7 @@ def represents_int(_input):
         return True
     except ValueError:
         return False
+
+
+def clear_console():
+    os.system('cls' if os.name == 'nt' else 'clear')

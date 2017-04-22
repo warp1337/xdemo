@@ -79,7 +79,7 @@ setup(name="xdemo_client",
                    'Programming Language :: Python',
                    'Topic :: Text Processing :: Markup :: XML'],
 
-      install_requires=['pyyaml==3.12', 'colorlog', 'psutil==5.0.0'],
+      install_requires=['colorlog', 'psutil==5.0.0'],
 
       # Workaround for: http://bugs.python.org/issue856103
       zip_safe=False
