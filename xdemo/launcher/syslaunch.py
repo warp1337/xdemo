@@ -141,7 +141,7 @@ class SystemLauncherClient:
                 # Give the process some time to spawn: 50ms
                 time.sleep(0.05)
 
-                self.log.debug("├╼[os] '%s' gatering pids" % component_name)
+                self.log.debug("├╼[os] '%s' gathering pids" % component_name)
 
                 # Get the status of the send_cmd()
                 # status > 0   : everything is okay, session has 1 or more children [#1 is always an init bash/sh]
@@ -158,7 +158,7 @@ class SystemLauncherClient:
                 if status == 0:
                     self.log.obswar("├╼[os] '%s' exited" % component_name)
                     if _component.exitallowed is False:
-                        self.log.obserr("├╼[os] '%s' exit not allowed in config" % component_name)
+                        self.log.obserr("└╼[os] '%s' exit not allowed in config" % component_name)
                         self.exit_allowed_missed = True
                         self.lock.release()
                         return
@@ -197,7 +197,7 @@ class SystemLauncherClient:
                             else:
                                 self.log.obswar("├╼[initcriteria] missing '%s'" % initcriteria.criteria)
                                 if _component.initpolicy == 'strict':
-                                    self.log.obserr("├╼[initcriteria] strict init policy enabled in config for '%s'" % component_name)
+                                    self.log.obserr("└╼[initcriteria] strict init policy enabled in config for '%s'" % component_name)
                                     self.strict_policy_missed = True
                                     self.lock.release()
                                     return
