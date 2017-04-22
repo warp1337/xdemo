@@ -221,4 +221,4 @@ if __name__ == "__main__":
     sp.stop_all_components()
     sp.kill_all_screen_sessions()
 
-    logger.info("\033[1m[ XDEMO CLIENT STOP | %s | %s | PID %s ]\033[0m" % (local_hostname, target_platform, this_client_pid))
+    logger.info("\033[1m[ XDEMO CLIENT STOPPED | %s | %s | PID %s ]\033[0m" % (local_hostname, target_platform, this_client_pid))
