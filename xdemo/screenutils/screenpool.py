@@ -46,7 +46,7 @@ class ScreenPool(Thread):
         self.log = _log
         self.lock = Lock()
         self.s_sessions = {}
-        self.check_interval = 1.5
+        self.check_interval = 3.0
         self.keep_running = True
         self.log_folder = _log_folder
         self.hierarchical_session_list = []
