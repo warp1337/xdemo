@@ -206,11 +206,12 @@ class SystemLauncherClient:
                             self.log.debug("├╼[initcriteria] waiting for %d criteria" % blocking_initcriteria)
                 # Release the global lock
                 self.lock.release()
+                self.log.info("└╼[initcriteria] done")
 
             else:
                 self.log.debug("[launcher] skipping '%s' on %s --> duplicate in components/groups?" % (component_name, self.local_hostname))
 
-        self.log.info("└╼[initcriteria] done")
+
 
     def deploy_commands(self):
         executed_list_components = {}
