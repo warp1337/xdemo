@@ -162,9 +162,9 @@ class ScreenPool(Thread):
             result.send_commands(_cmd)
             self.lock.release()
             if _type == 'component':
-                self.log.info("[cmd] '%s' started" % _component_name)
+                self.log.info("┌[cmd] '%s' started" % _component_name)
             else:
-                self.log.info("      [cmd] '%s' started" % _component_name)
+                self.log.info("┌[cmd|group] '%s' started" % _component_name)
             return 0
         else:
             self.log.error("[pool] '%s' command could not be sent" % _screen_name.strip())
