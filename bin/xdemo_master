@@ -38,6 +38,7 @@ import sys
 import time
 import signal
 import logging
+import subprocess
 from optparse import OptionParser
 
 # LOG
@@ -113,6 +114,10 @@ if __name__ == "__main__":
         user = os.environ['USER']
         log_folder = "/tmp/xdemo_client/"+user+"/logs/"
         os.system("mkdir -p " + log_folder)
+        is_screen_available = subprocess.check_call(["which", "screen"])
+        if is_screen_available > 0:
+            logger.error("[init] the program screen is not installed")
+            sys.exit(1)
     else:
         logger.error("[init] windows support not yet implemented")
         sys.exit(1)
