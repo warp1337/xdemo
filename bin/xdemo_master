@@ -189,20 +189,13 @@ if __name__ == "__main__":
     for exec_host in si.execution_hosts:
         ssh_conn_pool.add_client_to_pool(exec_host)
 
-    for exec_host in si.execution_hosts:
-        ssh_conn_pool.send_cmd_to_connection(exec_host, 'ls -la', False)
-
-    for exec_host in si.execution_hosts:
-        ssh_conn_pool.close_single_connection(exec_host)
+    # for exec_host in si.execution_hosts:
+    #     ssh_conn_pool.send_cmd_to_connection(exec_host, 'gedit', False)
 
     while not exit_grace:
         time.sleep(0.1)
-        # cpu = get_process_resource(this_master_pid)
-        # logger.debug("[os] cpu usage %.f" % cpu)
-
-    else:
-        logger.error("[ XDEMO ABORT RUNNING | %s | %s | PID %s ]" % (local_hostname, target_platform, this_master_pid))
 
     ### DE-BOOTSTRAPPING ####
 
+    ssh_conn_pool.close_all_connections()
     logger.info("\033[1m[ XDEMO MASTER STOPPED | %s | %s | PID %s ]\033[0m" % (local_hostname, target_platform, this_master_pid))

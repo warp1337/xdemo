@@ -35,47 +35,54 @@ import paramiko
 
 class SSHConnectionPool:
     def __init__(self, _log):
-        self.pool = {}
         self.log = _log
+        self.client_pool = {}
+        self.channel_pool = {}
 
     def add_client_to_pool(self, _hostname):
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.load_system_host_keys()
+        self.log.info("[ssh] connecting to host %s" % _hostname)
         client.connect(_hostname, compress=True)
-        if _hostname in self.pool.keys():
-            self.log.warning("[%s] already in connection pool" % _hostname)
+        transport = client.get_transport()
+        channel = transport.open_session()
+        if _hostname in self.channel_pool.keys():
+            self.log.warning("[ssh] host %s already in connection pool" % _hostname)
         else:
-            self.pool[_hostname] = client
+            self.channel_pool[_hostname] = channel
+            self.client_pool[_hostname] = client
 
     def close_all_connections(self):
-        for host in self.pool.keys():
-            self.pool[host].close()
+        for _hostname in self.channel_pool.keys():
+            self.log.info("[ssh] closing connection to host %s" % _hostname)
+            if self.channel_pool[_hostname].send_ready():
+                self.channel_pool[_hostname].send(chr(3))
+            self.channel_pool[_hostname].close()
+            self.client_pool[_hostname].close()
 
     def close_single_connection(self, _hostname):
-        if _hostname in self.pool.keys():
-            self.pool[_hostname].close()
+        if _hostname in self.channel_pool.keys():
+            self.log.info("[ssh] closing connection to host %s" % _hostname)
+            if self.channel_pool[_hostname].send_ready():
+                self.channel_pool[_hostname].send(chr(3))
+            self.channel_pool[_hostname].close()
+            self.client_pool[_hostname].close()
         else:
-            self.log.warning("[%s] not in pool" % _hostname)
+            self.log.warning("[ssh] host %s not in pool" % _hostname)
 
-    def get_connetion(self, _hostname):
-        if _hostname in self.pool.keys():
-            return self.pool[_hostname]
+    def get_connection(self, _hostname):
+        if _hostname in self.channel_pool.keys():
+            return self.channel_pool[_hostname]
         else:
-            self.log.warning("[%s] not in pool" % _hostname)
+            self.log.warning("[ssh] host %s not in pool" % _hostname)
             return None
 
     def send_cmd_to_connection(self, _hostname, _cmd, _requires_x=False):
-        client = self.get_connetion(_hostname)
-        if client is not None:
-            # if _requires_x is True:
+        channel = self.get_connection(_hostname)
+        if channel is not None:
             _cmd = "export DISPLAY=:0.0 && " + _cmd
-            # self.log.info("\033[1m[ XDEMO CLIENT START ON %s ]\033[0m" % _hostname)
-            stdin, stdout, stderr = client.exec_command(_cmd)
-
-            #for line in stdout.read().splitlines():
-            #    print line
-            #for line in stderr.read().splitlines():
-            #    print line
+            channel.get_pty()
+            channel.exec_command(_cmd)
         else:
-            self.log.warning("[%s] connection not active" % _hostname)
+            pass
