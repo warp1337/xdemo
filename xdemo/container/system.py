@@ -68,11 +68,11 @@ class SystemInstance:
     def add_component(self, _component_data):
         c = Component(self.log, self.log_folder, self.local_hostname)
         c.initialize(_component_data)
+        if c.executionhost not in self.execution_hosts:
+            self.execution_hosts.append(c.executionhost)
         self.components.append(c)
         tmp_component = {"component": c}
         self.flat_execution_list.append(tmp_component)
-        if tmp_component.executionhost not in self.execution_hosts:
-            self.execution_hosts.append(tmp_component.executionhost)
 
     def add_group(self, _group_data):
         g = Group(self.log, self.log_folder, self.local_hostname)
