@@ -117,7 +117,7 @@ if __name__ == "__main__":
         try:
             is_screen_available = subprocess.check_call(["which", "screen"])
         except subprocess.CalledProcessError:
-            logger.error("[init] the program screen is not installed")
+            logger.error("[init] the program 'screen' is not installed")
             sys.exit(1)
     else:
         logger.error("[init] windows support not yet implemented")
