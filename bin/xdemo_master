@@ -178,6 +178,7 @@ if __name__ == "__main__":
     def signal_handler(signum, frame):
         global exit_grace
         logger.warning("[ CTRL+C ] UH OH ... trying to terminate gracefully")
+        time.sleep(1)
         exit_grace = True
 
 
