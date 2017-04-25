@@ -55,7 +55,7 @@ setup(name="xdemo_client",
 
       packages=find_packages(exclude=["*.unittests", "*.unittests.*", "unittests.*", "unittests"]),
 
-      scripts=['bin/xdemo_client'],
+      scripts=['bin/xdemo_client', 'bin/xdemo_master'],
 
       include_package_data=True,
 
@@ -79,7 +79,10 @@ setup(name="xdemo_client",
                    'Programming Language :: Python',
                    'Topic :: Text Processing :: Markup :: XML'],
 
-      install_requires=['colorlog', 'psutil==5.0.0'],
+      install_requires=['colorlog==2.10.0',
+                        'psutil==5.0.0',
+                        'paramiko==2.1.2',
+                        'sshtunnel==0.1.2'],
 
       # Workaround for: http://bugs.python.org/issue856103
       zip_safe=False

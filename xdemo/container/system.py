@@ -43,6 +43,7 @@ class SystemInstance:
         self.log = _log
         self.groups = []
         self.components = []
+        self.execution_hosts = []
         self.uuid = str(uuid.uuid4())
         self.flat_execution_list = []
         self.log_folder = _log_folder
@@ -70,6 +71,8 @@ class SystemInstance:
         self.components.append(c)
         tmp_component = {"component": c}
         self.flat_execution_list.append(tmp_component)
+        if tmp_component.executionhost not in self.execution_hosts:
+            self.execution_hosts.append(tmp_component.executionhost)
 
     def add_group(self, _group_data):
         g = Group(self.log, self.log_folder, self.local_hostname)

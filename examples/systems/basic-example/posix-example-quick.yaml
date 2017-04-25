@@ -5,8 +5,8 @@
       darwin: "environment-darwin.sh"
       win: "environment-win.bat"
     executionorder:
-      - "lsla/component_lsla@fl-vb"
-      - "cat/component_cat@fl-vb"
-      - "echo/component_echo@fl-vb"
+      - "lsla/component_lsla@media"
+      - "cat/component_cat@media"
+      - "echo/component_echo@media"
       - "group_tools"
     executionduration: 1

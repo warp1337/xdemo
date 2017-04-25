@@ -5,12 +5,12 @@
       darwin: "environment-darwin.sh"
       win: "environment-win.bat"
     executionorder:
-      - "lsla/component_lsla@fl-vb"
+      - "lsla/component_lsla@media"
       - "group_tools"
-      - "ifconfig/component_ifconfig@fl-vb"
-      - "cat/component_cat@fl-vb"
+      - "ifconfig/component_ifconfig@media"
+      - "cat/component_cat@media"
       - "group_visualization"
-      - "cat/component_cat@fl-vb"
+      - "cat/component_cat@media"
       - "group_visualization"
-      - "sleep/component_sleep@fl-vb"
+      - "sleep/component_sleep@media"
     executionduration: 0

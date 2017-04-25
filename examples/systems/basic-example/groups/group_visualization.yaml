@@ -2,9 +2,9 @@
     autostart: true
     description: "This group starts applications that need X11"
     components:
-      - "xeyes/component_xeyes@fl-vb"
-      - "xterm/component_xterm@fl-vb"
-      - "help/component_help@fl-vb"
-      - "calc/component_gnome-calc@fl-vb"
-      - "gedit/component_gedit@fl-vb"
-      - "calendar/component_calendar@fl-vb"
+      - "xeyes/component_xeyes@media"
+      - "xterm/component_xterm@media"
+      - "help/component_help@media"
+      - "calc/component_gnome-calc@media"
+      - "gedit/component_gedit@media"
+      - "calendar/component_calendar@media"

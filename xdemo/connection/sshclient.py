@@ -33,7 +33,7 @@ Authors: Florian Lier
 import paramiko
 
 
-class ConnectionPool:
+class SSHConnectionPool:
     def __init__(self, _log):
         self.pool = {}
         self.log = _log
@@ -52,7 +52,13 @@ class ConnectionPool:
         for host in self.pool.keys():
             self.pool[host].close()
 
-    def __get_connetion(self, _hostname):
+    def close_single_connection(self, _hostname):
+        if _hostname in self.pool.keys():
+            self.pool[_hostname].close()
+        else:
+            self.log.warning("[%s] not in pool" % _hostname)
+
+    def get_connetion(self, _hostname):
         if _hostname in self.pool.keys():
             return self.pool[_hostname]
         else:
@@ -60,16 +66,16 @@ class ConnectionPool:
             return None
 
     def send_cmd_to_connection(self, _hostname, _cmd, _requires_x=False):
-        client = self.__get_connetion(_hostname)
+        client = self.get_connetion(_hostname)
         if client is not None:
-            if _requires_x is True:
-                _cmd = "export DISPLAY=:0.0 && " + _cmd
-            self.log.info("executing command: %s" % _cmd)
+            # if _requires_x is True:
+            _cmd = "export DISPLAY=:0.0 && " + _cmd
+            # self.log.info("\033[1m[ XDEMO CLIENT START ON %s ]\033[0m" % _hostname)
             stdin, stdout, stderr = client.exec_command(_cmd)
-            for line in stdout.read().splitlines():
-                print line
 
-            for line in stderr.read().splitlines():
-                print line
+            #for line in stdout.read().splitlines():
+            #    print line
+            #for line in stderr.read().splitlines():
+            #    print line
         else:
             self.log.warning("[%s] connection not active" % _hostname)
