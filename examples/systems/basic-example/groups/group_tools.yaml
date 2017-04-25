@@ -2,5 +2,5 @@
     autostart: true
     description: "This group starts some great tools"
     components:
-      - "uname/component_uname@media"
-      - "top/component_top@media"
+      - "uname/component_uname@tv"
+      - "top/component_top@tv"
