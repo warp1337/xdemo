@@ -16,8 +16,8 @@ export XDEMOROOT=@xdemoroot@
 # SYSTEM SPECIFIC ENVIRONMENT
 ##############################################################################
 
-# PATH=$PATH:${XDEMOPREFIX}/bin
-# PYTHONPATH=$PYTHONPATH:${XDEMOPREFIX}/lib/python2.7/site-packages/
+# export PATH=$PATH:${XDEMOPREFIX}/bin
+# export PYTHONPATH=$PYTHONPATH:${XDEMOPREFIX}/lib/python2.7/site-packages/
 
-# PATH=$PATH:${my_prefix}/bin
-# PYTHONPATH=$PYTHONPATH:${my_prefix}/lib/python2.7/site-packages/
+# export PATH=$PATH:${my_prefix}/bin
+# export PYTHONPATH=$PYTHONPATH:${my_prefix}/lib/python2.7/site-packages/

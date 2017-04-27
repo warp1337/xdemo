@@ -71,18 +71,37 @@ class SSHConnectionPool:
         else:
             self.log.warning("[ssh] host %s not in pool" % _hostname)
 
-    def get_connection(self, _hostname):
+    def get_channel_connection(self, _hostname):
         if _hostname in self.channel_pool.keys():
             return self.channel_pool[_hostname]
         else:
-            self.log.warning("[ssh] host %s not in pool" % _hostname)
+            self.log.warning("[ssh] host %s not in channel pool" % _hostname)
             return None
 
-    def send_cmd_to_connection(self, _hostname, _cmd, _requires_x=False):
-        channel = self.get_connection(_hostname)
+    def get_client_connection(self, _hostname):
+        if _hostname in self.client_pool.keys():
+            return self.client_pool[_hostname]
+        else:
+            self.log.warning("[ssh] host %s not in client pool" % _hostname)
+            return None
+
+    def send_cmd_to_channel(self, _hostname, _cmd, _requires_x=False):
+        channel = self.get_channel_connection(_hostname)
         if channel is not None:
             _cmd = "export DISPLAY=:0.0 && " + _cmd
             channel.get_pty()
             channel.exec_command(_cmd)
+        else:
+            pass
+
+    def send_cmd_to_client(self, _hostname, _cmd, _requires_x=False, _environment=None):
+        client = self.get_client_connection(_hostname)
+        if client is not None:
+            _cmd = "export DISPLAY=:0.0 && " + _cmd
+            stdin, stdout, stderr = client.exec_command(_cmd,
+                                                        bufsize=-1,
+                                                        timeout=None,
+                                                        get_pty=True,
+                                                        environment=_environment)
         else:
             pass
