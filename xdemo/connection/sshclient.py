@@ -58,7 +58,7 @@ class SSHConnectionPool:
             self.log.info("[ssh] closing connection to host %s" % _hostname)
             if self.channel_pool[_hostname].send_ready():
                 self.channel_pool[_hostname].send(chr(3))
-            self.channel_pool[_hostname].close()
+            # self.channel_pool[_hostname].close()
             self.client_pool[_hostname].close()
 
     def close_single_connection(self, _hostname):
@@ -66,7 +66,7 @@ class SSHConnectionPool:
             self.log.info("[ssh] closing connection to host %s" % _hostname)
             if self.channel_pool[_hostname].send_ready():
                 self.channel_pool[_hostname].send(chr(3))
-            self.channel_pool[_hostname].close()
+            # self.channel_pool[_hostname].close()
             self.client_pool[_hostname].close()
         else:
             self.log.warning("[ssh] host %s not in pool" % _hostname)
@@ -89,6 +89,7 @@ class SSHConnectionPool:
         channel = self.get_channel_connection(_hostname)
         if channel is not None:
             _cmd = "export DISPLAY=:0.0 && " + _cmd
+            self.log.info("[ssh] executing '%s' on host %s" % (_cmd, _hostname))
             channel.get_pty()
             channel.exec_command(_cmd)
         else:
@@ -98,6 +99,7 @@ class SSHConnectionPool:
         client = self.get_client_connection(_hostname)
         if client is not None:
             _cmd = "export DISPLAY=:0.0 && " + _cmd
+            self.log.info("[ssh] executing '%s' on host %s" % (_cmd, _hostname))
             stdin, stdout, stderr = client.exec_command(_cmd,
                                                         bufsize=-1,
                                                         timeout=None,
