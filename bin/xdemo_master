@@ -201,9 +201,10 @@ if __name__ == "__main__":
         ssh_conn_pool.add_client_to_pool(exec_host)
 
     for exec_host in si.execution_hosts:
-        # ssh_conn_pool.send_cmd_to_client(exec_host, 'stdbuf -oL screen -U -dmS %s &' % sc.name)
-        ssh_conn_pool.send_cmd_to_channel(exec_host, 'stdbuf -oL screen -U -dmS %s' % sc.name)
-        # ssh_conn_pool.send_cmd_to_client(exec_host, 'gedit')
+        ssh_conn_pool.send_cmd_to_client(exec_host, 'stdbuf -oL screen -U -dmS %s && sleep 0.05' % sc.name)
+        screen_log_name = log_folder+'/master'+sc.name
+        ssh_conn_pool.send_cmd_to_client(exec_host, 'screen -x %s -X logfile %s log on' % (sc.name, screen_log_name))
+        ssh_conn_pool.send_cmd_to_client(exec_host, 'screen -x %s -X logfile flush 0' % sc.name)
 
     while not exit_grace:
         time.sleep(0.1)
