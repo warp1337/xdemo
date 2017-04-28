@@ -37,7 +37,7 @@ from pprint import pprint
 from threading import Lock
 
 
-class SystemLauncherClient:
+class SSHSystemLauncherClient:
     def __init__(self, _system_instance, _screen_pool, _log, _debug_mode):
         self.log = _log
         self.lock = Lock()

@@ -54,13 +54,12 @@ class StdoutObserver(Thread):
     def run(self):
         last_size = 0
         now = time.time()
+        f = open(self.file, 'r')
         while time.time() - now <= self.maxwaittime and self.ok is False and self.keep_running is True:
             cur_size = getsize(self.file)
             if cur_size != last_size:
-                f = open(self.file, 'r')
                 f.seek(last_size if cur_size > last_size else 0)
                 text = f.read()
-                f.close()
                 last_size = cur_size
                 if self.criteria in text:
                     self.ok = True
@@ -68,6 +67,7 @@ class StdoutObserver(Thread):
                 pass
             # Save CPU cycles 1ms
             time.sleep(0.001)
+        f.close()
 
 
 class StdoutExcludeObserver(Thread):
@@ -88,13 +88,12 @@ class StdoutExcludeObserver(Thread):
     def run(self):
         last_size = 0
         now = time.time()
+        f = open(self.file, 'r')
         while time.time() - now <= self.maxwaittime and self.ok is False and self.keep_running is True:
             cur_size = getsize(self.file)
             if cur_size != last_size:
-                f = open(self.file, 'r')
                 f.seek(last_size if cur_size > last_size else 0)
                 text = f.read()
-                f.close()
                 last_size = cur_size
                 if self.criteria not in text:
                     self.ok = True
@@ -105,3 +104,4 @@ class StdoutExcludeObserver(Thread):
                 pass
             # Save CPU cycles 1ms
             time.sleep(0.001)
+        f.close()
