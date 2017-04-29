@@ -85,22 +85,38 @@ class SSHConnectionPool:
             self.log.warning("[ssh] host %s not in client pool" % _hostname)
             return None
 
+    def get_remote_os(self, _hostname, _requires_x=False, _environment=None):
+        client = self.get_client_connection(_hostname)
+        if client is not None:
+            _cmd = "python -c 'from sys import platform; print platform.strip()'"
+            self.log.debug("[ssh] executing '%s' on host %s" % (_cmd, _hostname))
+            stdin, stdout, stderr = client.exec_command(_cmd,
+                                                        bufsize=-1,
+                                                        timeout=None,
+                                                        get_pty=True,
+                                                        environment=_environment)
+            platform = stdout.readlines()[0].strip()
+            self.log.debug("[ssh] target on host %s runs %s" % (_hostname, platform))
+            return platform
+        else:
+            return "error"
+
     def send_cmd_to_channel(self, _hostname, _cmd, _requires_x=False):
         channel = self.get_channel_connection(_hostname)
         if channel is not None:
-            _cmd = "export DISPLAY=:0.0 && " + _cmd
-            self.log.debug("[ssh] executing '%s' on host %s" % (_cmd, _hostname))
+            cmd = "export DISPLAY=:0.0 && " + _cmd
+            self.log.debug("[ssh] executing '%s' on host %s" % (cmd, _hostname))
             channel.get_pty()
-            channel.exec_command(_cmd)
+            channel.exec_command(cmd)
         else:
             pass
 
     def send_cmd_to_client(self, _hostname, _cmd, _requires_x=False, _environment=None):
         client = self.get_client_connection(_hostname)
         if client is not None:
-            _cmd = "export DISPLAY=:0.0 && " + _cmd
-            self.log.debug("[ssh] executing '%s' on host %s" % (_cmd, _hostname))
-            stdin, stdout, stderr = client.exec_command(_cmd,
+            cmd = "export DISPLAY=:0.0 && " + _cmd
+            self.log.debug("[ssh] executing '%s' on host %s" % (cmd, _hostname))
+            stdin, stdout, stderr = client.exec_command(cmd,
                                                         bufsize=-1,
                                                         timeout=None,
                                                         get_pty=True,
