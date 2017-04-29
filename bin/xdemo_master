@@ -179,7 +179,6 @@ if __name__ == "__main__":
 
     exit_grace = False
 
-
     def signal_handler(signum, frame):
         global exit_grace
         logger.warning("[ CTRL+C ] UH OH ... trying to terminate gracefully")
@@ -201,10 +200,14 @@ if __name__ == "__main__":
         ssh_conn_pool.add_client_to_pool(exec_host)
 
     for exec_host in si.execution_hosts:
-        ssh_conn_pool.send_cmd_to_client(exec_host, 'stdbuf -oL screen -U -dmS %s && sleep 0.05' % sc.name)
-        screen_log_name = log_folder+'/master'+sc.name
-        ssh_conn_pool.send_cmd_to_client(exec_host, 'screen -x %s -X logfile %s log on' % (sc.name, screen_log_name))
-        ssh_conn_pool.send_cmd_to_client(exec_host, 'screen -x %s -X logfile flush 0' % sc.name)
+        screen_log_master_file = exec_host+'_'+sc.name
+        ssh_conn_pool.send_cmd_to_client(exec_host, 'mkdir -p %s' % log_folder)
+        ssh_conn_pool.send_cmd_to_client(exec_host, 'stdbuf -oL screen -U -dmS %s && '
+                                                    'screen -x %s -X logfile %s && '
+                                                    'sleep 0.1' % (sc.name, sc.name, log_folder+sc.name))
+        ssh_conn_pool.send_cmd_to_client(exec_host, 'screen -x %s -X log on && '
+                                                    'screen -x %s -X logfile flush 0 && '
+                                                    'sleep 0.1' % (sc.name, sc.name))
 
     while not exit_grace:
         time.sleep(0.1)
@@ -212,5 +215,6 @@ if __name__ == "__main__":
     ### DE-BOOTSTRAPPING ####
 
     ssh_conn_pool.close_all_connections()
-    logger.info("\033[1m[ XDEMO MASTER STOPPED | %s | %s | PID %s ]\033[0m" % (
-    local_hostname, target_platform, this_master_pid))
+    logger.info("\033[1m[ XDEMO MASTER STOPPED | %s | %s | PID %s ]\033[0m" % (local_hostname,
+                                                                               target_platform,
+                                                                               this_master_pid))

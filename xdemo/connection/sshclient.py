@@ -43,7 +43,6 @@ class SSHConnectionPool:
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.load_system_host_keys()
-        self.log.info("[ssh] connecting to host %s" % _hostname)
         client.connect(_hostname, compress=True)
         transport = client.get_transport()
         channel = transport.open_session()
@@ -52,6 +51,7 @@ class SSHConnectionPool:
         else:
             self.channel_pool[_hostname] = channel
             self.client_pool[_hostname] = client
+        self.log.info("[ssh] connected to host %s" % _hostname)
 
     def close_all_connections(self):
         for _hostname in self.channel_pool.keys():
@@ -89,7 +89,7 @@ class SSHConnectionPool:
         channel = self.get_channel_connection(_hostname)
         if channel is not None:
             _cmd = "export DISPLAY=:0.0 && " + _cmd
-            self.log.info("[ssh] executing '%s' on host %s" % (_cmd, _hostname))
+            self.log.debug("[ssh] executing '%s' on host %s" % (_cmd, _hostname))
             channel.get_pty()
             channel.exec_command(_cmd)
         else:
@@ -99,7 +99,7 @@ class SSHConnectionPool:
         client = self.get_client_connection(_hostname)
         if client is not None:
             _cmd = "export DISPLAY=:0.0 && " + _cmd
-            self.log.info("[ssh] executing '%s' on host %s" % (_cmd, _hostname))
+            self.log.debug("[ssh] executing '%s' on host %s" % (_cmd, _hostname))
             stdin, stdout, stderr = client.exec_command(_cmd,
                                                         bufsize=-1,
                                                         timeout=None,
